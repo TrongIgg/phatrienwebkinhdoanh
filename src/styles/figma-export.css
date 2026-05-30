@@ -1,0 +1,13 @@
+.figma-export-page .figma-export-frame > div > header {
+  position: relative !important;
+  top: auto !important;
+}
+
+.figma-export-page .figma-export-frame > div > main,
+.figma-export-page .figma-export-frame > div > div {
+  width: 100%;
+}
+
+.figma-export-page .figma-export-frame {
+  scroll-margin-top: 24px;
+}
