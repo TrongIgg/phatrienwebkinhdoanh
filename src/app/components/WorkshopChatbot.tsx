@@ -145,7 +145,7 @@ export function WorkshopChatbot({ compact = false }: { compact?: boolean }) {
             <Bot className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#716942]">Workshop advisor</p>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#716942]">Tư vấn workshop</p>
             <h2 className={`${compact ? 'text-2xl' : 'text-4xl'} font-bold leading-tight text-[#361F17]`}>
               Tìm buổi làm gốm hợp với câu chuyện của bạn
             </h2>

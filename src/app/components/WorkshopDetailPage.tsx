@@ -80,6 +80,9 @@ export function WorkshopDetailPage() {
             <Link to={`/booking/${workshop.id}`} className="rounded-full bg-[#716942] px-8 py-4 text-center font-bold text-white hover:opacity-90">
               Đặt chỗ và thanh toán
             </Link>
+            <Link to="/workshop-customizer" className="rounded-full border border-[#716942] px-8 py-4 text-center font-bold text-[#716942] hover:bg-[#716942] hover:text-white">
+              Tạo mẫu gốm thử
+            </Link>
           </div>
         </div>
       </section>

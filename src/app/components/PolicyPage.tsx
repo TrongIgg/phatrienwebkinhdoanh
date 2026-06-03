@@ -4,7 +4,7 @@ const policies = [
   {
     icon: WalletCards,
     title: 'Thanh toán',
-    copy: 'QR thanh toán có countdown 15 phút. Với workshop, slot được giữ trong thời gian này và trả lại ngay nếu khách hủy hoặc hết hạn.',
+    copy: 'QR thanh toán có countdown 5 phút. Với workshop, slot vẫn được giữ 15 phút và trả lại ngay nếu khách hủy hoặc hết hạn.',
   },
   {
     icon: Truck,

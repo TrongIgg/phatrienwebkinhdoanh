@@ -13,6 +13,7 @@ import { ReviewPage } from './components/ReviewPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutPage } from './components/CheckoutPage';
 import { BookingForm } from './components/BookingForm';
+import { WorkshopCustomizer } from './components/WorkshopCustomizer';
 import { PaymentSuccess } from './components/PaymentSuccess';
 import { PaymentFailure } from './components/PaymentFailure';
 import { TrackingPage } from './components/TrackingPage';
@@ -122,6 +123,7 @@ function AppLayout() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/booking/:workshopId" element={<BookingForm />} />
+            <Route path="/workshop-customizer" element={<WorkshopCustomizer />} />
             <Route path="/success" element={<PaymentSuccess />} />
             <Route path="/payment-failed" element={<PaymentFailure />} />
             <Route path="/tracking" element={<TrackingPage />} />
