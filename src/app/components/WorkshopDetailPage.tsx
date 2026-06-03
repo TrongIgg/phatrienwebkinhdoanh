@@ -8,15 +8,31 @@ import { fallbackWorkshops, mapWorkshop, type WorkshopView } from './WorkshopPag
 export function WorkshopDetailPage() {
   const { workshopId } = useParams();
   const navigate = useNavigate();
-  const [workshop, setWorkshop] = useState<WorkshopView | null>(null);
+  const fallback = fallbackWorkshops.find((item) => item.id === workshopId) ?? null;
+  const [workshop, setWorkshop] = useState<WorkshopView | null>(fallback);
+  const [loading, setLoading] = useState(!fallback);
 
   useEffect(() => {
     if (!workshopId) return;
 
     api.workshop(workshopId)
       .then((row) => setWorkshop(mapWorkshop(row, Number(workshopId) - 1)))
-      .catch(() => setWorkshop(fallbackWorkshops.find((item) => item.id === workshopId) ?? null));
+      .catch(() => {
+        if (!fallback) setWorkshop(null);
+      })
+      .finally(() => setLoading(false));
   }, [workshopId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FBEEE5] px-6 py-20 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-3 border-[#C0AC8B] border-t-[#716942] animate-spin" />
+          <p className="text-[#7A6A58]">Đang tải workshop...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!workshop) {
     return (
@@ -53,7 +69,7 @@ export function WorkshopDetailPage() {
           <div className="mt-8 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-5">
             <h2 className="text-xl font-bold">Chính sách giữ chỗ</h2>
             <ul className="mt-3 space-y-2 text-[#6A5D52]">
-              <li className="flex gap-2"><CheckCircle2 className="mt-1 h-4 w-4 text-[#716942]" />Slot được giữ 5 phút sau khi bạn mở thanh toán.</li>
+              <li className="flex gap-2"><CheckCircle2 className="mt-1 h-4 w-4 text-[#716942]" />Slot được giữ 15 phút sau khi bạn mở thanh toán.</li>
               <li className="flex gap-2"><CheckCircle2 className="mt-1 h-4 w-4 text-[#716942]" />Nếu hủy thanh toán, slot được trả lại ngay cho workshop.</li>
               <li className="flex gap-2"><ShieldCheck className="mt-1 h-4 w-4 text-[#716942]" />Gốm sau workshop được đóng gói và giao theo chính sách vận chuyển riêng.</li>
             </ul>

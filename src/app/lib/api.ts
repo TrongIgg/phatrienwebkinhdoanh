@@ -51,6 +51,101 @@ export type ApiTracking = {
   timeline: Array<{ stage: string; label: string; state: string }>;
 };
 
+export type ApiStaffBooking = {
+  id: string;
+  customer: string;
+  phone: string;
+  email: string;
+  workshop: string;
+  product: string;
+  date: string;
+  time: string;
+  people: number;
+  price: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  payment: 'paid' | 'waiting' | 'refund';
+  staff: string;
+  note: string;
+  checkin_status: string;
+  tracking_code?: string | null;
+  workshop_id?: number | null;
+  chatbot_note?: string | null;
+  chatbot_style?: string | null;
+  chatbot_experience?: string | null;
+  chatbot_purpose?: string | null;
+  chatbot_custom_request?: string | null;
+};
+
+export type ApiChatbotSessionPayload = {
+  session_id?: string;
+  user_id?: number | null;
+  style_preference?: string;
+  experience_level?: string;
+  purpose?: string;
+  custom_request?: string;
+  recommended_workshop_id?: number;
+  behavior_tags?: string[];
+};
+
+export type ApiChatbotSession = {
+  session_id: string;
+  user_id?: number | null;
+  style_preference?: string | null;
+  experience_level?: string | null;
+  purpose?: string | null;
+  custom_request?: string | null;
+  recommended_workshop_id?: number | null;
+  behavior_tags: string[];
+  created_at?: string;
+};
+
+export type ApiChatbotRecommendation = {
+  session_id: string;
+  recommended_workshop_id: number;
+  reason: string;
+  behavior_tags: string[];
+};
+
+export type ApiStaffTracker = {
+  id: string;
+  booking_id: string;
+  customer: string;
+  product: string;
+  workshop: string;
+  stage: string;
+  qc: string;
+  updated_at: string;
+  owner: string;
+  kiln: string;
+  tracking_code?: string | null;
+};
+
+export type ApiStaffProductJob = {
+  id: string;
+  booking_id: string;
+  customer: string;
+  product: string;
+  stage: string;
+  status: string;
+  image: string;
+  owner: string;
+  due: string;
+};
+
+export type ApiStaffDashboard = {
+  today: number;
+  week: number;
+  customers: number;
+  revenue_million: number;
+  pending_checkin: number;
+  checked_in: number;
+  trackers_need_update: number;
+  qc_issues: number;
+  confirmed: number;
+  paid: number;
+  cancelled: number;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
@@ -73,4 +168,26 @@ export const api = {
   createReview: (payload: { name: string; title: string; comment: string; rating: number }) =>
     request<ApiReview>('/reviews', { method: 'POST', body: JSON.stringify(payload) }),
   tracking: (code: string) => request<ApiTracking>(`/tracking/${encodeURIComponent(code)}`),
+  createTrackingRecords: (records: ApiTracking[]) =>
+    request<ApiTracking[]>('/tracking', { method: 'POST', body: JSON.stringify({ records }) }),
+  staffDashboard: () => request<ApiStaffDashboard>('/staff/dashboard'),
+  staffBookings: () => request<ApiStaffBooking[]>('/staff/bookings'),
+  staffTrackers: () => request<ApiStaffTracker[]>('/staff/trackers'),
+  staffProductJobs: () => request<ApiStaffProductJob[]>('/staff/product-jobs'),
+  updateStaffTrackerStage: (trackerId: string, payload: { stage: string; qc?: string }) =>
+    request<ApiStaffTracker>(`/staff/trackers/${encodeURIComponent(trackerId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  createChatbotSession: (payload: ApiChatbotSessionPayload) =>
+    request<ApiChatbotSession>('/chatbot/session', { method: 'POST', body: JSON.stringify(payload) }),
+  updateChatbotSession: (sessionId: string, payload: ApiChatbotSessionPayload) =>
+    request<ApiChatbotSession>(`/chatbot/session/${encodeURIComponent(sessionId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  chatbotRecommendation: (sessionId: string) =>
+    request<ApiChatbotRecommendation>(`/chatbot/recommend?session_id=${encodeURIComponent(sessionId)}`),
+  staffChatbotNotes: (bookingId: string) =>
+    request<ApiChatbotSession | null>(`/staff/chatbot-notes/${encodeURIComponent(bookingId)}`),
 };

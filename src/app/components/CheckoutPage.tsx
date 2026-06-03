@@ -1,15 +1,19 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, X } from 'lucide-react';
-import { useCart, type CheckoutAddress } from '../contexts/CartContext';
+import { useProductCart, type CheckoutAddress } from '../contexts/ProductCartContext';
+import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
 import { saveLocalTrackingRecords } from '../lib/trackingStorage';
-import type { ApiTracking } from '../lib/api';
+import { api, type ApiTracking } from '../lib/api';
+import { readCustomerSession } from '../lib/customerExperience';
 
 type PaymentMethod = 'momo' | 'vnpay';
 type FormErrors = Partial<Record<keyof CheckoutAddress, string>>;
 
 const ADDRESS_STORAGE_KEY = 'tho-address-suggestions';
+const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
 const defaultAddress: CheckoutAddress = { name: '', phone: '', email: '', city: '', district: '', ward: '', address: '', note: '', shipping: 'standard' };
 const addressCatalog = {
   cities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'],
@@ -36,27 +40,53 @@ function saveAddressSuggestion(address: CheckoutAddress) {
 export function CheckoutPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { items, total, clearCart, removeItem, setOrderData } = useCart();
+  const { productItems, removeProduct, clearProductCart, setOrderData } = useProductCart();
+  const { workshopItems, workshopTotal, clearWorkshopCart } = useWorkshopCart();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [autoPayHandled, setAutoPayHandled] = useState(false);
   const [formData, setFormData] = useState<CheckoutAddress>(() => {
+    const customer = readCustomerSession();
+    const customerDefaults = customer
+      ? {
+          name: customer.display_name,
+          phone: customer.phone,
+          email: customer.email,
+        }
+      : {};
     try {
       const bookingContact = window.sessionStorage.getItem('tho-booking-contact');
-      return bookingContact ? { ...defaultAddress, ...JSON.parse(bookingContact), shipping: 'none' } : defaultAddress;
+      return bookingContact
+        ? { ...defaultAddress, ...customerDefaults, ...JSON.parse(bookingContact), shipping: 'none' }
+        : { ...defaultAddress, ...customerDefaults };
     } catch {
-      return defaultAddress;
+      return { ...defaultAddress, ...customerDefaults };
     }
   });
 
-  const workshopItems = items.filter((item) => item.type === 'workshop');
-  const productItems = items.filter((item) => item.type === 'product');
-  const hasProducts = productItems.length > 0;
-  const productCount = productItems.reduce((sum, item) => sum + item.quantity, 0);
+  const selectedProductIds = useMemo(() => {
+    if (typeof window === 'undefined') return productItems.map((item) => item.id);
+    try {
+      const stored = window.sessionStorage.getItem(CHECKOUT_PRODUCT_IDS_KEY);
+      const parsed = stored ? (JSON.parse(stored) as string[]) : productItems.map((item) => item.id);
+      const existingIds = productItems.map((item) => item.id);
+      return parsed.filter((id) => existingIds.includes(id));
+    } catch {
+      return productItems.map((item) => item.id);
+    }
+  }, [productItems]);
+  const checkoutProductItems = productItems.filter((item) => selectedProductIds.includes(item.id));
+  const checkoutProductTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const isWorkshopCheckout =
+    searchParams.get('autopay') === 'workshop' ||
+    (workshopItems.length > 0 && productItems.length === 0);
+  const checkoutItems = isWorkshopCheckout ? workshopItems : checkoutProductItems;
+  const checkoutSubtotal = isWorkshopCheckout ? workshopTotal : checkoutProductTotal;
+  const hasProducts = !isWorkshopCheckout && checkoutProductItems.length > 0;
   const shippingFee = hasProducts ? 35000 : 0;
-  const payableTotal = total + shippingFee;
+  const payableTotal = checkoutSubtotal + shippingFee;
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
 
   const updateField = (field: keyof CheckoutAddress, value: string) => {
@@ -91,29 +121,29 @@ export function CheckoutPage() {
   };
 
   useEffect(() => {
-    if (autoPayHandled || searchParams.get('autopay') !== 'workshop' || items.length === 0) return;
+    if (autoPayHandled || searchParams.get('autopay') !== 'workshop' || workshopItems.length === 0) return;
     setAutoPayHandled(true);
     window.setTimeout(() => {
       if (validate()) setPaymentOpen(true);
     }, 300);
-  }, [autoPayHandled, items.length, searchParams]);
+  }, [autoPayHandled, searchParams, workshopItems.length]);
 
-  const finishPayment = () => {
-    const orderCode = `${workshopItems.length && !hasProducts ? 'WS' : 'ORD'}${Date.now().toString().slice(-8)}`;
+  const finishPayment = async () => {
+    const orderCode = `${isWorkshopCheckout ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
     const customer = hasProducts ? formData : { ...formData, city: '', district: '', ward: '', address: '', shipping: 'none' };
     const trackingRecords: ApiTracking[] = [
       {
         code: orderCode,
-        tracking_type: orderCode.startsWith('WS') ? 'workshop' : 'order',
-        status: orderCode.startsWith('WS') ? 'confirmed' : 'paid_waiting_pack',
-        title: orderCode.startsWith('WS') ? 'Vé workshop THỔ Studio' : 'Đơn hàng THỔ Studio',
-        message: orderCode.startsWith('WS')
+        tracking_type: isWorkshopCheckout ? 'workshop' : 'order',
+        status: isWorkshopCheckout ? 'confirmed' : 'paid_waiting_pack',
+        title: isWorkshopCheckout ? 'Vé workshop THỔ Studio' : 'Đơn hàng THỔ Studio',
+        message: isWorkshopCheckout
           ? 'Vé đã xác nhận. QR check-in đã gửi qua email/SMS.'
           : 'Đơn hàng đã thanh toán và đang chờ studio đóng gói.',
-        manager_name: orderCode.startsWith('WS') ? 'Anh Quân' : 'Chị Linh',
-        participant_count: workshopItems.reduce((sum, item) => sum + item.tickets, 0) || null,
-        checkin_status: orderCode.startsWith('WS') ? 'pending' : null,
-        timeline: orderCode.startsWith('WS')
+        manager_name: isWorkshopCheckout ? 'Anh Quân' : 'Chị Linh',
+        participant_count: isWorkshopCheckout ? workshopItems.reduce((sum, item) => sum + item.tickets, 0) || null : null,
+        checkin_status: isWorkshopCheckout ? 'pending' : null,
+        timeline: isWorkshopCheckout
           ? [
               { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
               { stage: 'qr_sent', label: 'Đã gửi QR check-in', state: 'current' },
@@ -129,32 +159,40 @@ export function CheckoutPage() {
       },
     ];
 
-    workshopItems.forEach((item, index) => {
-      trackingRecords.push({
-        code: `CER${orderCode.slice(-6)}-${index + 1}`,
-        tracking_type: 'ceramic',
-        status: 'waiting_workshop',
-        title: `Thành phẩm ${item.name}`,
-        message: 'Đang chờ ngày workshop. Sau khi check-in, studio sẽ cập nhật tạo hình, phơi, nung và tráng men.',
-        manager_name: 'Chị Linh',
-        participant_count: item.tickets,
-        checkin_status: 'pending',
-        timeline: [
-          { stage: 'booking_paid', label: 'Đã thanh toán workshop', state: 'done' },
-          { stage: 'waiting_workshop', label: 'Chờ tham gia workshop', state: 'current' },
-          { stage: 'forming', label: 'Tạo hình tại studio', state: 'waiting' },
-          { stage: 'drying', label: 'Phơi khô', state: 'waiting' },
-          { stage: 'bisque_firing', label: 'Nung sơ', state: 'waiting' },
-          { stage: 'glazing', label: 'Tráng men', state: 'waiting' },
-        ],
+    if (isWorkshopCheckout) {
+      workshopItems.forEach((item, index) => {
+        trackingRecords.push({
+          code: `CER${orderCode.slice(-6)}-${index + 1}`,
+          tracking_type: 'ceramic',
+          status: 'waiting_workshop',
+          title: `Thành phẩm ${item.name}`,
+          message: 'Đang chờ ngày workshop. Sau khi check-in, studio sẽ cập nhật tạo hình, phơi, nung và tráng men.',
+          manager_name: 'Chị Linh',
+          participant_count: item.tickets,
+          checkin_status: 'pending',
+          timeline: [
+            { stage: 'booking_paid', label: 'Đã thanh toán workshop', state: 'done' },
+            { stage: 'waiting_workshop', label: 'Chờ tham gia workshop', state: 'current' },
+            { stage: 'forming', label: 'Tạo hình tại studio', state: 'waiting' },
+            { stage: 'drying', label: 'Phơi khô', state: 'waiting' },
+            { stage: 'bisque_firing', label: 'Nung sơ', state: 'waiting' },
+            { stage: 'glazing', label: 'Tráng men', state: 'waiting' },
+          ],
+        });
       });
-    });
+    }
 
     saveLocalTrackingRecords(trackingRecords);
+    try {
+      const persistedRecords = await api.createTrackingRecords(trackingRecords);
+      saveLocalTrackingRecords(persistedRecords);
+    } catch (error) {
+      console.warn('Tracking records are kept in this browser session until the backend is available.', error);
+    }
     setOrderData({
       orderCode,
-      items: items.map((item) => ({ ...item })),
-      subtotal: total,
+      items: checkoutItems.map((item) => ({ ...item })),
+      subtotal: checkoutSubtotal,
       shippingFee,
       total: payableTotal,
       customer,
@@ -162,16 +200,25 @@ export function CheckoutPage() {
       paymentMethod,
     });
     if (hasProducts) saveAddressSuggestion(formData);
-    clearCart();
+    if (isWorkshopCheckout) {
+      clearWorkshopCart();
+    } else {
+      if (selectedProductIds.length === productItems.length) {
+        clearProductCart();
+      } else {
+        selectedProductIds.forEach((id) => removeProduct(id));
+      }
+      window.sessionStorage.removeItem(CHECKOUT_PRODUCT_IDS_KEY);
+    }
     navigate('/success');
   };
 
   const cancelPayment = () => {
-    workshopItems.forEach((item) => removeItem(item.id));
+    if (isWorkshopCheckout) clearWorkshopCart();
     navigate('/payment-failed');
   };
 
-  if (items.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <CheckoutShell active={2}>
         <section className="mx-auto max-w-[920px] px-6 py-16">
@@ -192,7 +239,11 @@ export function CheckoutPage() {
       <section className="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
         <button onClick={() => navigate('/cart')} className="back-btn mb-8" type="button"><ArrowLeft className="h-4 w-4" />Quay lại giỏ hàng</button>
         <h1 className="text-center text-[35px] font-bold text-[#252323]">THANH TOÁN</h1>
-        <p className="mt-3 text-center text-lg text-[#6A4A3D]">Workshop và sản phẩm vật lý được xử lý thành các luồng riêng. Booking workshop trực tiếp sẽ không kéo theo sản phẩm khác.</p>
+        <p className="mt-3 text-center text-lg text-[#6A4A3D]">
+          {isWorkshopCheckout
+            ? 'Thanh toán vé workshop không yêu cầu địa chỉ giao hàng và không cộng phí vận chuyển.'
+            : 'Thanh toán sản phẩm vật lý yêu cầu địa chỉ giao hàng và dùng phí vận chuyển tiêu chuẩn 35.000đ.'}
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-12 grid gap-12 lg:grid-cols-[1fr_0.9fr]">
           <div className="mx-auto w-full max-w-[760px]">
@@ -257,18 +308,23 @@ export function CheckoutPage() {
             <section className="rounded-[14px] border border-black/10 bg-white p-8 shadow-sm">
               <h2 className="text-2xl font-bold uppercase text-[#252323]">Thông tin đơn hàng</h2>
               <div className="mt-8 space-y-4">
-                <SummaryLine label="Tạm tính" value={total} />
+                <SummaryLine label="Tạm tính" value={checkoutSubtotal} />
                 <SummaryLine label="Phí vận chuyển" value={shippingFee} />
                 <SummaryLine label="Tổng" value={payableTotal} strong />
               </div>
               <div className="mt-8 space-y-4 border-t border-[#E2E2E2] pt-6">
-                {items.map((item) => (
+                {checkoutItems.map((item) => (
                   <div key={item.id} className="rounded-[10px] border border-[#E2E2E2] bg-white p-4">
                     <div className="grid grid-cols-[84px_1fr] gap-4">
                       <AssetImage src={item.type === 'workshop' ? workshopImages.handsWarm : item.image} alt={item.name} className="h-[84px] w-[84px] rounded-[10px]" />
                       <div>
                         <h3 className="font-bold text-[#2B211D]">{item.name}</h3>
                         <p className="mt-2 text-sm text-[#6E4E3F]">{item.type === 'workshop' ? `${item.date} · ${item.time}` : `Số lượng: ${item.quantity}`}</p>
+                        {item.type === 'product' && item.gift && (
+                          <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
+                            Quà tặng cho {item.gift.recipientName} · {item.gift.occasion}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -286,7 +342,10 @@ export function CheckoutPage() {
         </form>
       </section>
       <PolicyBar />
-      {paymentOpen && <PaymentModal method={paymentMethod} total={payableTotal} onClose={() => setPaymentOpen(false)} onSuccess={finishPayment} onFail={cancelPayment} />}
+      {paymentOpen && createPortal(
+        <PaymentModal method={paymentMethod} total={payableTotal} onClose={() => setPaymentOpen(false)} onSuccess={finishPayment} onFail={cancelPayment} />,
+        document.body,
+      )}
     </CheckoutShell>
   );
 }
@@ -315,8 +374,8 @@ function PaymentChoice({ method, active, onClick }: { method: PaymentMethod; act
   );
 }
 
-function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: PaymentMethod; total: number; onClose: () => void; onSuccess: () => void; onFail: () => void }) {
-  const [secondsLeft, setSecondsLeft] = useState(5 * 60);
+function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: PaymentMethod; total: number; onClose: () => void; onSuccess: () => void | Promise<void>; onFail: () => void }) {
+  const [secondsLeft, setSecondsLeft] = useState(15 * 60);
   const isMomo = method === 'momo';
 
   useEffect(() => {
@@ -332,8 +391,8 @@ function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: P
   const seconds = (secondsLeft % 60).toString().padStart(2, '0');
 
   return (
-    <div className="fixed inset-0 z-[80] overflow-y-auto bg-black/55 px-6 py-10">
-      <div className={`mx-auto max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'}`}>
+    <div className="fixed inset-0 z-[999] grid place-items-center overflow-y-auto bg-black/55 px-6 py-10">
+      <div className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'}`}>
         <div className="flex items-center justify-between border-b border-[#E2E2E2] bg-white p-6">
           <div>
             <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>

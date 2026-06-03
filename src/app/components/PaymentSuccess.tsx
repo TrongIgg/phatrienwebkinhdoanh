@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { Link } from 'react-router';
 import confetti from 'canvas-confetti';
 import { CheckCircle, Mail, QrCode, Search } from 'lucide-react';
-import { useCart, type OrderData } from '../contexts/CartContext';
-import { AssetImage, CheckoutShell, PlaceholderImage, PolicyBar, products, workshopImages } from './DesignPrimitives';
+import { useProductCart, type OrderData } from '../contexts/ProductCartContext';
+import { AssetImage, CheckoutShell, PolicyBar, products, workshopImages } from './DesignPrimitives';
 
 const fallbackOrder: OrderData = {
   orderCode: 'THO-826491',
@@ -41,8 +41,36 @@ const fallbackOrder: OrderData = {
   paymentMethod: 'momo',
 };
 
+function DemoBarcode({ value }: { value: string }) {
+  const bars = Array.from(value).flatMap((char, charIndex) => {
+    const code = char.charCodeAt(0);
+    return [0, 1, 2, 3].map((offset) => ({
+      key: `${char}-${charIndex}-${offset}`,
+      width: ((code + offset) % 3) + 2,
+      height: 58 + ((code + offset * 7) % 30),
+      gap: (code + offset) % 2 === 0 ? 2 : 4,
+    }));
+  });
+
+  return (
+    <div className="mx-auto mt-8 max-w-[700px] rounded-[10px] border border-[#D8C1AE] bg-white px-8 py-6">
+      <div className="flex h-[118px] items-center justify-center gap-[3px] overflow-hidden">
+        {bars.map((bar) => (
+          <span
+            key={bar.key}
+            aria-hidden="true"
+            className="inline-block rounded-sm bg-[#2C1907]"
+            style={{ width: `${bar.width}px`, height: `${bar.height}px`, marginRight: `${bar.gap}px` }}
+          />
+        ))}
+      </div>
+      <p className="mt-3 text-center font-mono text-lg tracking-[0.28em] text-[#2C1907]">{value}</p>
+    </div>
+  );
+}
+
 export function PaymentSuccess() {
-  const { orderData } = useCart();
+  const { orderData } = useProductCart();
   const order = orderData ?? fallbackOrder;
   const workshopItems = order.items.filter((item) => item.type === 'workshop');
   const productItems = order.items.filter((item) => item.type === 'product');
@@ -104,8 +132,7 @@ export function PaymentSuccess() {
             <p className="text-center text-base font-bold leading-8">{createdAt}<br />{order.paymentMethod.toUpperCase()}</p>
           </div>
 
-          <PlaceholderImage label="Mã vạch" className="mx-auto mt-8 h-[156px] max-w-[700px] rounded-none" />
-          <p className="mt-4 text-center text-base">{order.orderCode}</p>
+          <DemoBarcode value={order.orderCode} />
 
           <div className="mt-16 space-y-6 border-t border-dashed border-black pt-10 text-2xl md:text-3xl">
             {order.items.map((item) => {

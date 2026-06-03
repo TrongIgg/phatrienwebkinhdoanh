@@ -43,7 +43,7 @@ export function AboutPage() {
           <h2 className="text-5xl font-bold leading-tight text-[#3B2118]">Từ một buổi workshop đến món gốm trên tay</h2>
           <div className="grid gap-4">
             {[
-              'Đặt lịch và giữ slot 5 phút khi thanh toán.',
+              'Đặt lịch và giữ slot 15 phút khi thanh toán.',
               'Tham gia workshop, check-in bằng QR và tạo sản phẩm.',
               'Studio phơi, nung sơ, tráng men, nung hoàn thiện.',
               'Sản phẩm được đóng gói sau workshop và giao theo chính sách vận chuyển.',

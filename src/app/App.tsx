@@ -18,16 +18,21 @@ import { PaymentFailure } from './components/PaymentFailure';
 import { TrackingPage } from './components/TrackingPage';
 import { FigmaExportPage } from './components/FigmaExportPage';
 import { PolicyPage } from './components/PolicyPage';
-import { CartProvider } from './contexts/CartContext';
+import { StaffAdminPage } from './components/StaffAdminPage';
+import { FloatingWorkshopChatbot } from './components/FloatingWorkshopChatbot';
+import { ProductCartProvider } from './contexts/ProductCartContext';
+import { WorkshopCartProvider } from './contexts/WorkshopCartContext';
 
 export default function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
-        <AppLayout />
-        <Toaster position="top-right" duration={3000} richColors closeButton />
-      </BrowserRouter>
-    </CartProvider>
+    <ProductCartProvider>
+      <WorkshopCartProvider>
+        <BrowserRouter>
+          <AppLayout />
+          <Toaster position="top-right" duration={3000} richColors closeButton />
+        </BrowserRouter>
+      </WorkshopCartProvider>
+    </ProductCartProvider>
   );
 }
 
@@ -47,10 +52,53 @@ function ScrollToTop() {
   return null;
 }
 
+function MotionEnhancer() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let observer: IntersectionObserver | null = null;
+    const timeout = window.setTimeout(() => {
+      const targets = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          'main section, .motion-section, .product-card, .workshop-card, article',
+        ),
+      ).filter((element) => !element.closest('[data-no-reveal="true"]'));
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.12 },
+      );
+
+      targets.forEach((element, index) => {
+        element.classList.add('reveal-on-scroll');
+        element.style.setProperty('--reveal-delay', `${Math.min(index % 8, 6) * 55}ms`);
+        observer?.observe(element);
+      });
+    }, 60);
+
+    return () => {
+      window.clearTimeout(timeout);
+      observer?.disconnect();
+    };
+  }, [pathname]);
+
+  return null;
+}
+
 function AppLayout() {
   const location = useLocation();
   const checkoutFlow = ['/cart', '/checkout', '/success', '/payment-failed'].includes(location.pathname);
   const exportFlow = location.pathname === '/figma-export';
+  const staffFlow = location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin');
 
   return (
     <div
@@ -58,7 +106,8 @@ function AppLayout() {
       style={checkoutFlow ? { background: '#F7F1EC' } : undefined}
     >
       <ScrollToTop />
-      {!checkoutFlow && !exportFlow && <Header />}
+      <MotionEnhancer />
+      {!checkoutFlow && !exportFlow && !staffFlow && <Header />}
       <main className="flex-1">
         <div key={location.pathname} className="page-transition">
           <Routes location={location}>
@@ -77,10 +126,23 @@ function AppLayout() {
             <Route path="/payment-failed" element={<PaymentFailure />} />
             <Route path="/tracking" element={<TrackingPage />} />
             <Route path="/figma-export" element={<FigmaExportPage />} />
+            <Route path="/staff" element={<StaffAdminPage />} />
+            <Route path="/staff/login" element={<StaffAdminPage />} />
+            <Route path="/staff/dashboard" element={<StaffAdminPage />} />
+            <Route path="/staff/booking" element={<StaffAdminPage />} />
+            <Route path="/staff/product" element={<StaffAdminPage />} />
+            <Route path="/staff/tracking" element={<StaffAdminPage />} />
+            <Route path="/admin" element={<StaffAdminPage />} />
+            <Route path="/admin/login" element={<StaffAdminPage />} />
+            <Route path="/admin/dashboard" element={<StaffAdminPage />} />
+            <Route path="/admin/booking" element={<StaffAdminPage />} />
+            <Route path="/admin/product" element={<StaffAdminPage />} />
+            <Route path="/admin/tracking" element={<StaffAdminPage />} />
           </Routes>
         </div>
       </main>
-      {!checkoutFlow && !exportFlow && <Footer />}
+      {!checkoutFlow && !exportFlow && !staffFlow && <FloatingWorkshopChatbot />}
+      {!checkoutFlow && !exportFlow && !staffFlow && <Footer />}
     </div>
   );
 }

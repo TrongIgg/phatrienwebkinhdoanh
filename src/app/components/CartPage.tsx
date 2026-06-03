@@ -2,30 +2,36 @@ import { Link, useNavigate } from 'react-router';
 import { ArrowLeft, Clock, Minus, Plus, ShoppingBag, TimerReset, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useCart } from '../contexts/CartContext';
+import { useProductCart } from '../contexts/ProductCartContext';
+import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PlaceholderImage, PolicyBar, workshopImages } from './DesignPrimitives';
+
+const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
 
 export function CartPage() {
   const navigate = useNavigate();
-  const { items, removeItem, updateQuantity, total } = useCart();
+  const { productItems, removeProduct, updateProductQuantity } = useProductCart();
+  const { workshopItems, removeWorkshop, updateWorkshopTickets, workshopTotal } = useWorkshopCart();
   const [now, setNow] = useState(Date.now());
   const [removingIds, setRemovingIds] = useState<string[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(() => productItems.map((item) => item.id));
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const workshopItems = items.filter((item) => item.type === 'workshop');
-  const productItems = items.filter((item) => item.type === 'product');
-  const workshopTotal = workshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
-  const productTotal = productItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const productCount = productItems.reduce((sum, item) => sum + item.quantity, 0);
   const nearestWorkshop = workshopItems.reduce<(typeof workshopItems)[number] | null>((nearest, item) => {
     if (!nearest) return item;
     return item.reservedUntil < nearest.reservedUntil ? item : nearest;
   }, null);
   const remainingMs = nearestWorkshop ? nearestWorkshop.reservedUntil - now : 0;
+  const hasProducts = productItems.length > 0;
+  const hasWorkshops = workshopItems.length > 0;
+  const selectedProducts = productItems.filter((item) => selectedProductIds.includes(item.id));
+  const selectedProductTotal = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const selectedProductCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
+  const selectedOrderTotal = selectedProductTotal + workshopTotal;
 
   const formatTime = (ms: number) => {
     const seconds = Math.max(0, Math.floor(ms / 1000));
@@ -34,12 +40,43 @@ export function CartPage() {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleRemove = (id: string) => {
+  const handleRemoveProduct = (id: string) => {
     setRemovingIds((prev) => [...prev, id]);
-    window.setTimeout(() => removeItem(id), 320);
+    setSelectedProductIds((prev) => prev.filter((itemId) => itemId !== id));
+    window.setTimeout(() => removeProduct(id), 320);
   };
 
-  if (items.length === 0) {
+  const handleRemoveWorkshop = (id: string) => {
+    setRemovingIds((prev) => [...prev, id]);
+    window.setTimeout(() => removeWorkshop(id), 320);
+  };
+
+  useEffect(() => {
+    setSelectedProductIds((prev) => {
+      const productIds = productItems.map((item) => item.id);
+      const kept = prev.filter((id) => productIds.includes(id));
+      const added = productIds.filter((id) => !prev.includes(id));
+      return [...kept, ...added];
+    });
+  }, [productItems]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(CHECKOUT_PRODUCT_IDS_KEY, JSON.stringify(selectedProductIds));
+  }, [selectedProductIds]);
+
+  const toggleProduct = (id: string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
+    );
+  };
+
+  const toggleAllProducts = () => {
+    setSelectedProductIds((prev) =>
+      prev.length === productItems.length ? [] : productItems.map((item) => item.id),
+    );
+  };
+
+  if (!hasProducts && !hasWorkshops) {
     return (
       <CheckoutShell active={1}>
         <section className="mx-auto max-w-[980px] px-6 py-16">
@@ -110,11 +147,39 @@ export function CartPage() {
                         <h2 className="text-lg font-bold text-[#2B211D]">{item.name}</h2>
                         <p className="mt-3 text-sm text-[#6E4E3F]">{item.date} · {item.time}</p>
                         <p className="mt-3 text-sm text-[#8A715F]">Giảng viên: {item.instructor}</p>
-                        <p className="mt-2 text-sm text-[#8A715F]">Gói: {item.package} · {item.tickets} vé</p>
+                        <p className="mt-2 text-sm text-[#8A715F]">Gói: {item.package}</p>
+                        <div className="mt-5 flex flex-wrap items-center gap-4">
+                          <span className="text-sm font-bold text-[#6E4E3F]">Số slot</span>
+                          <div className="inline-flex h-10 items-center rounded-full border border-[#E5CDBA] bg-white">
+                            <button
+                              onClick={() => updateWorkshopTickets(item.id, item.tickets - 1)}
+                              className="px-4"
+                              aria-label="Giảm số slot workshop"
+                              type="button"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="min-w-10 text-center font-bold">{item.tickets}</span>
+                            <button
+                              onClick={() => {
+                                if (item.maxTickets && item.tickets >= item.maxTickets) {
+                                  toast.error(`Workshop chỉ còn ${item.maxTickets} slot.`);
+                                  return;
+                                }
+                                updateWorkshopTickets(item.id, item.tickets + 1);
+                              }}
+                              className="px-4"
+                              aria-label="Tăng số slot workshop"
+                              type="button"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                       <div className="flex items-start gap-8 md:text-right">
                         <p className="text-2xl text-[#2B211D]">{(item.price * item.tickets).toLocaleString('vi-VN')}đ</p>
-                        <button onClick={() => handleRemove(item.id)} className="text-[#BFA083] hover:text-[#A33A2F]" aria-label="Xóa workshop" type="button">
+                        <button onClick={() => handleRemoveWorkshop(item.id)} className="text-[#BFA083] hover:text-[#A33A2F]" aria-label="Xóa workshop" type="button">
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
@@ -130,6 +195,13 @@ export function CartPage() {
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-[#EFE7E1] px-5 py-2 text-sm text-[#7A6A45]">Sản phẩm vật lý</span>
                 <span className="text-sm font-bold text-[#8B765D]">Giao tận nơi</span>
+                <button
+                  type="button"
+                  onClick={toggleAllProducts}
+                  className="rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white"
+                >
+                  {selectedProductIds.length === productItems.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                </button>
               </div>
 
               <div className="space-y-5">
@@ -138,7 +210,15 @@ export function CartPage() {
                     key={item.id}
                     className={`rounded-[18px] border-2 border-[#EFD8C7] bg-[#FFF1E8] p-5 ${removingIds.includes(item.id) ? 'cart-item-removing' : ''}`}
                   >
-                    <div className="grid gap-5 md:grid-cols-[96px_1fr_auto]">
+                    <div className="grid gap-5 md:grid-cols-[40px_96px_1fr_auto]">
+                      <label className="flex items-start pt-2" aria-label={`Chọn thanh toán ${item.name}`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedProductIds.includes(item.id)}
+                          onChange={() => toggleProduct(item.id)}
+                          className="h-5 w-5 accent-[#716942]"
+                        />
+                      </label>
                       {item.image ? (
                         <AssetImage src={item.image} alt={item.name} className="h-[87px] w-[87px] rounded-[12px]" />
                       ) : (
@@ -146,10 +226,16 @@ export function CartPage() {
                       )}
                       <div>
                         <h2 className="text-lg font-bold text-[#2B211D]">{item.name}</h2>
-                        <p className="mt-3 text-sm text-[#2B211D]">Đóng gói chống sốc · Bảo hiểm hàng dễ vỡ</p>
+                        {item.gift && (
+                          <div className="mt-3 rounded-lg border border-[#E5CDBA] bg-white/70 p-3 text-sm leading-6 text-[#6E4E3F]">
+                            <p className="font-bold text-[#C96B37]">Quà tặng · {item.gift.occasion}</p>
+                            <p>Gói: {item.gift.wrapping}</p>
+                            <p>Người nhận: {item.gift.recipientName} · {item.gift.recipientPhone}</p>
+                          </div>
+                        )}
                         <div className="mt-6 flex items-center gap-5">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateProductQuantity(item.id, item.quantity - 1)}
                             className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[#E5CDBA] hover:bg-white"
                             aria-label="Giảm số lượng"
                             type="button"
@@ -160,10 +246,10 @@ export function CartPage() {
                           <button
                             onClick={() => {
                               if (item.stockQty !== undefined && item.quantity >= item.stockQty) {
-                                toast.error('Không đủ hàng trong kho cho số lượng bạn chọn.');
+                                toast.error(`Chỉ còn ${item.stockQty} sản phẩm trong kho.`);
                                 return;
                               }
-                              updateQuantity(item.id, item.quantity + 1);
+                              updateProductQuantity(item.id, item.quantity + 1);
                             }}
                             className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[#E5CDBA] hover:bg-white"
                             aria-label="Tăng số lượng"
@@ -175,7 +261,7 @@ export function CartPage() {
                       </div>
                       <div className="flex items-start gap-8 md:text-right">
                         <p className="text-2xl text-[#2B211D]">{(item.price * item.quantity).toLocaleString('vi-VN')}đ</p>
-                        <button onClick={() => handleRemove(item.id)} className="text-[#BFA083] hover:text-[#A33A2F]" aria-label="Xóa sản phẩm" type="button">
+                        <button onClick={() => handleRemoveProduct(item.id)} className="text-[#BFA083] hover:text-[#A33A2F]" aria-label="Xóa sản phẩm" type="button">
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
@@ -190,20 +276,54 @@ export function CartPage() {
         <aside className="sticky top-28 h-fit rounded-[18px] border-2 border-[#EFD8C7] bg-[#FFF1E8] p-7">
           <h2 className="mb-6 text-[32px] font-normal text-black">Tóm tắt đơn hàng</h2>
           <div className="space-y-4 text-xl">
-            <div className="flex justify-between text-[#756D4E]"><span>Workshop ({workshopItems.length} vé)</span><span>{workshopTotal.toLocaleString('vi-VN')}đ</span></div>
-            <div className="flex justify-between text-[#756D4E]"><span>Sản phẩm ({productCount} món)</span><span>{productTotal.toLocaleString('vi-VN')}đ</span></div>
+            {hasWorkshops && (
+              <div className="flex justify-between text-[#756D4E]">
+                <span>Workshop ({workshopItems.reduce((sum, item) => sum + item.tickets, 0)} slot)</span>
+                <span>{workshopTotal.toLocaleString('vi-VN')}đ</span>
+              </div>
+            )}
+            {hasProducts && (
+              <div className="flex justify-between text-[#756D4E]">
+                <span>Sản phẩm đã chọn ({selectedProductCount} món)</span>
+                <span>{selectedProductTotal.toLocaleString('vi-VN')}đ</span>
+              </div>
+            )}
           </div>
           <div className="my-7 border-t border-[#E8D6C9]" />
           <div className="flex justify-between text-2xl text-[#3A2A24]">
             <span>Tạm tính</span>
-            <span>{total.toLocaleString('vi-VN')}đ</span>
+            <span>{selectedOrderTotal.toLocaleString('vi-VN')}đ</span>
           </div>
           <div className="mt-6 rounded-[20px] bg-[#EFE2D6] p-5 text-[#7A6A58]">
-            Hàng dễ vỡ được đóng gói đặc biệt. Vé workshop chỉ giữ trong 5 phút; nếu quá hạn hoặc hủy thanh toán, slot được trả lại ngay.
+            {hasProducts && hasWorkshops
+              ? 'Bạn đang có cả sản phẩm và workshop. Hai luồng thanh toán được tách riêng để sản phẩm có địa chỉ giao hàng, còn workshop giữ slot 15 phút.'
+              : hasWorkshops
+                ? 'Vé workshop không cần địa chỉ giao hàng. Slot được giữ 15 phút và có thể đăng ký nhiều người trong cùng một đơn.'
+                : 'Sản phẩm vật lý sẽ được thanh toán với địa chỉ giao hàng và phí vận chuyển ở bước tiếp theo.'}
           </div>
-          <Link to="/checkout" className="mt-8 block rounded-full bg-[#3A1F17] py-4 text-center text-lg font-semibold text-white hover:bg-[#2B160F]">
-            Tiến hành thanh toán
-          </Link>
+          <div className="mt-8 space-y-3">
+            {hasProducts && (
+              <Link
+                to="/checkout?mode=product"
+                onClick={(event) => {
+                  if (selectedProducts.length === 0) {
+                    event.preventDefault();
+                    toast.error('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+                  }
+                }}
+                className={`block rounded-full py-4 text-center text-lg font-semibold text-white hover:bg-[#2B160F] ${
+                  selectedProducts.length === 0 ? 'bg-[#8B765D] opacity-70' : 'bg-[#3A1F17]'
+                }`}
+              >
+                Thanh toán sản phẩm
+              </Link>
+            )}
+            {hasWorkshops && (
+              <Link to="/checkout?autopay=workshop" className="block rounded-full border border-[#3A1F17]/25 py-4 text-center text-lg font-semibold text-[#3A1F17] hover:bg-[#3A1F17] hover:text-white">
+                Thanh toán vé workshop
+              </Link>
+            )}
+          </div>
           {nearestWorkshop && (
             <div className="mt-5 flex items-center gap-2 text-sm text-[#8B765D]">
               <Clock className="h-4 w-4" />

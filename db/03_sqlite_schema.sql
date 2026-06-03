@@ -40,6 +40,42 @@ CREATE INDEX IF NOT EXISTS idx_workshops_start_date ON workshops(start_date);
 CREATE INDEX IF NOT EXISTS idx_workshops_audience ON workshops(audience);
 CREATE INDEX IF NOT EXISTS idx_workshops_type ON workshops(workshop_type);
 
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    display_name TEXT,
+    avatar_url TEXT,
+    phone TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS chatbot_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT UNIQUE NOT NULL,
+    user_id INTEGER REFERENCES users(id),
+    style_preference TEXT,
+    experience_level TEXT,
+    purpose TEXT,
+    custom_request TEXT,
+    recommended_workshop_id INTEGER REFERENCES workshops(id),
+    behavior_tags TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_chatbot_sessions_user ON chatbot_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_chatbot_sessions_recommend ON chatbot_sessions(recommended_workshop_id);
+
+CREATE TABLE IF NOT EXISTS user_behavior_tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id),
+    tag TEXT NOT NULL,
+    source TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_behavior_tags_user ON user_behavior_tags(user_id);
+CREATE INDEX IF NOT EXISTS idx_behavior_tags_tag ON user_behavior_tags(tag);
+
 CREATE TABLE IF NOT EXISTS reviews (
     review_id INTEGER PRIMARY KEY AUTOINCREMENT,
     target_type TEXT NOT NULL DEFAULT 'product',
@@ -112,6 +148,26 @@ VALUES
     (9, 'Gom va hoa kho gia dinh', 'Thu Bay, 28/06/2026', '2026-06-28', '09:00 - 11:30', 'Nghe nhan An Nhien', 1180000, 'Gia dinh 3 nguoi', 'family_friendly', 'family', 4, 9),
     (10, 'Dem dat va anh nen', 'Chu Nhat, 29/06/2026', '2026-06-29', '18:00 - 20:30', 'Nghe nhan Minh Chau', 990000, '2 nguoi', 'couple_friendly', 'combo', 6, 10);
 
+INSERT OR IGNORE INTO users
+    (id, email, display_name, phone)
+VALUES
+    (1, 'thuha@email.com', 'Nguyen Thu Ha', '0978123456'),
+    (2, 'minha@email.com', 'Nguyen Minh A', '0912345678');
+
+INSERT OR IGNORE INTO chatbot_sessions
+    (session_id, user_id, style_preference, experience_level, purpose, custom_request, recommended_workshop_id, behavior_tags)
+VALUES
+    ('chat-demo-gift', 1, 'colorful', 'first_time', 'gift', 'Muon lam cap ly tang ban than, mau am va co the viet ten nho.', 3, '["gifting","first_timer","color_lover","duo"]'),
+    ('chat-demo-calm', 2, 'natural', 'some', 'relax', 'Muon mot chiec chen tra don gian de ban lam viec.', 6, '["evening_learner","natural"]');
+
+INSERT OR IGNORE INTO user_behavior_tags
+    (user_id, tag, source)
+VALUES
+    (1, 'gifting', 'chatbot'),
+    (1, 'duo', 'chatbot'),
+    (2, 'evening_learner', 'chatbot'),
+    (2, 'natural', 'chatbot');
+
 INSERT OR IGNORE INTO reviews
     (review_id, target_type, target_id, name, title, comment, rating)
 VALUES
@@ -127,7 +183,7 @@ VALUES
 INSERT OR IGNORE INTO tracking_records
     (code, tracking_type, status, title, message, manager_name, participant_count, checkin_status)
 VALUES
-    ('THO-2024-0847', 'ceramic', 'bisque_firing', 'Ly gom cua Minh Anh', 'San pham dang o giai doan nung so.', 'Chi Linh', 1, NULL),
+    ('THO-2024-0847', 'ceramic', 'drying', 'Ly gom - Nguyen Minh A', 'San pham dang phoi kho sau workshop.', 'Nhan vien 2', 1, NULL),
     ('WS052826', 'workshop', 'confirmed', 'Ve workshop Nan gom co ban', 'Ve da xac nhan. QR check-in gui qua email/SMS.', 'Anh Quan', 2, 'pending'),
     ('ORD28052026', 'order', 'packed_waiting_carrier', 'Don hang THO Studio', 'Don hang da thanh toan va dang cho don vi van chuyen.', 'Chi Linh', NULL, NULL);
 
@@ -135,10 +191,111 @@ INSERT OR IGNORE INTO tracking_timeline
     (tracking_code, stage, label, state, position)
 VALUES
     ('THO-2024-0847', 'forming', 'Da tao hinh', 'done', 1),
-    ('THO-2024-0847', 'drying', 'Phoi kho', 'done', 2),
-    ('THO-2024-0847', 'bisque_firing', 'Nung so', 'current', 3),
+    ('THO-2024-0847', 'drying', 'Phoi kho', 'current', 2),
+    ('THO-2024-0847', 'bisque_firing', 'Nung so', 'waiting', 3),
     ('THO-2024-0847', 'glazing', 'Trang men', 'waiting', 4),
     ('ORD28052026', 'packed', 'Da dong goi', 'done', 1),
     ('ORD28052026', 'waiting_carrier', 'Doi don vi van chuyen', 'current', 2),
     ('ORD28052026', 'delivering', 'Dang giao', 'waiting', 3),
     ('ORD28052026', 'received', 'Da nhan', 'waiting', 4);
+
+-- ── Staff back-office (dong bo customer + staff) ─────────────────────────────
+
+CREATE TABLE IF NOT EXISTS workshop_bookings (
+    booking_code TEXT PRIMARY KEY,
+    workshop_id INTEGER REFERENCES workshops(id),
+    customer_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    product_name TEXT NOT NULL DEFAULT '',
+    booking_date TEXT NOT NULL,
+    booking_time TEXT NOT NULL,
+    people_count INTEGER NOT NULL DEFAULT 1,
+    price_vnd INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    payment_status TEXT NOT NULL DEFAULT 'waiting',
+    staff_name TEXT NOT NULL DEFAULT '',
+    note TEXT NOT NULL DEFAULT '',
+    checkin_status TEXT NOT NULL DEFAULT 'pending',
+    tracking_code TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookings_workshop ON workshop_bookings(workshop_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON workshop_bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_checkin ON workshop_bookings(checkin_status);
+
+CREATE TABLE IF NOT EXISTS booking_chatbot_links (
+    booking_code TEXT PRIMARY KEY REFERENCES workshop_bookings(booking_code) ON DELETE CASCADE,
+    session_id TEXT NOT NULL REFERENCES chatbot_sessions(session_id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_booking_chatbot_session ON booking_chatbot_links(session_id);
+
+CREATE TABLE IF NOT EXISTS ceramic_trackers (
+    tracker_id TEXT PRIMARY KEY,
+    booking_code TEXT NOT NULL REFERENCES workshop_bookings(booking_code),
+    tracking_code TEXT REFERENCES tracking_records(code),
+    customer_name TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    workshop_name TEXT NOT NULL,
+    stage TEXT NOT NULL DEFAULT 'created',
+    qc_status TEXT NOT NULL DEFAULT 'normal',
+    updated_at TEXT NOT NULL,
+    owner_name TEXT NOT NULL,
+    kiln_batch TEXT NOT NULL DEFAULT ''
+);
+
+CREATE INDEX IF NOT EXISTS idx_trackers_booking ON ceramic_trackers(booking_code);
+CREATE INDEX IF NOT EXISTS idx_trackers_stage ON ceramic_trackers(stage);
+
+CREATE TABLE IF NOT EXISTS ceramic_product_jobs (
+    job_id TEXT PRIMARY KEY,
+    booking_code TEXT NOT NULL REFERENCES workshop_bookings(booking_code),
+    customer_name TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    stage TEXT NOT NULL,
+    job_status TEXT NOT NULL,
+    image_note TEXT NOT NULL DEFAULT '',
+    owner_name TEXT NOT NULL,
+    due_date TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_product_jobs_status ON ceramic_product_jobs(job_status);
+
+INSERT OR IGNORE INTO workshop_bookings
+    (booking_code, workshop_id, customer_name, phone, email, product_name, booking_date, booking_time, people_count, price_vnd, status, payment_status, staff_name, note, checkin_status, tracking_code)
+VALUES
+    ('BK010', 1, 'Nguyen Minh A', '0912345678', 'minha@email.com', 'Ly gom', '24/05/2026', '09:00', 2, 500000, 'pending', 'paid', 'Nhan vien 2', 'Khach can check-in va tao tracker.', 'pending', NULL),
+    ('BK011', 1, 'Pham Thi D', '0923456789', 'phamd@email.com', 'To gom', '24/05/2026', '10:30', 2, 500000, 'confirmed', 'paid', 'Nhan vien 1', 'Chuan bi ban doi.', 'checked_in', NULL),
+    ('BK008', 5, 'Le Van C', '0934567890', 'levanc@email.com', 'Bat gom', '23/05/2026', '14:00', 1, 750000, 'completed', 'paid', 'Nhan vien 3', 'Da gui anh thanh pham.', 'checked_in', NULL),
+    ('BK009', 2, 'Tran Thi B', '0945678901', 'tranb@email.com', 'Dia gom', '23/05/2026', '15:30', 3, 660000, 'confirmed', 'waiting', 'Nhan vien 1', 'Nhac thanh toan truoc ca.', 'pending', NULL),
+    ('BK007', 3, 'Nguyen Van A', '0956789012', 'vana@email.com', 'Binh gom', '22/05/2026', '17:00', 2, 600000, 'completed', 'paid', 'Nhan vien 2', 'Da tao tracker.', 'checked_in', NULL),
+    ('BK006', 1, 'Hoang Anh Q', '0967890123', 'anhq@email.com', 'Chen gom', '22/05/2026', '11:00', 1, 350000, 'cancelled', 'refund', 'Nhan vien 2', 'Da xu ly hoan tien.', 'cancelled', NULL),
+    ('WS052826', 1, 'Nguyen Thu Ha', '0978123456', 'thuha@email.com', 'Ly gom tu workshop', '31/05/2026', '09:00', 2, 490000, 'confirmed', 'paid', 'Anh Quan', 'Ve workshop tu web customer.', 'pending', 'WS052826');
+
+INSERT OR IGNORE INTO booking_chatbot_links
+    (booking_code, session_id)
+VALUES
+    ('WS052826', 'chat-demo-gift'),
+    ('BK010', 'chat-demo-calm');
+
+INSERT OR IGNORE INTO ceramic_trackers
+    (tracker_id, booking_code, tracking_code, customer_name, product_name, workshop_name, stage, qc_status, updated_at, owner_name, kiln_batch)
+VALUES
+    ('TRK018', 'BK008', NULL, 'Le Van C', 'Bat gom', 'Goi premium ban xoay rieng', 'created', 'normal', '23/05/2026 16:30', 'Xuong A', 'Batch F01'),
+    ('TRK021', 'BK010', 'THO-2024-0847', 'Nguyen Minh A', 'Ly gom', 'Nan gom co ban', 'drying', 'normal', '24/05/2026 10:15', 'Nhan vien 2', 'Batch F01'),
+    ('TRK022', 'BK009', NULL, 'Tran Thi B', 'Dia gom', 'Trang tri gom co ban', 'bisque', 'glaze_error', '23/05/2026 14:20', 'Xuong B', 'Batch F02'),
+    ('TRK023', 'BK011', NULL, 'Pham Thi D', 'To gom', 'Nan gom co ban', 'glazing', 'normal', '24/05/2026 08:45', 'Xuong A', 'Batch F01'),
+    ('TRK024', 'BK007', NULL, 'Nguyen Van A', 'Binh gom', 'Combo co doi co cap', 'ready', 'normal', '22/05/2026 17:10', 'Xuong A', 'Batch F03'),
+    ('TRK025', 'BK006', NULL, 'Hoang Anh Q', 'Chen gom', 'Nan gom co ban', 'done', 'cracked', '22/05/2026 11:05', 'QC', 'Batch F02');
+
+INSERT OR IGNORE INTO ceramic_product_jobs
+    (job_id, booking_code, customer_name, product_name, stage, job_status, image_note, owner_name, due_date)
+VALUES
+    ('PRD021', 'BK010', 'Nguyen Minh A', 'Ly gom', 'drying', 'photo_needed', 'Can anh sau phoi kho', 'Nhan vien 2', '25/05/2026'),
+    ('PRD022', 'BK009', 'Tran Thi B', 'Dia gom', 'bisque', 'in_progress', 'Da co anh QC', 'Xuong B', '26/05/2026'),
+    ('PRD023', 'BK011', 'Pham Thi D', 'To gom', 'glazing', 'waiting', 'Chua co anh', 'Xuong A', '27/05/2026'),
+    ('PRD024', 'BK007', 'Nguyen Van A', 'Binh gom', 'ready', 'ready', 'Anh thanh pham da duyet', 'Nhan vien 1', '24/05/2026'),
+    ('PRD025', 'BK008', 'Le Van C', 'Bat gom', 'done', 'delivered', 'Da ban giao', 'Nhan vien 3', '23/05/2026');

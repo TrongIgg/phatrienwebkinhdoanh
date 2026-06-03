@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router';
 import { Bell, Search, ShoppingCart, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCart } from '../contexts/CartContext';
+import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiProduct } from '../lib/api';
 import { AssetImage, productImages } from './DesignPrimitives';
 
@@ -129,12 +130,13 @@ function normalize(value: string) {
 }
 
 export function ProductPage() {
-  const { addProduct } = useCart();
+  const { addProduct } = useProductCart();
   const navigate = useNavigate();
   const [products, setProducts] = useState<CatalogProduct[]>(fallbackCatalog);
   const [query, setQuery] = useState('');
   const [collection, setCollection] = useState('all');
   const [stockMode, setStockMode] = useState('all');
+  const [page, setPage] = useState(1);
   const [notifyProduct, setNotifyProduct] = useState<CatalogProduct | null>(null);
   const [notifyEmail, setNotifyEmail] = useState('');
 
@@ -146,18 +148,26 @@ export function ProductPage() {
 
   const collections = useMemo(() => ['all', ...Array.from(new Set(products.map((item) => item.collection)))], [products]);
 
-  const filteredProducts = products.filter((product) => {
+  useEffect(() => {
+    setPage(1);
+  }, [query, collection, stockMode]);
+
+  const matchingProducts = products.filter((product) => {
     const text = normalize(`${product.name} ${product.detailName} ${product.description} ${product.collection}`);
     const queryOk = !query || text.includes(normalize(query));
     const collectionOk = collection === 'all' || product.collection === collection;
-    const stockOk = stockMode === 'all' || (stockMode === 'available' ? product.stockQty > 0 : product.stockQty === 0);
-    return queryOk && collectionOk && stockOk && product.stockQty > 0;
+    return queryOk && collectionOk;
   });
 
-  const outOfStockProducts = products.filter((product) => product.stockQty === 0);
+  const filteredProducts = stockMode === 'soldout' ? [] : matchingProducts.filter((product) => product.stockQty > 0);
+  const outOfStockProducts = stockMode === 'available' ? [] : matchingProducts.filter((product) => product.stockQty === 0);
+  const pageSize = 8;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const groupedProducts = collections
     .filter((item) => item !== 'all')
-    .map((name) => ({ name, items: filteredProducts.filter((product) => product.collection === name) }))
+    .map((name) => ({ name, items: paginatedProducts.filter((product) => product.collection === name) }))
     .filter((group) => group.items.length > 0);
 
   const addOne = (product: CatalogProduct, goToCart = false) => {
@@ -176,7 +186,7 @@ export function ProductPage() {
     });
 
     if (!ok) {
-      toast.error('Không đủ hàng trong kho cho số lượng bạn chọn.');
+      toast.error(`Chỉ còn ${product.stockQty} sản phẩm trong kho.`);
       return;
     }
 
@@ -220,7 +230,7 @@ export function ProductPage() {
               <option value="available">Còn hàng</option>
               <option value="soldout">Hết hàng</option>
             </select>
-            <button type="button" onClick={() => { setQuery(''); setCollection('all'); setStockMode('all'); }} className="h-12 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
+            <button type="button" onClick={() => { setQuery(''); setCollection('all'); setStockMode('all'); setPage(1); }} className="h-12 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
               Xóa lọc
             </button>
           </div>
@@ -259,7 +269,27 @@ export function ProductPage() {
           ))}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {filteredProducts.length > pageSize && (
+          <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Phân trang sản phẩm">
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+              <button
+                key={pageNumber}
+                type="button"
+                onClick={() => setPage(pageNumber)}
+                className={`h-10 min-w-10 rounded-full border px-4 font-bold transition-colors ${
+                  currentPage === pageNumber
+                    ? 'border-[#716942] bg-[#716942] text-white'
+                    : 'border-[#C0AC8B] bg-[#FFF8F2] text-[#716942] hover:bg-[#EFE2D6]'
+                }`}
+                aria-current={currentPage === pageNumber ? 'page' : undefined}
+              >
+                {pageNumber}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {filteredProducts.length === 0 && outOfStockProducts.length === 0 && (
           <div className="mt-12 rounded-[18px] border border-[#EFD8C7] bg-[#FFF8F2] p-10 text-center text-[#6A5D52]">
             Chưa có sản phẩm phù hợp. Hãy xóa lọc hoặc thử từ khóa khác.
           </div>
@@ -271,7 +301,12 @@ export function ProductPage() {
             <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {outOfStockProducts.map((product) => (
                 <article key={product.id} className="rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-5 opacity-90">
-                  <AssetImage src={product.image} alt={product.name} className="h-40 rounded-md" />
+                  <div className="relative">
+                    <AssetImage src={product.image} alt={product.name} className="h-40 rounded-md" />
+                    <span className="absolute left-3 top-3 rounded-full bg-[#A33A2F] px-3 py-1 text-xs font-bold text-white">
+                      Hết hàng
+                    </span>
+                  </div>
                   <h3 className="mt-4 text-xl font-bold">{product.detailName}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#6A5D52]">{product.description}</p>
                   <button onClick={() => setNotifyProduct(product)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#716942] py-3 font-bold text-[#716942] hover:bg-[#716942] hover:text-white">
@@ -285,8 +320,8 @@ export function ProductPage() {
         )}
       </section>
 
-      {notifyProduct && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 px-5">
+      {notifyProduct && createPortal(
+        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/50 px-5 py-8">
           <form onSubmit={submitNotify} className="w-full max-w-md rounded-lg bg-[#FFF8F2] p-7 shadow-2xl">
             <h2 className="text-2xl font-bold">Nhắc khi có hàng</h2>
             <p className="mt-2 text-[#6A5D52]">{notifyProduct.detailName}</p>
@@ -303,7 +338,8 @@ export function ProductPage() {
               <button className="flex-1 rounded-full bg-[#716942] py-3 font-bold text-white">Gửi</button>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -315,24 +351,24 @@ function ProductCard({ product, onAdd, onBuy }: { product: CatalogProduct; onAdd
       <Link to={`/product/${product.id}`}>
         <AssetImage src={product.image} alt={product.name} className="h-[190px]" />
       </Link>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <Link to={`/product/${product.id}`} className="text-lg font-bold text-black hover:text-[#716942]">{product.detailName}</Link>
+      <div className="flex min-h-[250px] flex-col p-5">
+        <div className="product-title-layer flex min-h-[74px] items-start justify-between gap-3">
+          <Link to={`/product/${product.id}`} className="max-w-[220px] text-[21px] font-bold leading-[1.35] text-black hover:text-[#716942]">{product.detailName}</Link>
           <span className="shrink-0 rounded-full bg-[#EFE7E1] px-3 py-1 text-xs font-bold text-[#7A6A45]">
             Còn {product.stockQty}
           </span>
         </div>
-        <p className="mt-3 min-h-[54px] text-sm leading-6 text-[#6A6A6A]">{product.description}</p>
+        <p className="mt-2 min-h-[72px] border-t border-[#EFE2D6] pt-4 text-[15px] leading-7 text-[#6A6A6A]">{product.description}</p>
         <div className="mt-4 flex items-center gap-2 text-sm text-[#716942]">
           <Star className="h-4 w-4 fill-[#716942]" />
           <span>{product.rating.toFixed(1)} · {product.reviewCount} đánh giá</span>
         </div>
         <p className="mt-4 text-2xl font-bold text-[#643A2A]">{product.price.toLocaleString('vi-VN')}đ</p>
-        <div className="mt-5 flex gap-3">
-          <button onClick={onAdd} className="flex-1 rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white">
+        <div className="mt-auto flex gap-3 pt-5">
+          <button onClick={onAdd} className="flex-1 rounded-full border border-[#716942] px-4 py-3 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white">
             Thêm giỏ
           </button>
-          <button onClick={onBuy} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#716942] px-4 py-2 text-sm font-bold text-white hover:opacity-85">
+          <button onClick={onBuy} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#716942] px-4 py-3 text-sm font-bold text-white hover:opacity-85">
             <ShoppingCart className="h-4 w-4" />
             Mua ngay
           </button>

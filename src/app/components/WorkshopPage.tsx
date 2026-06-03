@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { Calendar, Clock, Search, SlidersHorizontal, Users } from 'lucide-react';
+import { Calendar, Clock, Flame, Search, Sparkles, Users } from 'lucide-react';
 import { api, type ApiWorkshop } from '../lib/api';
+import { getHomeCampaign, readBehaviorTags, type BehaviorTag } from '../lib/personalization';
 import { AssetImage, workshopImages } from './DesignPrimitives';
+import { WorkshopChatbot } from './WorkshopChatbot';
 
 export type WorkshopView = {
   id: string;
@@ -101,23 +103,54 @@ function normalize(value: string) {
 function inDateRange(workshop: WorkshopView, range: string) {
   if (range === 'all' || !workshop.startDate) return true;
   const start = new Date(workshop.startDate).getTime();
-  const now = new Date('2026-05-30T00:00:00+07:00').getTime();
-  const days = range === 'week' ? 7 : 31;
-  return start >= now && start <= now + days * 24 * 60 * 60 * 1000;
+  const today = new Date('2026-06-03T00:00:00+07:00');
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (range === 'week') return start >= today.getTime() && start <= today.getTime() + 7 * dayMs;
+  if (range === 'month') {
+    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59).getTime();
+    return start >= today.getTime() && start <= monthEnd;
+  }
+  if (range === 'next_month') {
+    const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1).getTime();
+    const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0, 23, 59, 59).getTime();
+    return start >= nextMonthStart && start <= nextMonthEnd;
+  }
+  return true;
 }
 
-function priceLabel(maxPrice: number) {
-  if (maxPrice < 300000) return 'Gói cơ bản dưới 300k';
-  if (maxPrice >= 1000000) return 'Bao gồm gói premium trên 1tr';
-  return `Ngân sách đến ${maxPrice.toLocaleString('vi-VN')}đ`;
+function inPriceRange(workshop: WorkshopView, range: string) {
+  if (range === 'under_500') return workshop.price < 500000;
+  if (range === '500_900') return workshop.price >= 500000 && workshop.price <= 900000;
+  if (range === 'over_900') return workshop.price > 900000;
+  return true;
 }
+
+const audienceLabels: Record<string, string> = {
+  single_friendly: 'Cá nhân',
+  couple_friendly: 'Nhóm bạn / cặp đôi',
+  family_friendly: 'Gia đình',
+};
+
+const typeLabels: Record<string, string> = {
+  basic: 'Nặn gốm',
+  painting: 'Vẽ men',
+  combo: 'Combo',
+  family: 'Gia đình',
+  premium: 'Premium',
+  tea: 'Chén trà',
+  sculpture: 'Tượng nhỏ',
+};
+
+
 
 export function WorkshopPage() {
   const [workshops, setWorkshops] = useState<WorkshopView[]>(fallbackWorkshops);
   const [query, setQuery] = useState('');
   const [audience, setAudience] = useState('all');
   const [dateRange, setDateRange] = useState('all');
-  const [maxPrice, setMaxPrice] = useState(1500000);
+  const [priceRange, setPriceRange] = useState('all');
+  const [behaviorTags, setBehaviorTags] = useState<BehaviorTag[]>(() => readBehaviorTags());
+
   const [type, setType] = useState('all');
 
   useEffect(() => {
@@ -126,29 +159,79 @@ export function WorkshopPage() {
       .catch(() => setWorkshops(fallbackWorkshops));
   }, []);
 
+  useEffect(() => {
+    const updateTags = () => setBehaviorTags(readBehaviorTags());
+    window.addEventListener('tho-behavior-tags-updated', updateTags);
+    window.addEventListener('storage', updateTags);
+    return () => {
+      window.removeEventListener('tho-behavior-tags-updated', updateTags);
+      window.removeEventListener('storage', updateTags);
+    };
+  }, []);
+
   const filteredWorkshops = useMemo(() => {
+    const personalizedRank = (workshop: WorkshopView) => {
+      let score = 0;
+      if (behaviorTags.includes('evening_learner') && workshop.time.includes('18:')) score += 6;
+      if (behaviorTags.includes('duo') && workshop.audience === 'couple_friendly') score += 5;
+      if (behaviorTags.includes('gifting') && ['combo', 'painting'].includes(workshop.workshopType)) score += 4;
+      if (behaviorTags.includes('family') && workshop.audience === 'family_friendly') score += 4;
+      if (behaviorTags.includes('premium') && workshop.workshopType === 'premium') score += 6;
+      if (workshop.slots.available <= 4) score += 2;
+      return score;
+    };
+
     return workshops.filter((workshop) => {
       const text = normalize(`${workshop.name} ${workshop.description} ${workshop.fullDate} ${workshop.instructor}`);
       return (
         (!query || text.includes(normalize(query))) &&
         (audience === 'all' || workshop.audience === audience) &&
         (type === 'all' || workshop.workshopType === type) &&
-        workshop.price <= maxPrice &&
+        inPriceRange(workshop, priceRange) &&
         inDateRange(workshop, dateRange)
       );
-    });
-  }, [workshops, query, audience, type, maxPrice, dateRange]);
+    }).sort((a, b) => personalizedRank(b) - personalizedRank(a));
+  }, [workshops, query, audience, type, priceRange, dateRange, behaviorTags]);
+
+  const campaign = getHomeCampaign(behaviorTags);
 
   return (
     <div className="min-h-screen bg-[#FBEEE5] text-[#361F17]">
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20">
-        <h1 className="text-center text-[56px] font-bold leading-tight text-[#643A2A]">Booking Workshop</h1>
+        <h1 className="text-center text-[42px] font-bold leading-tight text-[#643A2A] sm:text-[56px]">Đặt workshop</h1>
         <p className="mx-auto mt-4 max-w-3xl text-center text-xl leading-8 text-[#3F3F35]">
-          Lọc theo nhóm tham gia, khoảng thời gian và ngân sách bằng thanh trượt như một lịch trải nghiệm.
+          Lọc theo loại workshop, ngân sách, thời gian và nhóm khách để chọn buổi học hợp nhịp của bạn.
         </p>
 
+        <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="rounded-lg bg-[#361F17] p-6 text-[#FBEEE5] shadow-[0_18px_42px_rgba(54,31,23,0.12)]">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C96B37] text-white">
+                <Sparkles className="h-6 w-6" />
+              </span>
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#C0AC8B]">{campaign.eyebrow}</p>
+                <h2 className="mt-2 text-3xl font-bold leading-tight">{campaign.title}</h2>
+                <p className="mt-3 max-w-3xl text-lg leading-7 text-[#FBEEE5]/80">{campaign.body}</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border border-[#C0AC8B] bg-white p-6">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#716942]">Tín hiệu đang dùng</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {(behaviorTags.length ? behaviorTags : ['first_timer']).map((tag) => (
+                <span key={tag} className="rounded-full bg-[#F4E4D8] px-3 py-1 text-sm font-bold text-[#643A2A]">#{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <WorkshopChatbot compact />
+        </div>
+
         <div className="mt-10 rounded-[18px] border border-[#C0AC8B] bg-[#FFF8F2] p-4 shadow-[0_12px_30px_rgba(113,105,66,0.08)]">
-          <div className="grid gap-3 lg:grid-cols-[1fr_210px_210px_190px]">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_180px_180px_180px_190px]">
             <label className="relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#716942]" />
               <input
@@ -158,14 +241,8 @@ export function WorkshopPage() {
                 placeholder="Tìm workshop, nghệ nhân, ngày học..."
               />
             </label>
-            <select value={audience} onChange={(event) => setAudience(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
-              <option value="all">Mọi nhóm khách</option>
-              <option value="single_friendly">Single friendly</option>
-              <option value="couple_friendly">Đi cùng bạn/cặp đôi</option>
-              <option value="family_friendly">Family friendly</option>
-            </select>
             <select value={type} onChange={(event) => setType(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
-              <option value="all">Mọi kiểu workshop</option>
+              <option value="all">Tất cả workshop</option>
               <option value="basic">Nặn gốm cơ bản</option>
               <option value="painting">Trang trí gốm</option>
               <option value="combo">Combo nhóm</option>
@@ -174,43 +251,49 @@ export function WorkshopPage() {
               <option value="tea">Chén trà</option>
               <option value="sculpture">Tượng nhỏ</option>
             </select>
+            <select value={priceRange} onChange={(event) => setPriceRange(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
+              <option value="all">Tất cả mức giá</option>
+              <option value="under_500">Dưới 500.000đ</option>
+              <option value="500_900">500.000đ - 900.000đ</option>
+              <option value="over_900">Trên 900.000đ</option>
+            </select>
             <select value={dateRange} onChange={(event) => setDateRange(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
-              <option value="all">Mọi thời gian</option>
-              <option value="week">Trong tuần tới</option>
-              <option value="month">Trong tháng tới</option>
+              <option value="all">Tất cả thời gian</option>
+              <option value="week">Tuần này</option>
+              <option value="month">Tháng này</option>
+              <option value="next_month">Tháng sau</option>
+            </select>
+            <select value={audience} onChange={(event) => setAudience(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
+              <option value="all">Tất cả nhóm khách</option>
+              <option value="single_friendly">Cá nhân</option>
+              <option value="couple_friendly">Nhóm bạn / cặp đôi</option>
+              <option value="family_friendly">Gia đình</option>
             </select>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-[auto_1fr_auto] md:items-center">
-            <span className="inline-flex items-center gap-2 font-bold text-[#716942]">
-              <SlidersHorizontal className="h-4 w-4" />
-              {priceLabel(maxPrice)}
-            </span>
-            <input
-              type="range"
-              min={250000}
-              max={1500000}
-              step={50000}
-              value={maxPrice}
-              onChange={(event) => setMaxPrice(Number(event.target.value))}
-              className="accent-[#716942]"
-            />
-            <button type="button" onClick={() => { setQuery(''); setAudience('all'); setType('all'); setDateRange('all'); setMaxPrice(1500000); }} className="h-11 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-[#7A6A58]">{filteredWorkshops.length} workshop phù hợp</p>
+            <button type="button" onClick={() => { setQuery(''); setAudience('all'); setType('all'); setPriceRange('all'); setDateRange('all'); }} className="h-11 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white transition-colors">
               Xóa lọc
             </button>
           </div>
-          <p className="mt-3 text-sm text-[#7A6A58]">{filteredWorkshops.length} workshop phù hợp</p>
         </div>
 
         <div className="mt-14 grid gap-7 lg:grid-cols-3">
           {filteredWorkshops.map((workshop) => (
             <article key={workshop.id} className="workshop-card overflow-hidden rounded-lg bg-white shadow-[0_14px_36px_rgba(119,115,170,0.12)]">
               <Link to={`/workshop/${workshop.id}`}>
-                <AssetImage src={workshop.image} alt={workshop.name} className="h-[240px]" />
+                <div className="relative">
+                  <AssetImage src={workshop.image} alt={workshop.name} className="h-[240px]" />
+                  <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#C96B37] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white">
+                    <Flame className="h-3.5 w-3.5" />
+                  {workshop.slots.available <= 4 ? 'Sắp hết slot' : workshop.workshopType === 'combo' ? 'Đi cùng nhau' : 'Gợi ý từ studio'}
+                  </span>
+                </div>
               </Link>
               <div className="p-6">
                 <div className="mb-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#EFE7E1] px-3 py-1 text-xs font-bold text-[#7A6A45]">{workshop.audience.replace('_', ' ')}</span>
-                  <span className="rounded-full bg-[#F4E4D8] px-3 py-1 text-xs font-bold text-[#7A3E2D]">{workshop.workshopType}</span>
+                  <span className="rounded-full bg-[#EFE7E1] px-3 py-1 text-xs font-bold text-[#7A6A45]">{audienceLabels[workshop.audience] ?? 'Cá nhân'}</span>
+                  <span className="rounded-full bg-[#F4E4D8] px-3 py-1 text-xs font-bold text-[#7A3E2D]">{typeLabels[workshop.workshopType] ?? 'Workshop'}</span>
                 </div>
                 <Link to={`/workshop/${workshop.id}`} className="text-xl font-bold text-black hover:text-[#716942]">{workshop.name}</Link>
                 <p className="mt-2 min-h-[54px] text-sm leading-6 text-[#6A6A6A]">{workshop.description}</p>
@@ -223,7 +306,7 @@ export function WorkshopPage() {
                   <p className="text-2xl font-bold text-[#643A2A]">{workshop.price.toLocaleString('vi-VN')}đ</p>
                   <div className="flex gap-2">
                     <Link to={`/workshop/${workshop.id}`} className="rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">Chi tiết</Link>
-                    <Link to={`/booking/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:opacity-85">Booking</Link>
+                    <Link to={`/booking/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:opacity-85">Đặt chỗ</Link>
                   </div>
                 </div>
               </div>

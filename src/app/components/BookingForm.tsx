@@ -1,26 +1,57 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { Calendar, Clock, UserRound, Users } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router';
+import { ArrowLeft, Calendar, Clock, UserRound, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCart } from '../contexts/CartContext';
+import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { api } from '../lib/api';
-import { AssetImage } from './DesignPrimitives';
+import { AssetImage, workshopImages } from './DesignPrimitives';
 import { fallbackWorkshops, mapWorkshop, type WorkshopView } from './WorkshopPage';
 
 export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: string } = {}) {
   const params = useParams();
   const navigate = useNavigate();
-  const { addWorkshop, clearCart } = useCart();
+  const { addWorkshop, clearWorkshopCart } = useWorkshopCart();
   const workshopId = workshopIdOverride ?? params.workshopId;
-  const [workshop, setWorkshop] = useState<WorkshopView | null>(null);
+  const fallback = fallbackWorkshops.find((item) => item.id === workshopId) ?? null;
+  const [workshop, setWorkshop] = useState<WorkshopView | null>(fallback);
+  const [loading, setLoading] = useState(!fallback);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', notes: '' });
+  const [slotCount, setSlotCount] = useState(1);
+  const [holdExpiresAt, setHoldExpiresAt] = useState<number | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(15 * 60);
 
   useEffect(() => {
     if (!workshopId) return;
     api.workshop(workshopId)
       .then((row) => setWorkshop(mapWorkshop(row, Number(workshopId) - 1)))
-      .catch(() => setWorkshop(fallbackWorkshops.find((item) => item.id === workshopId) ?? null));
+      .catch(() => {
+        if (!fallback) setWorkshop(null);
+      })
+      .finally(() => setLoading(false));
   }, [workshopId]);
+
+  useEffect(() => {
+    if (!holdExpiresAt) return;
+
+    const updateRemaining = () => {
+      setRemainingSeconds(Math.max(0, Math.ceil((holdExpiresAt - Date.now()) / 1000)));
+    };
+
+    updateRemaining();
+    const timer = window.setInterval(updateRemaining, 1000);
+    return () => window.clearInterval(timer);
+  }, [holdExpiresAt]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F7F1EC] px-4 py-20 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-3 border-[#C0AC8B] border-t-[#716942] animate-spin" />
+          <p className="text-[#7A6E62]">Đang tải workshop...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!workshop) {
     return (
@@ -33,12 +64,19 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!formData.name || !formData.phone || !formData.email) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc.');
+    if (!formData.name || (!formData.phone && !formData.email)) {
+      toast.error('Vui lòng nhập họ tên và ít nhất một thông tin liên hệ: email hoặc số điện thoại.');
       return;
     }
 
-    clearCart();
+    if (slotCount > workshop.slots.available) {
+      toast.error(`Workshop chỉ còn ${workshop.slots.available} slot.`);
+      return;
+    }
+
+    const expiresAt = Date.now() + 15 * 60 * 1000;
+
+    clearWorkshopCart();
     addWorkshop({
       id: `workshop-${workshop.id}-${Date.now()}`,
       name: workshop.name,
@@ -46,7 +84,8 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
       time: workshop.time,
       instructor: workshop.instructor,
       price: workshop.price,
-      tickets: workshop.package.includes('2') ? 2 : 1,
+      tickets: slotCount,
+      maxTickets: workshop.slots.available,
       package: workshop.package,
     });
 
@@ -57,12 +96,17 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
         phone: formData.phone,
         email: formData.email,
         note: formData.notes,
+        slotCount,
+        holdExpiresAt: expiresAt,
       }),
     );
 
-    toast.success('Đã giữ slot workshop 5 phút. Đang mở thanh toán...');
-    navigate('/checkout?autopay=workshop');
+    setHoldExpiresAt(expiresAt);
+    toast.success('Đã giữ slot workshop 15 phút. Bạn có thể thanh toán ngay để khóa chỗ.');
   };
+
+  const holdMinutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+  const holdSeconds = String(remainingSeconds % 60).padStart(2, '0');
 
   return (
     <div className="min-h-screen bg-[#F7F1EC]">
@@ -79,22 +123,91 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
                 <Info icon={<Users className="h-4 w-4" />} text={`${workshop.package} · còn ${workshop.slots.available}/${workshop.slots.total} slot`} />
               </div>
               <p className="mt-6 text-3xl text-primary">{workshop.price.toLocaleString('vi-VN')}đ</p>
+              <div className="mt-6 grid grid-cols-3 gap-2">
+                {[workshopImages.artisanBw, workshopImages.handsWarm, workshopImages.wheelBw].map((image, index) => (
+                  <AssetImage
+                    key={image}
+                    src={image}
+                    alt={`Không gian workshop ${index + 1}`}
+                    className="aspect-square rounded-md"
+                  />
+                ))}
+              </div>
             </div>
           </aside>
 
           <div>
-            <p className="mb-4 text-sm uppercase text-primary">Booking Form</p>
+            <Link to="/workshop" className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-5 py-2 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
+              <ArrowLeft className="h-4 w-4" />
+              Về trang Workshop
+            </Link>
+            <p className="mb-4 text-sm uppercase text-primary">Form đặt chỗ</p>
             <h1 className="mb-5 text-5xl text-[#2B211D]">Đặt chỗ Workshop</h1>
             <div className="mb-6 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-5">
               <p className="text-sm text-[#6f5d52]">
-                Ngày và giờ đã cố định theo workshop bạn chọn. Slot được giữ 5 phút sau khi mở QR thanh toán; nếu hủy, slot được trả lại ngay.
+                Ngày và giờ đã cố định theo workshop bạn chọn. Slot được giữ 15 phút sau khi mở QR thanh toán; nếu hủy, slot được trả lại ngay.
               </p>
             </div>
 
+            {holdExpiresAt && (
+              <div className="mb-6 rounded-lg border border-[#716942]/30 bg-[#F3E2D5] p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">Đang giữ chỗ</p>
+                    <p className="mt-2 text-3xl font-bold text-[#3B2118]">{holdMinutes}:{holdSeconds}</p>
+                    <p className="mt-1 text-sm text-[#6f5d52]">Hoàn tất thanh toán trước khi đồng hồ về 00:00.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/checkout?autopay=workshop')}
+                    className="rounded-full bg-[#3B2118] px-6 py-3 font-bold text-[#FFF8F2] hover:opacity-90"
+                  >
+                    Thanh toán giữ chỗ
+                  </button>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-6">
               <Field label="Họ và tên" value={formData.name} onChange={(value) => setFormData({ ...formData, name: value })} placeholder="Nhập họ tên của bạn" required />
-              <Field label="Số điện thoại" type="tel" value={formData.phone} onChange={(value) => setFormData({ ...formData, phone: value })} placeholder="0912 345 678" required />
-              <Field label="Email" type="email" value={formData.email} onChange={(value) => setFormData({ ...formData, email: value })} placeholder="email@example.com" required />
+              <div className="rounded-lg bg-[#F7E8DC] p-4 text-sm text-[#6f5d52]">
+                Chỉ cần nhập email hoặc số điện thoại. THỔ sẽ dùng thông tin này để xác nhận lịch và gửi nhắc thanh toán.
+              </div>
+              <div>
+                <span className="mb-2 block text-[#2B211D]">Số slot muốn giữ <span className="text-destructive">*</span></span>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="inline-flex h-12 items-center rounded-full border border-[#E5CDBA] bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setSlotCount((value) => Math.max(1, value - 1))}
+                      className="px-4"
+                      aria-label="Giảm số slot"
+                    >
+                      -
+                    </button>
+                    <span className="min-w-12 text-center font-bold">{slotCount}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (slotCount >= workshop.slots.available) {
+                          toast.error(`Workshop chỉ còn ${workshop.slots.available} slot.`);
+                          return;
+                        }
+                        setSlotCount((value) => value + 1);
+                      }}
+                      className="px-4"
+                      aria-label="Tăng số slot"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p className="text-sm text-[#6f5d52]">
+                    Bạn có thể đăng ký chung cho bạn bè trong cùng một đơn. Còn {workshop.slots.available} slot.
+                  </p>
+                </div>
+              </div>
+              <Field label="Số điện thoại" type="tel" value={formData.phone} onChange={(value) => setFormData({ ...formData, phone: value })} placeholder="0912 345 678" />
+              <Field label="Email" type="email" value={formData.email} onChange={(value) => setFormData({ ...formData, email: value })} placeholder="email@example.com" />
 
               <label className="block">
                 <span className="mb-2 block text-[#2B211D]">Ghi chú (không bắt buộc)</span>
@@ -107,7 +220,7 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
               </label>
 
               <button type="submit" className="w-full rounded-full bg-[#3B2118] py-4 text-[#FFF8F2] transition-opacity hover:opacity-90">
-                Đặt chỗ và thanh toán ngay
+                {holdExpiresAt ? 'Cập nhật thông tin giữ chỗ' : 'Giữ chỗ 15 phút'}
               </button>
             </form>
           </div>

@@ -44,8 +44,8 @@ Database local dùng SQLite:
   - Không hiển thị địa chỉ đề xuất nếu khách chưa đăng nhập hoặc chưa từng lưu địa chỉ.
   - Chỉ dùng một loại vận chuyển, hoặc ghi rõ phí từng loại và cộng vào tổng tiền.
   - Nếu chọn một loại vận chuyển: ghi rõ chính sách từ đầu, ví dụ đơn được vận chuyển 3 ngày sau workshop và đến tay khách trong khoảng 2 tuần nội thành.
-  - QR thanh toán phải có countdown 5 phút.
-  - Cần định nghĩa rõ giữ slot 5 phút: hủy thanh toán có trả slot ngay không, đặt lại có giữ được slot cuối cùng không.
+  - QR thanh toán phải có countdown 15 phút.
+  - Cần định nghĩa rõ giữ slot 15 phút: hủy thanh toán có trả slot ngay không, đặt lại có giữ được slot cuối cùng không.
   - Thêm tải biên lai sau thanh toán.
   - Làm rõ “giao hàng có bảo hiểm” nghĩa là gì, ví dụ vỡ có đền không, điều kiện đền thế nào.
 
@@ -129,7 +129,7 @@ Schema SQLite hiện có:
    - `max_price`
 3. Thêm kiểm tra tồn kho khi thêm giỏ hàng hoặc checkout.
 4. Tách order sản phẩm và booking workshop ở backend.
-5. Thêm bảng giữ slot workshop với hạn 5 phút.
+5. Thêm bảng giữ slot workshop với hạn 15 phút.
 6. Thêm trạng thái thanh toán, countdown QR, biên lai và tracking code sau thanh toán.
 7. Thêm bảng notify email khi sản phẩm có hàng lại.
 8. Thêm chính sách vận chuyển/bảo hiểm vào database hoặc content config.

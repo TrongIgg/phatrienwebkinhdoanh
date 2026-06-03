@@ -1,30 +1,77 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Bell, Minus, Plus, ShoppingCart, Star } from 'lucide-react';
+import { ArrowLeft, Bell, Gift, Minus, Plus, ShoppingCart, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCart } from '../contexts/CartContext';
+import { useProductCart } from '../contexts/ProductCartContext';
 import { api } from '../lib/api';
-import { AssetImage, ReviewStrip } from './DesignPrimitives';
+import { saveGiftOrder } from '../lib/customerExperience';
+import { AssetImage, productImages, ReviewStrip } from './DesignPrimitives';
 import { fallbackCatalog, mapApiProduct, type CatalogProduct } from './ProductPage';
+
+type GiftDraft = {
+  occasion: string;
+  wrapping: string;
+  cardMessage: string;
+  recipientName: string;
+  recipientPhone: string;
+  recipientAddress: string;
+};
+
+const defaultGiftDraft: GiftDraft = {
+  occasion: 'Sinh nhật',
+  wrapping: 'Hộp giấy kraft + nơ vải',
+  cardMessage: '',
+  recipientName: '',
+  recipientPhone: '',
+  recipientAddress: '',
+};
 
 export function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { addProduct } = useCart();
-  const [product, setProduct] = useState<CatalogProduct | null>(null);
+  const { addProduct } = useProductCart();
+  const fallback = fallbackCatalog().find((item) => item.id === productId) ?? null;
+  const [product, setProduct] = useState<CatalogProduct | null>(fallback);
+  const [loading, setLoading] = useState(!fallback);
   const [quantity, setQuantity] = useState(1);
   const [notifyEmail, setNotifyEmail] = useState('');
+  const [giftOpen, setGiftOpen] = useState(false);
+  const [giftDraft, setGiftDraft] = useState<GiftDraft>(defaultGiftDraft);
+  const [selectedImage, setSelectedImage] = useState('');
 
   useEffect(() => {
     if (!productId) return;
 
     api.product(productId)
       .then((row) => setProduct(mapApiProduct(row, Number(productId) - 1)))
-      .catch(() => setProduct(fallbackCatalog().find((item) => item.id === productId) ?? null));
+      .catch(() => {
+        if (!fallback) setProduct(null);
+      })
+      .finally(() => setLoading(false));
   }, [productId]);
 
   const maxQuantity = product?.stockQty ?? 1;
   const quantityOptions = useMemo(() => Math.max(1, maxQuantity), [maxQuantity]);
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    return Array.from(new Set([product.image, productImages.cupSet, productImages.crackleBowls, productImages.tealVase])).slice(0, 4);
+  }, [product]);
+
+  useEffect(() => {
+    if (product) setSelectedImage(product.image);
+  }, [product?.id, product?.image]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FBEEE5] px-6 py-20 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-3 border-[#C0AC8B] border-t-[#716942] animate-spin" />
+          <p className="text-[#7A6A58]">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -51,12 +98,20 @@ export function ProductDetailPage() {
     });
 
     if (!ok) {
-      toast.error('Không đủ hàng trong kho cho số lượng bạn chọn.');
+      toast.error(`Chỉ còn ${product.stockQty} sản phẩm trong kho.`);
       return;
     }
 
     toast.success('Đã thêm sản phẩm vào giỏ hàng.');
     if (goToCart) navigate('/cart');
+  };
+
+  const increaseQuantity = () => {
+    if (quantity >= quantityOptions) {
+      toast.info(`Chỉ còn ${quantityOptions} sản phẩm trong kho.`);
+      return;
+    }
+    setQuantity(quantity + 1);
   };
 
   const submitNotify = (event: React.FormEvent) => {
@@ -65,15 +120,77 @@ export function ProductDetailPage() {
     setNotifyEmail('');
   };
 
+  const submitGift = (event: FormEvent) => {
+    event.preventDefault();
+    if (product.stockQty <= 0) {
+      toast.error('Sản phẩm đang hết hàng.');
+      return;
+    }
+
+    const giftId = `${product.id}-gift-${Date.now()}`;
+    const ok = addProduct({
+      id: giftId,
+      name: `${product.detailName} · Quà tặng`,
+      price: product.price,
+      quantity,
+      stockQty: product.stockQty,
+      image: product.image,
+      gift: {
+        occasion: giftDraft.occasion,
+        wrapping: giftDraft.wrapping,
+        cardMessage: giftDraft.cardMessage,
+        recipientName: giftDraft.recipientName,
+        recipientPhone: giftDraft.recipientPhone,
+        recipientAddress: giftDraft.recipientAddress,
+      },
+    });
+
+    if (!ok) {
+      toast.error(`Chỉ còn ${product.stockQty} sản phẩm trong kho.`);
+      return;
+    }
+
+    saveGiftOrder({
+      id: giftId,
+      product_id: product.id,
+      product_name: product.detailName,
+      occasion: giftDraft.occasion,
+      wrapping: giftDraft.wrapping,
+      card_message: giftDraft.cardMessage,
+      recipient_name: giftDraft.recipientName,
+      recipient_phone: giftDraft.recipientPhone,
+      recipient_address: giftDraft.recipientAddress,
+      created_at: new Date().toISOString(),
+    });
+    toast.success('Đã thêm quà tặng vào giỏ hàng.');
+    setGiftOpen(false);
+    navigate('/cart');
+  };
+
   return (
     <div className="min-h-screen bg-[#FBEEE5] text-[#361F17]">
       <section className="mx-auto grid max-w-[1440px] gap-10 px-6 py-14 lg:grid-cols-[0.95fr_1fr] lg:px-20">
         <div>
           <button onClick={() => navigate('/product')} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-5 py-2 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
             <ArrowLeft className="h-4 w-4" />
-            Sản phẩm
+            Về trang sản phẩm
           </button>
-          <AssetImage src={product.image} alt={product.detailName} className="aspect-[4/4.4] rounded-lg" loading="eager" />
+          <AssetImage src={selectedImage || product.image} alt={product.detailName} className="aspect-[4/4.4] rounded-lg" loading="eager" />
+          <div className="mt-4 grid grid-cols-4 gap-3">
+            {galleryImages.map((image) => (
+              <button
+                key={image}
+                type="button"
+                onClick={() => setSelectedImage(image)}
+                className={`overflow-hidden rounded-lg border bg-white p-1 ${
+                  (selectedImage || product.image) === image ? 'border-[#716942] ring-2 ring-[#716942]/25' : 'border-[#EFD8C7]'
+                }`}
+                aria-label="Xem ảnh sản phẩm"
+              >
+                <AssetImage src={image} alt={product.detailName} className="aspect-square rounded-md" />
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="self-center">
@@ -96,7 +213,7 @@ export function ProductDetailPage() {
                 <div className="inline-flex h-12 items-center rounded-full border border-[#C0AC8B] bg-white">
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4" aria-label="Giảm số lượng"><Minus className="h-4 w-4" /></button>
                   <span className="min-w-12 text-center font-bold">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(quantityOptions, quantity + 1))} className="px-4" aria-label="Tăng số lượng"><Plus className="h-4 w-4" /></button>
+                  <button onClick={increaseQuantity} className="px-4" aria-label="Tăng số lượng"><Plus className="h-4 w-4" /></button>
                 </div>
                 <span className="text-sm text-[#7A6A58]">Còn {product.stockQty} sản phẩm</span>
               </div>
@@ -107,6 +224,10 @@ export function ProductDetailPage() {
                 </button>
                 <button onClick={() => addToCart(true)} className="flex-1 rounded-full bg-[#716942] px-7 py-4 font-bold text-white hover:opacity-90">
                   Mua ngay
+                </button>
+                <button onClick={() => setGiftOpen(true)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#C96B37] px-7 py-4 font-bold text-white hover:opacity-90">
+                  <Gift className="h-5 w-5" />
+                  Mua làm quà
                 </button>
               </div>
             </>
@@ -130,6 +251,99 @@ export function ProductDetailPage() {
         <h2 className="mb-6 text-3xl font-bold">Đánh giá cho sản phẩm này</h2>
         <ReviewStrip />
       </section>
+      {giftOpen && createPortal(
+        <GiftModal
+          draft={giftDraft}
+          onChange={setGiftDraft}
+          onClose={() => setGiftOpen(false)}
+          onSubmit={submitGift}
+          productName={product.detailName}
+        />,
+        document.body,
+      )}
     </div>
+  );
+}
+
+function GiftModal({
+  draft,
+  onChange,
+  onClose,
+  onSubmit,
+  productName,
+}: {
+  draft: GiftDraft;
+  onChange: (draft: GiftDraft) => void;
+  onClose: () => void;
+  onSubmit: (event: FormEvent) => void;
+  productName: string;
+}) {
+  const update = (field: keyof GiftDraft, value: string) => onChange({ ...draft, [field]: value });
+
+  return (
+    <div className="fixed inset-0 z-[999] grid place-items-center overflow-y-auto bg-black/50 px-5 py-8">
+      <form onSubmit={onSubmit} className="w-full max-w-[760px] rounded-lg bg-[#FFF8F2] p-6 shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">Gift flow</p>
+            <h2 className="mt-1 text-3xl font-bold text-[#361F17]">Mua làm quà</h2>
+            <p className="mt-2 text-[#6A5D52]">{productName}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block font-bold">Dịp tặng</span>
+            <select value={draft.occasion} onChange={(event) => update('occasion', event.target.value)} className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4">
+              <option>Sinh nhật</option>
+              <option>Tân gia</option>
+              <option>Kỷ niệm</option>
+              <option>Lễ tốt nghiệp</option>
+              <option>Quà cảm ơn</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-2 block font-bold">Gói quà gợi ý</span>
+            <select value={draft.wrapping} onChange={(event) => update('wrapping', event.target.value)} className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4">
+              <option>Hộp giấy kraft + nơ vải</option>
+              <option>Hộp premium chống sốc</option>
+              <option>Túi vải THỔ tái sử dụng</option>
+              <option>Không cần gói quà</option>
+            </select>
+          </label>
+          <GiftField label="Tên người nhận" value={draft.recipientName} onChange={(value) => update('recipientName', value)} required />
+          <GiftField label="Số điện thoại người nhận" value={draft.recipientPhone} onChange={(value) => update('recipientPhone', value)} required />
+        </div>
+
+        <label className="mt-4 block">
+          <span className="mb-2 block font-bold">Địa chỉ người nhận</span>
+          <input required value={draft.recipientAddress} onChange={(event) => update('recipientAddress', event.target.value)} className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4" placeholder="Số nhà, phường/xã, quận/huyện, tỉnh/thành" />
+        </label>
+        <label className="mt-4 block">
+          <span className="mb-2 block font-bold">Lời nhắn trên thiệp</span>
+          <textarea value={draft.cardMessage} onChange={(event) => update('cardMessage', event.target.value)} className="min-h-[96px] w-full rounded-lg border border-[#C0AC8B] bg-white px-4 py-3" placeholder="Viết vài dòng để THỔ in lên thiệp nhỏ..." />
+        </label>
+
+        <div className="mt-6 rounded-lg bg-[#EFE2D6] p-4 text-sm leading-6 text-[#6A4A3D]">
+          Demo sẽ lưu tag gift, thông tin người nhận và loại gói quà để staff xem analytics quà tặng riêng.
+        </div>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button type="button" onClick={onClose} className="flex-1 rounded-full border border-[#716942] py-3 font-bold text-[#716942]">Hủy</button>
+          <button className="flex-1 rounded-full bg-[#C96B37] py-3 font-bold text-white">Thêm quà vào giỏ</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function GiftField({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block font-bold">{label}</span>
+      <input required={required} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4" />
+    </label>
   );
 }
