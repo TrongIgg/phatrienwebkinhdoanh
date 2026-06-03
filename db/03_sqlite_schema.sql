@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS products (
     price_vnd INTEGER NOT NULL,
     image_url TEXT,
     stock_qty INTEGER NOT NULL DEFAULT 0,
+    style_tags TEXT NOT NULL DEFAULT '[]',
     rating REAL NOT NULL DEFAULT 5.0,
     review_count INTEGER NOT NULL DEFAULT 0,
     is_active INTEGER NOT NULL DEFAULT 1,
@@ -49,6 +50,20 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS social_logins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id),
+    provider TEXT NOT NULL,
+    provider_user_id TEXT NOT NULL,
+    display_name TEXT,
+    avatar_url TEXT,
+    email TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(provider, provider_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_social_logins_user ON social_logins(user_id);
+
 CREATE TABLE IF NOT EXISTS chatbot_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT UNIQUE NOT NULL,
@@ -80,8 +95,14 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_id INTEGER PRIMARY KEY AUTOINCREMENT,
     target_type TEXT NOT NULL DEFAULT 'product',
     target_id INTEGER,
+    parent_id INTEGER REFERENCES reviews(review_id),
+    is_studio_reply INTEGER NOT NULL DEFAULT 0,
+    helpful_count INTEGER NOT NULL DEFAULT 0,
+    review_type TEXT,
+    has_verified_purchase INTEGER NOT NULL DEFAULT 0,
+    image_urls TEXT NOT NULL DEFAULT '[]',
     name TEXT NOT NULL,
-    title TEXT NOT NULL,
+    title TEXT,
     comment TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -109,6 +130,19 @@ CREATE TABLE IF NOT EXISTS tracking_timeline (
     state TEXT NOT NULL,
     position INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS tracking_media (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tracking_code TEXT REFERENCES tracking_records(code) ON DELETE CASCADE,
+    media_type TEXT NOT NULL CHECK (media_type IN ('image', 'video')),
+    stage TEXT,
+    title TEXT,
+    url TEXT NOT NULL,
+    uploaded_by TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tracking_media_code ON tracking_media(tracking_code);
 
 INSERT OR IGNORE INTO products
     (id, sku, name, category, collection, price_vnd, image_url, stock_qty, rating, review_count)
@@ -217,6 +251,7 @@ CREATE TABLE IF NOT EXISTS workshop_bookings (
     staff_name TEXT NOT NULL DEFAULT '',
     note TEXT NOT NULL DEFAULT '',
     checkin_status TEXT NOT NULL DEFAULT 'pending',
+    chatbot_session_id TEXT REFERENCES chatbot_sessions(session_id),
     tracking_code TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

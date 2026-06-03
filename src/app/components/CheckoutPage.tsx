@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, TimerReset, X } from 'lucide-react';
 import { useProductCart, type CheckoutAddress } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
@@ -14,6 +14,7 @@ type FormErrors = Partial<Record<keyof CheckoutAddress, string>>;
 
 const ADDRESS_STORAGE_KEY = 'tho-address-suggestions';
 const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
+const BOOKING_CONTACT_STORAGE_KEY = 'tho-booking-contact';
 const defaultAddress: CheckoutAddress = { name: '', phone: '', email: '', city: '', district: '', ward: '', address: '', note: '', shipping: 'standard' };
 const addressCatalog = {
   cities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'],
@@ -57,7 +58,7 @@ export function CheckoutPage() {
         }
       : {};
     try {
-      const bookingContact = window.sessionStorage.getItem('tho-booking-contact');
+      const bookingContact = window.localStorage.getItem(BOOKING_CONTACT_STORAGE_KEY);
       return bookingContact
         ? { ...defaultAddress, ...customerDefaults, ...JSON.parse(bookingContact), shipping: 'none' }
         : { ...defaultAddress, ...customerDefaults };
@@ -88,6 +89,14 @@ export function CheckoutPage() {
   const shippingFee = hasProducts ? 35000 : 0;
   const payableTotal = checkoutSubtotal + shippingFee;
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
+  const [now, setNow] = useState(Date.now());
+  const workshopHoldExpiresAt = workshopItems.reduce<number | null>((nearest, item) => {
+    if (!nearest) return item.reservedUntil;
+    return item.reservedUntil < nearest ? item.reservedUntil : nearest;
+  }, null);
+  const workshopHoldSeconds = workshopHoldExpiresAt ? Math.max(0, Math.ceil((workshopHoldExpiresAt - now) / 1000)) : 0;
+  const workshopHoldClock = `${String(Math.floor(workshopHoldSeconds / 60)).padStart(2, '0')}:${String(workshopHoldSeconds % 60).padStart(2, '0')}`;
+  const contactReadonly = isWorkshopCheckout && workshopItems.length > 0;
 
   const updateField = (field: keyof CheckoutAddress, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -127,6 +136,12 @@ export function CheckoutPage() {
       if (validate()) setPaymentOpen(true);
     }, 300);
   }, [autoPayHandled, searchParams, workshopItems.length]);
+
+  useEffect(() => {
+    if (!isWorkshopCheckout) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [isWorkshopCheckout]);
 
   const finishPayment = async () => {
     const orderCode = `${isWorkshopCheckout ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
@@ -202,6 +217,7 @@ export function CheckoutPage() {
     if (hasProducts) saveAddressSuggestion(formData);
     if (isWorkshopCheckout) {
       clearWorkshopCart();
+      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
     } else {
       if (selectedProductIds.length === productItems.length) {
         clearProductCart();
@@ -214,7 +230,10 @@ export function CheckoutPage() {
   };
 
   const cancelPayment = () => {
-    if (isWorkshopCheckout) clearWorkshopCart();
+    if (isWorkshopCheckout) {
+      clearWorkshopCart();
+      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
+    }
     navigate('/payment-failed');
   };
 
@@ -264,9 +283,29 @@ export function CheckoutPage() {
             )}
 
             <div className="space-y-6">
-              <Field label="Họ tên" required value={formData.name} error={errors.name} onChange={(value) => updateField('name', value)} />
-              <Field label="Số điện thoại" required value={formData.phone} error={errors.phone} onChange={(value) => updateField('phone', value)} />
-              <Field label="Địa chỉ email" type="email" value={formData.email} error={errors.email} onChange={(value) => updateField('email', value)} />
+              {isWorkshopCheckout && (
+                <div className="rounded-[16px] border border-[#716942]/30 bg-[#F3E2D5] p-4 text-[#6E4E3F]">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-bold text-[#2B211D]">Thông tin đặt chỗ đã lấy từ BookingForm</p>
+                      <p className="mt-1 text-sm">Bạn chỉ cần rà soát. Nếu muốn đổi tên, SĐT hoặc email, hãy quay lại form đặt chỗ.</p>
+                    </div>
+                    {workshopHoldExpiresAt && (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#716942]">
+                        <TimerReset className="h-4 w-4" />
+                        Còn {workshopHoldClock}
+                      </span>
+                    )}
+                  </div>
+                  <Link to={`/booking/${workshopItems[0]?.id.match(/workshop-(\d+)-/)?.[1] ?? '1'}`} className="mt-3 inline-flex text-sm font-bold text-[#716942] underline">
+                    Sửa thông tin
+                  </Link>
+                </div>
+              )}
+
+              <Field label="Họ tên" required value={formData.name} error={errors.name} onChange={(value) => updateField('name', value)} readOnly={contactReadonly} />
+              <Field label="Số điện thoại" required value={formData.phone} error={errors.phone} onChange={(value) => updateField('phone', value)} readOnly={contactReadonly} />
+              <Field label="Địa chỉ email" type="email" value={formData.email} error={errors.email} onChange={(value) => updateField('email', value)} readOnly={contactReadonly} />
 
               {hasProducts ? (
                 <>
@@ -322,7 +361,7 @@ export function CheckoutPage() {
                         <p className="mt-2 text-sm text-[#6E4E3F]">{item.type === 'workshop' ? `${item.date} · ${item.time}` : `Số lượng: ${item.quantity}`}</p>
                         {item.type === 'product' && item.gift && (
                           <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
-                            Quà tặng cho {item.gift.recipientName} · {item.gift.occasion}
+                            Quà tặng · {item.gift.occasion} · {item.gift.includeWrapping ? 'Có giấy gói' : 'Không gói quà'}
                           </p>
                         )}
                       </div>
@@ -331,6 +370,21 @@ export function CheckoutPage() {
                 ))}
               </div>
             </section>
+            {checkoutItems.some((item) => item.type === 'product' && item.gift) && (
+              <section className="rounded-[14px] border border-black/10 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold">Thông tin quà tặng</h2>
+                <div className="mt-4 space-y-3 text-sm leading-6 text-[#6E4E3F]">
+                  {checkoutItems.filter((item) => item.type === 'product' && item.gift).map((item) => (
+                    <div key={item.id} className="rounded-[10px] bg-[#FFF8F2] p-4">
+                      <p className="font-bold text-[#2B211D]">{item.name}</p>
+                      <p>Dịp tặng: {item.type === 'product' ? item.gift?.occasion : ''}</p>
+                      <p>{item.type === 'product' && item.gift?.includeWrapping ? 'Có thêm giấy gói quà.' : 'Không cần giấy gói quà.'}</p>
+                      {item.type === 'product' && item.gift?.giftNote && <p>Ghi chú: {item.gift.giftNote}</p>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
             <section className="rounded-[14px] border border-black/10 bg-white p-8 shadow-sm">
               <h2 className="text-xl font-bold">Thanh toán</h2>
               <div className="mt-6 grid grid-cols-2 gap-4">
@@ -350,10 +404,10 @@ export function CheckoutPage() {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required, bare = false, placeholder, error, list }: { label?: string; value: string; onChange: (value: string) => void; type?: string; required?: boolean; bare?: boolean; placeholder?: string; error?: string; list?: string }) {
+function Field({ label, value, onChange, type = 'text', required, bare = false, placeholder, error, list, readOnly = false }: { label?: string; value: string; onChange: (value: string) => void; type?: string; required?: boolean; bare?: boolean; placeholder?: string; error?: string; list?: string; readOnly?: boolean }) {
   const input = (
     <div>
-      <input type={type} value={value} list={list} onChange={(event) => onChange(event.target.value)} className={`h-[49px] w-full border bg-white px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`} placeholder={placeholder} required={required} />
+      <input type={type} value={value} list={list} readOnly={readOnly} onChange={(event) => onChange(event.target.value)} className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`} placeholder={placeholder} required={required} />
       {error && <p className="field-error"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
     </div>
   );
@@ -375,7 +429,7 @@ function PaymentChoice({ method, active, onClick }: { method: PaymentMethod; act
 }
 
 function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: PaymentMethod; total: number; onClose: () => void; onSuccess: () => void | Promise<void>; onFail: () => void }) {
-  const [secondsLeft, setSecondsLeft] = useState(15 * 60);
+  const [secondsLeft, setSecondsLeft] = useState(5 * 60);
   const isMomo = method === 'momo';
 
   useEffect(() => {
@@ -396,7 +450,7 @@ function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: P
         <div className="flex items-center justify-between border-b border-[#E2E2E2] bg-white p-6">
           <div>
             <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
-            <p className="mt-2 text-[#727272]">QR và slot workshop hết hạn sau {minutes}:{seconds}. Hủy thanh toán sẽ trả slot ngay.</p>
+            <p className="mt-2 text-[#727272]">QR thanh toán hết hạn sau {minutes}:{seconds}. Hủy thanh toán vé workshop sẽ trả slot ngay.</p>
           </div>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng thanh toán" type="button"><X className="h-6 w-6" /></button>
         </div>
@@ -405,7 +459,7 @@ function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: P
             <h3 className="text-2xl font-medium">Thông tin đơn hàng</h3>
             <p className="mt-8 text-[#68788F]">Số tiền thanh toán</p>
             <p className={`mt-2 text-3xl font-semibold ${isMomo ? 'text-[#DC1A8D]' : 'text-[#00489B]'}`}>{total.toLocaleString('vi-VN')} VND</p>
-            <p className="mt-8 text-[#68788F]">Countdown</p>
+            <p className="mt-8 text-[#68788F]">Thời gian còn lại</p>
             <p className="mt-2 text-4xl font-bold">{minutes}:{seconds}</p>
           </div>
           <div className={`rounded-[10px] p-8 text-center ${isMomo ? 'bg-[#DC1A8D] text-white' : 'bg-[#F5F7F9] text-black'}`}>

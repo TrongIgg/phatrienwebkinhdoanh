@@ -396,18 +396,20 @@ export function SearchFilters({
   );
 }
 
-export function ReviewStrip() {
+export function ReviewStrip({ limit = reviews.length }: { limit?: number } = {}) {
+  const visibleReviews = reviews.slice(0, limit);
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {reviews.map((review) => (
-        <article key={review.name} className="rounded-lg border border-[#D9D9D9] bg-[#3F3F35] p-6 text-[#FBEEE5]">
-          <div className="mb-5 flex gap-1">
+      {visibleReviews.map((review) => (
+        <article key={review.name} className="rounded-lg border border-[#D9D9D9] bg-[#3F3F35] p-5 text-[#FBEEE5]">
+          <div className="mb-4 flex gap-1">
             {Array.from({ length: 5 }).map((_, index) => (
-              <Star key={index} className={`h-5 w-5 ${index < review.rating ? 'fill-[#FBEEE5]' : ''}`} />
+              <Star key={index} className={`h-4 w-4 ${index < review.rating ? 'fill-[#FBEEE5]' : ''}`} />
             ))}
           </div>
-          <h3 className="mb-2 text-2xl font-semibold">{review.title}</h3>
-          <p className="mb-6 min-h-[66px] text-sm leading-6 text-[#FBEEE5]/85">{review.comment}</p>
+          <h3 className="mb-2 text-xl font-semibold">{review.title}</h3>
+          <p className="mb-5 line-clamp-3 min-h-[66px] text-sm leading-6 text-[#FBEEE5]/85">{review.comment}</p>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C0AC8B] text-[#361F17]">
               {review.name.charAt(0)}
@@ -516,7 +518,7 @@ export function EndBodyFooter() {
         </div>
 
         <div>
-          <h3 className="mb-4 text-xl font-light">Follow us on social networks</h3>
+          <h3 className="mb-4 text-xl font-light">Theo dõi THỔ trên mạng xã hội</h3>
           <div className="space-y-4 text-sm font-light">
             <a href="https://www.facebook.com/tho" className="flex items-center gap-5 hover:text-[#C0AC8B]">
               <Facebook className="h-8 w-8" />

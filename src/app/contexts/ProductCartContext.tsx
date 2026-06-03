@@ -11,11 +11,8 @@ export type ProductItem = {
   image: string;
   gift?: {
     occasion: string;
-    wrapping: string;
-    cardMessage: string;
-    recipientName: string;
-    recipientPhone: string;
-    recipientAddress: string;
+    includeWrapping: boolean;
+    giftNote: string;
   };
 };
 

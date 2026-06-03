@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS products (
     origin       VARCHAR(150),
     stock_qty    INT           NOT NULL DEFAULT 0,
     image_url    TEXT,
+    style_tags   JSONB         NOT NULL DEFAULT '[]',
     rating       NUMERIC(3,1)  NOT NULL DEFAULT 5.0,
     review_count INT           NOT NULL DEFAULT 0,
     is_active    BOOLEAN       NOT NULL DEFAULT TRUE,
@@ -85,6 +86,20 @@ CREATE TABLE IF NOT EXISTS users (
     created_at    TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS social_logins (
+    id               SERIAL       PRIMARY KEY,
+    user_id          INT          REFERENCES users(user_id) ON DELETE CASCADE,
+    provider         VARCHAR(30)  NOT NULL,
+    provider_user_id VARCHAR(120) NOT NULL,
+    display_name     VARCHAR(150),
+    avatar_url       TEXT,
+    email            VARCHAR(255),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE(provider, provider_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_social_logins_user_id ON social_logins(user_id);
+
 -- ── User Addresses ────────────────────────────────────
 CREATE TABLE IF NOT EXISTS user_addresses (
     address_id       SERIAL        PRIMARY KEY,
@@ -110,7 +125,20 @@ CREATE TABLE IF NOT EXISTS workshop_bookings (
     quantity     INT           NOT NULL DEFAULT 1,
     total_price  DECIMAL(12,0) NOT NULL,
     status       VARCHAR(20)   NOT NULL DEFAULT 'confirmed',
+    chatbot_session_id VARCHAR(120),
     created_at   TIMESTAMP     NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS chatbot_sessions (
+    id                      SERIAL       PRIMARY KEY,
+    session_id              VARCHAR(120) NOT NULL UNIQUE,
+    user_id                 INT          REFERENCES users(user_id),
+    style_preference        VARCHAR(40),
+    experience_level        VARCHAR(40),
+    purpose                 VARCHAR(40),
+    custom_request          TEXT,
+    recommended_workshop_id INT          REFERENCES workshops(id),
+    created_at              TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
 -- ── Ceramic Tracking ─────────────────────────────────
@@ -126,6 +154,40 @@ CREATE TABLE IF NOT EXISTS ceramic_tracking (
     stage_history   JSONB        NOT NULL DEFAULT '[]',
     created_at      TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS tracking_media (
+    id            SERIAL      PRIMARY KEY,
+    tracking_code VARCHAR(20) REFERENCES ceramic_tracking(tracking_id) ON DELETE CASCADE,
+    media_type    VARCHAR(20) NOT NULL,
+    stage         VARCHAR(50),
+    title         VARCHAR(150),
+    url           TEXT        NOT NULL,
+    uploaded_by   VARCHAR(150),
+    created_at    TIMESTAMP   NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_tracking_media_type CHECK (media_type IN ('image', 'video'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_tracking_media_tracking_code ON tracking_media(tracking_code);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id                  SERIAL       PRIMARY KEY,
+    target_type                VARCHAR(20)  NOT NULL DEFAULT 'product',
+    target_id                  INT,
+    parent_id                  INT          REFERENCES reviews(review_id),
+    is_studio_reply            BOOLEAN      NOT NULL DEFAULT FALSE,
+    helpful_count              INT          NOT NULL DEFAULT 0,
+    review_type                VARCHAR(20),
+    has_verified_purchase      BOOLEAN      NOT NULL DEFAULT FALSE,
+    image_urls                 JSONB        NOT NULL DEFAULT '[]',
+    name                       VARCHAR(150) NOT NULL,
+    title                      VARCHAR(180),
+    comment                    TEXT         NOT NULL,
+    rating                     INT          NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    created_at                 TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_target ON reviews(target_type, target_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_parent ON reviews(parent_id);
 
 -- ── Cart (session-based) ──────────────────────────────
 CREATE TABLE IF NOT EXISTS cart_items (

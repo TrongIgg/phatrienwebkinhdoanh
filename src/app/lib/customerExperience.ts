@@ -42,11 +42,8 @@ export type GiftOrder = {
   product_id: string;
   product_name: string;
   occasion: string;
-  wrapping: string;
-  card_message: string;
-  recipient_name: string;
-  recipient_phone: string;
-  recipient_address: string;
+  include_wrapping: boolean;
+  gift_note: string;
   created_at: string;
 };
 

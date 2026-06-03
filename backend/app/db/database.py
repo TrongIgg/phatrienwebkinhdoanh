@@ -62,7 +62,28 @@ class DatabaseClient:
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA foreign_keys = ON")
             conn.executescript(schema_path.read_text(encoding="utf-8"))
+            self._run_sqlite_migrations(conn)
             conn.commit()
+
+    def _run_sqlite_migrations(self, conn: sqlite3.Connection) -> None:
+        def columns(table: str) -> set[str]:
+            return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+
+        def add_column(table: str, name: str, definition: str) -> None:
+            if name not in columns(table):
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+
+        add_column("products", "style_tags", "TEXT NOT NULL DEFAULT '[]'")
+        add_column("reviews", "parent_id", "INTEGER REFERENCES reviews(review_id)")
+        add_column("reviews", "is_studio_reply", "INTEGER NOT NULL DEFAULT 0")
+        add_column("reviews", "helpful_count", "INTEGER NOT NULL DEFAULT 0")
+        add_column("reviews", "review_type", "TEXT")
+        add_column("reviews", "has_verified_purchase", "INTEGER NOT NULL DEFAULT 0")
+        add_column("reviews", "image_urls", "TEXT NOT NULL DEFAULT '[]'")
+        add_column("workshop_bookings", "chatbot_session_id", "TEXT REFERENCES chatbot_sessions(session_id)")
+
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_reviews_parent ON reviews(parent_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_reviews_type_rating ON reviews(review_type, rating)")
 
     def _rows_to_dicts(self, rows: list[Any]) -> list[dict]:
         return [dict(row) for row in rows]

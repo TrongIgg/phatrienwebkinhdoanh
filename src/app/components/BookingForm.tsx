@@ -89,7 +89,7 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
       package: workshop.package,
     });
 
-    window.sessionStorage.setItem(
+    window.localStorage.setItem(
       'tho-booking-contact',
       JSON.stringify({
         name: formData.name,

@@ -250,7 +250,7 @@ function StaffLoginPage({ defaultRole, onLogin }: { defaultRole: StaffRole; onLo
         <section className="flex flex-col justify-center">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-[#716942]">Không xuất hiện trên web customer</p>
           <h1 className="max-w-[820px] text-[clamp(2.8rem,5vw,5rem)] font-bold leading-none">
-            Back-office cho staff và admin
+            Khu quản trị cho staff và admin
           </h1>
           <p className="mt-5 max-w-[720px] text-2xl leading-snug text-[#3F3F35]/80">
             Cổng này chỉ mở qua route hoặc domain riêng như <span className="font-bold">/staff</span> hoặc <span className="font-bold">/admin</span>.
@@ -309,7 +309,7 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
     ? [
         { label: 'Dashboard', to: `${base}/dashboard`, page: 'dashboard' as StaffPage },
         { label: 'Booking', to: `${base}/booking`, page: 'booking' as StaffPage },
-        { label: 'Product', to: `${base}/product`, page: 'product' as StaffPage },
+        { label: 'Sản phẩm', to: `${base}/product`, page: 'product' as StaffPage },
         { label: 'Tracker', to: `${base}/tracking`, page: 'tracking' as StaffPage },
       ]
     : [{ label: 'Tracker', to: `${base}/tracking`, page: 'tracking' as StaffPage }];
@@ -634,7 +634,7 @@ function ProductManagementPage({ role, productJobs }: { role: StaffRole; product
           <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <h2 className="text-3xl font-bold">Danh sách product</h2>
             <div className="grid gap-3 sm:grid-cols-3">
-              <FilterButton label="Stage" />
+              <FilterButton label="Giai đoạn" />
               <FilterButton label="Ảnh" />
               <FilterButton label="Ngày hẹn" />
             </div>
@@ -645,7 +645,7 @@ function ProductManagementPage({ role, productJobs }: { role: StaffRole; product
           <ProductTable productJobs={productJobs} />
         </div>
         <aside className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)]">
-          <h2 className="mb-5 text-3xl font-bold">Chi tiết Product</h2>
+          <h2 className="mb-5 text-3xl font-bold">Chi tiết sản phẩm</h2>
           <div className="mb-4 flex items-center justify-between">
             <span className="text-3xl font-bold">{selected.id}</span>
             <Badge className={productStatusClass[selected.status]}>{productStatusLabel[selected.status]}</Badge>
@@ -654,7 +654,7 @@ function ProductManagementPage({ role, productJobs }: { role: StaffRole; product
             <InfoRow label="Booking ID" value={selected.booking_id} />
             <InfoRow label="Khách hàng" value={selected.customer} />
             <InfoRow label="Sản phẩm" value={selected.product} />
-            <InfoRow label="Stage" value={stageLabel[selected.stage]} />
+            <InfoRow label="Giai đoạn" value={stageLabel[selected.stage]} />
             <InfoRow label="Người phụ trách" value={selected.owner} />
             <InfoRow label="Hẹn giao" value={selected.due} />
           </div>
@@ -802,7 +802,7 @@ function BookingTable({ bookings, compact }: { bookings: Booking[]; compact: boo
 }
 
 function ProductTable({ productJobs }: { productJobs: ProductJob[] }) {
-  const headings = ['Product ID', 'Booking', 'Khách hàng', 'Sản phẩm', 'Stage', 'Trạng thái', 'Ảnh', 'Hẹn giao', ''];
+  const headings = ['Mã sản phẩm', 'Booking', 'Khách hàng', 'Sản phẩm', 'Giai đoạn', 'Trạng thái', 'Ảnh', 'Hẹn giao', ''];
   return (
     <div className="overflow-x-auto">
       <table className="min-w-[980px] w-full border-separate border-spacing-y-2">
@@ -931,7 +931,7 @@ function TrackerList({ trackers }: { trackers: Tracker[] }) {
       <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <h2 className="text-3xl font-bold">Danh sách tracker</h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <FilterButton label="Stage" />
+          <FilterButton label="Giai đoạn" />
           <FilterButton label="QC" />
           <FilterButton label="Ngày" />
         </div>
@@ -943,7 +943,7 @@ function TrackerList({ trackers }: { trackers: Tracker[] }) {
         <table className="min-w-[840px] w-full border-separate border-spacing-y-1">
           <thead>
             <tr className="bg-[#3F3F35] text-white">
-              {['Tracker ID', 'Booking ID', 'Khách hàng', 'Sản phẩm', 'Stage', 'QC', 'Cập nhật cuối', 'Hành động'].map((heading, index) => <TableHead key={heading} index={index} total={8}>{heading}</TableHead>)}
+              {['Mã tracker', 'Mã booking', 'Khách hàng', 'Sản phẩm', 'Giai đoạn', 'QC', 'Cập nhật cuối', 'Hành động'].map((heading, index) => <TableHead key={heading} index={index} total={8}>{heading}</TableHead>)}
             </tr>
           </thead>
           <tbody>

@@ -220,27 +220,14 @@ export function TrackingPage() {
         <div className="container mx-auto px-4 py-10 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-start gap-8 lg:grid-cols-[360px_1fr]">
             <div className="motion-section">
-              <p className="mb-2 text-sm text-primary">Tracking Center</p>
+              <p className="mb-2 text-sm text-primary">Tra cứu THỔ</p>
               <h1 className="mb-4 text-4xl text-foreground">Tra cứu trạng thái tại THỔ</h1>
               <p className="text-muted-foreground">
-                Mã vừa thanh toán sẽ xuất hiện ngay tại đây. WS là workshop, ORD là đơn hàng, CER/THO là hành trình thành phẩm gốm.
+                Nhập mã đơn hàng, mã vé hoặc mã theo dõi thành phẩm. Hệ thống tự nhận diện ORD, WS, CER/THO.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="motion-section rounded-lg border border-border bg-card p-5 shadow-sm">
-              <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {trackingTypes.map((type) => {
-                  const Icon = type.icon;
-                  const active = trackingType === type.id;
-                  return (
-                    <button key={type.id} type="button" onClick={() => setTrackingType(type.id)} className={`min-h-[112px] rounded-lg border p-4 text-left transition-colors ${active ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-background hover:border-primary/50'}`}>
-                      <Icon className="mb-3 h-5 w-5 text-primary" />
-                      <span className="block text-sm text-foreground">{type.label}</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">{type.helper}</span>
-                    </button>
-                  );
-                })}
-              </div>
               <label htmlFor="tracking-code" className="mb-2 block text-sm text-foreground">Mã tra cứu</label>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <input
@@ -258,6 +245,9 @@ export function TrackingPage() {
                   Tra cứu
                 </button>
               </div>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                Gợi ý: `ORD-` cho đơn sản phẩm, `WS-` cho vé workshop, `CER/THO-` cho hành trình thành phẩm gốm.
+              </p>
               {recentRecords.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {recentRecords.slice(0, 5).map((record) => (

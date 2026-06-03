@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { Calendar, Clock, Flame, Search, Sparkles, Users } from 'lucide-react';
+import { Calendar, Clock, Flame, Palette, Search, Sparkles, Users } from 'lucide-react';
 import { api, type ApiWorkshop } from '../lib/api';
 import { getHomeCampaign, readBehaviorTags, type BehaviorTag } from '../lib/personalization';
 import { AssetImage, workshopImages } from './DesignPrimitives';
@@ -228,6 +228,32 @@ export function WorkshopPage() {
 
         <div className="mt-8">
           <WorkshopChatbot compact />
+        </div>
+
+        <div className="mt-8 overflow-hidden rounded-[18px] border border-[#C0AC8B] bg-[#FFF8F2] shadow-[0_14px_34px_rgba(113,105,66,0.1)]">
+          <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+            <div className="p-6 sm:p-7">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#F4E4D8] px-4 py-2 text-sm font-bold uppercase tracking-[0.12em] text-[#643A2A]">
+                <Palette className="h-4 w-4" />
+                Mini game custom workshop
+              </div>
+              <h2 className="text-3xl font-bold leading-tight text-[#3B2118]">
+                Thử tạo mẫu gốm trước khi chọn workshop
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6A5D52]">
+                Click qua từng giai đoạn nặn hình, bàn xoay, nung, tô màu, phơi khô và thành phẩm. Chọn nhanh dáng đĩa, bình, ly hoặc bát để xem mẫu phù hợp.
+              </p>
+              <Link to="/workshop-customizer" className="mt-5 inline-flex rounded-full bg-[#3B2118] px-6 py-3 text-sm font-bold text-[#FFF8F2] hover:opacity-90">
+                Vào thử custom workshop
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-3 p-4 lg:p-5">
+              <AssetImage src={workshopImages.handsWarm} alt="Nặn hình gốm" className="h-36 rounded-lg" />
+              <AssetImage src={workshopImages.wheelBw} alt="Bàn xoay gốm" className="h-36 rounded-lg" />
+              <AssetImage src={workshopImages.detailBw} alt="Tô màu men" className="h-36 rounded-lg" />
+              <AssetImage src={workshopImages.largePot} alt="Thành phẩm gốm" className="h-36 rounded-lg" />
+            </div>
+          </div>
         </div>
 
         <div className="mt-10 rounded-[18px] border border-[#C0AC8B] bg-[#FFF8F2] p-4 shadow-[0_12px_30px_rgba(113,105,66,0.08)]">

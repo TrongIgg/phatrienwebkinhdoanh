@@ -15,7 +15,7 @@ type ViewReview = {
   id: string;
   targetType: ReviewTarget;
   name: string;
-  title: string;
+  title?: string;
   comment: string;
   rating: number;
   date: string;
@@ -58,6 +58,13 @@ export function ReviewPage() {
   });
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [helpedReviewIds, setHelpedReviewIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(window.localStorage.getItem('tho-helpful-review-ids') ?? '[]') as string[];
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     api.reviews()
@@ -78,16 +85,17 @@ export function ReviewPage() {
 
   const submitReview = async (event: FormEvent) => {
     event.preventDefault();
-    if (!draft.name.trim() || !draft.title.trim() || !draft.comment.trim()) {
-      toast.error('Vui lòng điền đủ các mục bắt buộc.');
+    if (!draft.name.trim() || !draft.comment.trim()) {
+      toast.error('Vui lòng nhập tên và phần cảm nhận.');
       return;
     }
+    const commentTitle = draft.title.trim() || draft.comment.trim().slice(0, 46);
 
     const optimistic: ViewReview = {
       id: `local-${Date.now()}`,
       targetType: draft.targetType,
       name: draft.name,
-      title: draft.title,
+      title: commentTitle,
       comment: draft.comment,
       rating: draft.rating,
       date: new Date().toLocaleDateString('vi-VN'),
@@ -99,7 +107,7 @@ export function ReviewPage() {
     saveReviewNotification({
       id: `review-${Date.now()}`,
       customer: optimistic.name,
-      title: optimistic.title,
+      title: optimistic.title || 'Cảm nhận mới',
       rating: optimistic.rating,
       targetType: optimistic.targetType,
       createdAt: new Date().toISOString(),
@@ -111,7 +119,7 @@ export function ReviewPage() {
     try {
       await api.createReview({
         name: optimistic.name,
-        title: optimistic.title,
+        title: optimistic.title || '',
         comment: optimistic.comment,
         rating: optimistic.rating,
       });
@@ -135,6 +143,13 @@ export function ReviewPage() {
   };
 
   const markHelpful = (reviewId: string) => {
+    if (helpedReviewIds.includes(reviewId)) {
+      toast.info('Bạn đã đánh dấu hữu ích cho nhận xét này rồi.');
+      return;
+    }
+    const nextHelped = [...helpedReviewIds, reviewId];
+    setHelpedReviewIds(nextHelped);
+    window.localStorage.setItem('tho-helpful-review-ids', JSON.stringify(nextHelped));
     setReviews((current) => current.map((review) => (
       review.id === reviewId ? { ...review, helpful: review.helpful + 1 } : review
     )));
@@ -165,7 +180,7 @@ export function ReviewPage() {
                   {review.targetType === 'product' ? 'Sản phẩm' : 'Workshop'}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold">{review.title}</h2>
+              {review.title && <h2 className="text-2xl font-bold">{review.title}</h2>}
               <p className="mt-3 leading-7 text-[#6A5D52]">“{review.comment}”</p>
               <p className="mt-6 font-bold">{review.name}</p>
               <p className="text-sm text-[#8B765D]">{review.date}</p>
@@ -197,7 +212,7 @@ export function ReviewPage() {
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button type="button" onClick={() => markHelpful(review.id)} className="inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">
                     <ThumbsUp className="h-4 w-4" />
-                    Hữu ích ({review.helpful})
+                    {helpedReviewIds.includes(review.id) ? 'Đã hữu ích' : 'Hữu ích'} ({review.helpful})
                   </button>
                   <button type="button" onClick={() => setReplyingTo(review.id)} className="inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">
                     <MessageSquare className="h-4 w-4" />
@@ -234,7 +249,7 @@ export function ReviewPage() {
           </div>
 
           <Field label="Tên của bạn" required value={draft.name} onChange={(value) => setDraft({ ...draft, name: value })} placeholder="Nguyễn Văn A" />
-          <Field label="Tiêu đề" required value={draft.title} onChange={(value) => setDraft({ ...draft, title: value })} placeholder="Không gian rất ấm" />
+          <Field label="Tiêu đề ngắn (không bắt buộc)" value={draft.title} onChange={(value) => setDraft({ ...draft, title: value })} placeholder="Ví dụ: Không gian rất ấm" />
 
           <div className="mt-5">
             <span className="mb-2 block font-bold">Số sao <span className="text-red-600">*</span></span>
@@ -251,13 +266,13 @@ export function ReviewPage() {
           </div>
 
           <label className="mt-5 block">
-            <span className="mb-2 block font-bold">Nhận xét <span className="text-red-600">*</span></span>
+            <span className="mb-2 block font-bold">Cảm nhận của bạn <span className="text-red-600">*</span></span>
             <textarea
               required
               value={draft.comment}
               onChange={(event) => setDraft({ ...draft, comment: event.target.value })}
               className="min-h-[140px] w-full rounded-lg border border-[#C0AC8B] bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-[#716942]/30"
-              placeholder={draft.targetType === 'product' ? 'Sản phẩm, đóng gói, men gốm...' : 'Không gian, nghệ nhân, lịch học...'}
+              placeholder={draft.targetType === 'product' ? 'Bạn thấy sản phẩm, men gốm, đóng gói như thế nào?' : 'Bạn thấy không gian, nghệ nhân, trải nghiệm làm gốm ra sao?'}
             />
           </label>
 

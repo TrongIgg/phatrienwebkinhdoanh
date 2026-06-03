@@ -240,20 +240,20 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1440px] gap-12 px-6 py-20 lg:grid-cols-[560px_1fr] lg:px-10">
+      <section className="mx-auto grid max-w-[1440px] gap-8 px-6 py-14 lg:grid-cols-[520px_1fr] lg:px-10">
         <div>
-          <h2 className="mb-8 text-[48px] font-bold leading-none text-[#361F17]">Khoảng khắc tại THỔ</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <AssetImage src={workshopImages.detailBw} alt="Khoảnh khắc tỉ mỉ tại THỔ" className="h-[380px] rounded-[18px]" />
-            <div className="grid gap-6">
-              <AssetImage src={workshopImages.handsWarm} alt="Tạo hình gốm bằng tay" className="h-[166px] rounded-[18px]" />
-              <AssetImage src={workshopImages.wheelBw} alt="Bàn xoay gốm" className="h-[188px] rounded-[18px]" />
+          <h2 className="mb-6 text-[42px] font-bold leading-none text-[#361F17]">Khoảnh khắc tại THỔ</h2>
+          <div className="grid grid-cols-[1.05fr_0.95fr] gap-4">
+            <AssetImage src={workshopImages.detailBw} alt="Khoảnh khắc tỉ mỉ tại THỔ" className="h-[300px] rounded-[18px]" />
+            <div className="grid gap-4">
+              <AssetImage src={workshopImages.handsWarm} alt="Tạo hình gốm bằng tay" className="h-[140px] rounded-[18px]" />
+              <AssetImage src={workshopImages.wheelBw} alt="Bàn xoay gốm" className="h-[140px] rounded-[18px]" />
             </div>
           </div>
         </div>
         <div>
-          <h2 className="mb-12 text-right text-[48px] font-bold leading-none text-[#361F17]">Khách hàng nói gì ?</h2>
-          <ReviewStrip />
+          <h2 className="mb-6 text-right text-[42px] font-bold leading-none text-[#361F17]">Khách hàng nói gì?</h2>
+          <ReviewStrip limit={3} />
         </div>
       </section>
 

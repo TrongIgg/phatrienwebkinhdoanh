@@ -169,7 +169,7 @@ export function Header() {
               href="tel:0912784507"
               className="hidden items-center rounded-full bg-[#361F17] px-7 py-2 font-bold text-white xl:flex"
             >
-              Booking
+              Đặt lịch
             </a>
 
             <button

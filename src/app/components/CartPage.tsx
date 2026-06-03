@@ -229,8 +229,9 @@ export function CartPage() {
                         {item.gift && (
                           <div className="mt-3 rounded-lg border border-[#E5CDBA] bg-white/70 p-3 text-sm leading-6 text-[#6E4E3F]">
                             <p className="font-bold text-[#C96B37]">Quà tặng · {item.gift.occasion}</p>
-                            <p>Gói: {item.gift.wrapping}</p>
-                            <p>Người nhận: {item.gift.recipientName} · {item.gift.recipientPhone}</p>
+                            <p>{item.gift.includeWrapping ? 'Có thêm giấy gói quà' : 'Không cần giấy gói quà'}</p>
+                            {item.gift.giftNote && <p>Ghi chú: {item.gift.giftNote}</p>}
+                            <p className="text-xs text-[#8A715F]">Địa chỉ nhận hàng sẽ nhập ở checkout.</p>
                           </div>
                         )}
                         <div className="mt-6 flex items-center gap-5">
