@@ -165,12 +165,12 @@ export function Header() {
               )}
             </div>
 
-            <a
-              href="tel:0912784507"
+            <Link
+              to="/workshop"
               className="hidden items-center rounded-full bg-[#361F17] px-7 py-2 font-bold text-white xl:flex"
             >
               Đặt lịch
-            </a>
+            </Link>
 
             <button
               className="rounded-lg p-2 transition-colors hover:bg-[#EFE2D6] lg:hidden"
@@ -202,6 +202,13 @@ export function Header() {
               <a href="tel:0912784507" className="text-[20px] font-bold text-[#361F17]">
                 0912784507
               </a>
+              <Link
+                to="/workshop"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-[#361F17] px-5 font-bold text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Đặt lịch
+              </Link>
               {!customer && (
                 <button
                   type="button"
