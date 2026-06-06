@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import {
   CalendarCheck,
   CheckCircle2,
@@ -15,6 +15,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiTracking } from '../lib/api';
 import { findLocalTrackingRecord, readLocalTrackingRecords } from '../lib/trackingStorage';
 import { AssetImage, productImages, workshopImages } from './DesignPrimitives';
@@ -26,12 +27,13 @@ import {
   type TrackingMedia,
 } from '../lib/customerExperience';
 
-type TrackingType = 'order' | 'workshop' | 'ceramic';
+type TrackingType = 'order' | 'workshop' | 'ceramic' | 'custom';
 
 const trackingTypes: Array<{ id: TrackingType; label: string; helper: string; placeholder: string; icon: typeof Package }> = [
   { id: 'order', label: 'Đơn hàng', helper: 'Mã bắt đầu bằng ORD', placeholder: 'VD: ORD28052026', icon: Package },
   { id: 'workshop', label: 'Workshop', helper: 'Mã bắt đầu bằng WS', placeholder: 'VD: WS052826', icon: CalendarCheck },
   { id: 'ceramic', label: 'Tracking gốm', helper: 'Mã THO/CER sau workshop', placeholder: 'VD: THO-2024-0847', icon: Sparkles },
+  { id: 'custom', label: 'Custom brief', helper: 'Mã bắt đầu bằng CUS', placeholder: 'VD: CUS-12345678', icon: Sparkles },
 ];
 
 const fallbackTimeline = [
@@ -127,6 +129,7 @@ function inferType(code: string): TrackingType {
   const normalized = code.trim().toUpperCase();
   if (normalized.startsWith('WS')) return 'workshop';
   if (normalized.startsWith('ORD')) return 'order';
+  if (normalized.startsWith('CUS')) return 'custom';
   return 'ceramic';
 }
 
@@ -148,6 +151,120 @@ function buildCeramicTimeline(timeline: ApiTracking['timeline']) {
       updatedAt: state === 'waiting' ? 'Đang chờ' : `0${Math.min(day, 9)}/06/2026`,
     };
   });
+}
+
+function CustomTrackingResult({ result }: { result: ApiTracking }) {
+  const navigate = useNavigate();
+  const { addProduct, productItems } = useProductCart();
+  const request = result.custom_request;
+
+  if (!request) {
+    return (
+      <div className="motion-section rounded-lg border border-border bg-card p-8 text-center">
+        <Sparkles className="mx-auto mb-3 h-10 w-10 text-primary" />
+        <h2 className="mb-2 text-xl text-foreground">Brief custom chưa có dữ liệu</h2>
+        <p className="text-muted-foreground">Mã này đã được ghi nhận nhưng chưa có phản hồi nghệ nhân trong bản demo.</p>
+      </div>
+    );
+  }
+
+  const cartItemId = `custom-${result.code}`;
+  const addCustomToCheckout = () => {
+    if (!productItems.some((item) => item.id === cartItemId)) {
+      addProduct({
+        id: cartItemId,
+        name: `Mẫu custom ${request.shape} · ${request.glaze}`,
+        price: request.estimatedPrice,
+        quantity: 1,
+        image: productImages.tealVase,
+        custom: {
+          shape: request.shape,
+          glaze: request.glaze,
+          features: request.features,
+          engraving: request.engraving,
+          brief: request.brief,
+          multiplier: request.multiplier,
+          basePrice: request.basePrice,
+          artisanLeadDays: request.artisanLeadDays,
+        },
+      });
+    }
+    window.sessionStorage.setItem('tho-checkout-product-ids', JSON.stringify([cartItemId]));
+    toast.success('Đã chuyển brief custom sang thanh toán.');
+    navigate('/checkout?mode=product');
+  };
+
+  return (
+    <div className="motion-section grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="space-y-6">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>{result.code}</span>
+            <span className="rounded-full bg-[#F4E4D8] px-2 py-1 text-[#643A2A]">{result.status}</span>
+          </div>
+          <h2 className="text-3xl text-foreground">{result.title}</h2>
+          <p className="mt-3 leading-7 text-muted-foreground">{result.message}</p>
+          <div className="mt-5 rounded-lg border border-[#C96B37]/25 bg-[#FFF8F2] p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Phản hồi nghệ nhân</p>
+            <p className="mt-3 leading-7 text-[#6E4E3F]">{request.artisanFeedback}</p>
+            <p className="mt-3 text-sm font-bold text-[#C96B37]">
+              {request.artisanName} sẽ nhận brief chính thức sau {request.artisanLeadDays} ngày kể từ khi khách xác nhận thanh toán.
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="mb-5 text-lg font-semibold text-foreground">Tiến độ brief custom</h3>
+          {result.timeline.map((step, index) => (
+            <div key={`${step.stage}-${index}`} className={`tracking-step grid grid-cols-[32px_1fr] gap-4 rounded-lg px-2 ${step.state === 'current' ? 'bg-primary/5 py-2' : ''}`}>
+              <div className="flex flex-col items-center">
+                <StepIcon state={step.state} />
+                {index < result.timeline.length - 1 && <div className={`h-12 w-px ${step.state === 'waiting' ? 'bg-border' : 'bg-primary/40'}`} />}
+              </div>
+              <div className="pb-5">
+                <p className={step.state === 'waiting' ? 'text-muted-foreground' : 'font-semibold text-foreground'}>{step.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{step.stage}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <aside className="space-y-6">
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Brief khách gửi</p>
+          <h3 className="mt-2 text-2xl text-foreground">{request.shape} · {request.glaze}</h3>
+          <div className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+            {request.features.length > 0 && <p>Chi tiết: {request.features.join(', ')}</p>}
+            {request.engraving && <p>Ký hiệu: {request.engraving}</p>}
+            {request.brief && <p>Yêu cầu: {request.brief}</p>}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Báo giá demo</p>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between"><span>Giá gốc</span><span>{request.basePrice.toLocaleString('vi-VN')}đ</span></div>
+            <div className="flex justify-between"><span>Hệ số custom</span><span>x{request.multiplier.toFixed(2)}</span></div>
+            <div className="border-t border-border pt-3 text-xl font-bold text-[#C96B37]">
+              {request.estimatedPrice.toLocaleString('vi-VN')}đ
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={addCustomToCheckout}
+            disabled={!request.paymentReady}
+            className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-lg bg-primary px-5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          >
+            Thanh toán nếu vừa ý
+          </button>
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">
+            Thanh toán sẽ chuyển brief này thành đơn custom. Studio vẫn có thể liên hệ để xác nhận chi tiết cuối cùng trước khi làm.
+          </p>
+        </div>
+      </aside>
+    </div>
+  );
 }
 
 export function TrackingPage() {
@@ -291,8 +408,9 @@ export function TrackingPage() {
             </div>
           )}
           {submitted && !loading && error && <div className="motion-section rounded-lg border border-border bg-card p-8 text-center text-destructive">{error}</div>}
+          {submitted && !loading && !error && result && resultType === 'custom' && <CustomTrackingResult result={result} />}
           {submitted && !loading && !error && result && resultType === 'ceramic' && <CeramicTrackingExperience code={trackingCode} result={result} />}
-          {submitted && !loading && !error && result && resultType !== 'ceramic' && <SimpleTrackingResult type={resultType} code={trackingCode} result={result} />}
+          {submitted && !loading && !error && result && resultType !== 'ceramic' && resultType !== 'custom' && <SimpleTrackingResult type={resultType} code={trackingCode} result={result} />}
         </div>
       </section>
     </div>

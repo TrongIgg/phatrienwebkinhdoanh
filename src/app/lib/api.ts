@@ -41,7 +41,7 @@ export type ApiReview = {
 
 export type ApiTracking = {
   code: string;
-  tracking_type: 'order' | 'workshop' | 'ceramic';
+  tracking_type: 'order' | 'workshop' | 'ceramic' | 'custom';
   status: string;
   title: string;
   message: string;
@@ -49,6 +49,20 @@ export type ApiTracking = {
   participant_count?: number | null;
   checkin_status?: string | null;
   timeline: Array<{ stage: string; label: string; state: string }>;
+  custom_request?: {
+    shape: string;
+    glaze: string;
+    features: string[];
+    engraving: string;
+    brief: string;
+    multiplier: number;
+    basePrice: number;
+    estimatedPrice: number;
+    artisanLeadDays: number;
+    artisanName: string;
+    artisanFeedback: string;
+    paymentReady: boolean;
+  };
 };
 
 export type ApiStaffBooking = {

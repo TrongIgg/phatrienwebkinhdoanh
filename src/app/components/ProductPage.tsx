@@ -5,6 +5,7 @@ import { Bell, Check, ChevronLeft, ChevronRight, FolderOpen, Palette, Rotate3D, 
 import { toast } from 'sonner';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiProduct } from '../lib/api';
+import { saveLocalTrackingRecords } from '../lib/trackingStorage';
 import { AssetImage, productImages } from './DesignPrimitives';
 
 type CatalogProduct = {
@@ -448,7 +449,6 @@ function ProductCard({ product, onAdd, onBuy }: { product: CatalogProduct; onAdd
 }
 
 function ProductMiniCustomizer() {
-  const { addProduct } = useProductCart();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [shape, setShape] = useState<CustomizerShapeId>('cup');
@@ -482,18 +482,24 @@ function ProductMiniCustomizer() {
     reader.readAsDataURL(file);
   };
 
-  const saveBrief = () => {
-    toast.success('Đã dựng brief demo. Khách có thể gửi mẫu này cho THỔ tư vấn tiếp.');
-  };
-
-  const addCustomOrder = () => {
-    addProduct({
-      id: `custom-${Date.now()}`,
-      name: `Mẫu custom ${selectedShape.label} · ${selectedGlaze.label}`,
-      price: customPrice,
-      quantity: 1,
-      image: productImages.tealVase,
-      custom: {
+  const saveBrief = async () => {
+    const code = `CUS-${Date.now().toString().slice(-8)}`;
+    const record = {
+      code,
+      tracking_type: 'custom' as const,
+      status: 'artisan_reviewed',
+      title: `Brief custom ${selectedShape.label} · ${selectedGlaze.label}`,
+      message: 'Nghệ nhân đã phản hồi bản brief demo. Nếu khách vừa ý, có thể thanh toán để THỔ giữ lịch làm mẫu.',
+      manager_name: 'Nghệ nhân Hạnh',
+      participant_count: null,
+      checkin_status: null,
+      timeline: [
+        { stage: 'brief_saved', label: 'Đã lưu brief custom', state: 'done' },
+        { stage: 'artist_review', label: 'Nghệ nhân đã phản hồi', state: 'current' },
+        { stage: 'payment', label: 'Chờ khách xác nhận thanh toán', state: 'waiting' },
+        { stage: 'making', label: 'Tiến hành làm sản phẩm', state: 'waiting' },
+      ],
+      custom_request: {
         shape: selectedShape.label,
         glaze: selectedGlaze.label,
         features: selectedFeatureLabels,
@@ -501,11 +507,22 @@ function ProductMiniCustomizer() {
         brief: brief.trim(),
         multiplier,
         basePrice,
+        estimatedPrice: customPrice,
         artisanLeadDays: 3,
+        artisanName: 'Nghệ nhân Hạnh',
+        artisanFeedback: `Mẫu ${selectedShape.label.toLowerCase()} với ${selectedGlaze.label.toLowerCase()} có thể làm được. Nên giữ ${selectedFeatureLabels.length > 0 ? selectedFeatureLabels.slice(0, 2).join(' và ').toLowerCase() : 'form tối giản'} để sản phẩm ổn định sau nung. Studio cần 3 ngày để nghệ nhân nhận brief chính thức trước khi bắt đầu.`,
+        paymentReady: true,
       },
-    });
-    toast.success('Đã thêm mẫu custom vào giỏ. Nghệ nhân sẽ nhận brief sau 3 ngày và liên hệ tư vấn.');
-    navigate('/cart');
+    };
+
+    saveLocalTrackingRecords([record]);
+    try {
+      await api.createTrackingRecords([record]);
+    } catch {
+      // The local tracking record is enough for the demo when the backend is not available.
+    }
+    toast.success(`Đã lưu brief custom. Mã tracking: ${code}`);
+    navigate(`/tracking?code=${encodeURIComponent(code)}`);
   };
 
   if (!open) {
@@ -523,7 +540,7 @@ function ProductMiniCustomizer() {
             <span className="block text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">Bạn muốn customizer?</span>
             <span className="mt-2 block text-3xl font-bold leading-tight text-[#3B2118]">Click vào đây để tự dựng mẫu sản phẩm</span>
             <span className="mt-2 block max-w-3xl leading-7 text-[#6A5D52]">
-              Upload ảnh draft, chọn clickbox chi tiết, xem demo trên bàn xoay rồi đặt mẫu custom vào giỏ nếu khách quan tâm.
+              Upload ảnh draft, chọn clickbox chi tiết, xem demo trên bàn xoay rồi lưu brief để nhận mã tracking chờ nghệ nhân phản hồi.
             </span>
           </span>
           <span className="inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[#3B2118] px-6 py-3 font-bold text-[#FFF8F2]">
@@ -692,13 +709,9 @@ function ProductMiniCustomizer() {
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#716942]">Demo đang dựng</p>
               <h3 className="mt-2 text-2xl font-bold text-[#3B2118]">{selectedShape.label} · {selectedGlaze.label}</h3>
             </div>
-            <button
-              type="button"
-              onClick={saveBrief}
-              className="shrink-0 rounded-full bg-[#3B2118] px-5 py-3 text-sm font-bold text-[#FFF8F2] hover:opacity-90"
-            >
-              Lưu brief
-            </button>
+            <span className="shrink-0 rounded-full bg-[#3B2118] px-5 py-3 text-sm font-bold text-[#FFF8F2]">
+              Tracking brief
+            </span>
           </div>
 
           <div className="mt-6 rounded-lg border border-[#D9BFAE] bg-[#FBEEE5] p-4">
@@ -771,15 +784,15 @@ function ProductMiniCustomizer() {
           <div className="mt-4 rounded-lg border border-[#716942]/30 bg-[#FFF8F2] p-4">
             <p className="text-sm font-bold text-[#3B2118]">Thông báo đặt hàng custom</p>
             <p className="mt-2 text-sm leading-6 text-[#6A5D52]">
-              Nếu khách quan tâm, mẫu này sẽ vào giỏ như một đơn custom. THỔ sẽ báo nghệ nhân nhận brief sau 3 ngày, sau đó liên hệ khách để chốt vật liệu, lịch làm và khả năng hoàn thiện.
+              Nếu khách quan tâm, hệ thống sẽ lưu brief và tạo mã tracking riêng. Tại trang tracking, khách xem phản hồi/góp ý từ nghệ nhân rồi mới bấm thanh toán nếu thấy vừa ý.
             </p>
             <button
               type="button"
-              onClick={addCustomOrder}
+              onClick={saveBrief}
               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C96B37] px-6 py-4 font-bold text-white hover:opacity-90"
             >
-              <ShoppingCart className="h-5 w-5" />
-              Đặt mẫu custom {customPrice.toLocaleString('vi-VN')}đ
+              <Search className="h-5 w-5" />
+              Lưu brief và lấy mã tracking
             </button>
           </div>
         </aside>
