@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router';
-import { Bell, Search, ShoppingCart, Star } from 'lucide-react';
+import { Bell, Check, Palette, Rotate3D, Search, ShoppingCart, Sparkles, Star, Type, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiProduct } from '../lib/api';
@@ -20,6 +20,38 @@ type CatalogProduct = {
   rating: number;
   reviewCount: number;
   image: string;
+};
+
+type CustomizerShapeId = 'cup' | 'vase' | 'plate' | 'lamp';
+type CustomizerGlazeId = 'milk' | 'moss' | 'amber' | 'ink';
+type CustomizerFeatureId = 'handle' | 'speckles' | 'stamp' | 'wavyRim';
+
+const customizerShapes: Array<{ id: CustomizerShapeId; label: string; brief: string }> = [
+  { id: 'cup', label: 'Ly gốm', brief: 'Thân thấp, dễ tặng và dễ cá nhân hóa tên.' },
+  { id: 'vase', label: 'Bình hoa', brief: 'Dáng cao, hợp ảnh draft có đường cong mềm.' },
+  { id: 'plate', label: 'Đĩa decor', brief: 'Bề mặt rộng để thử chữ, logo hoặc hoa văn.' },
+  { id: 'lamp', label: 'Đèn gốm', brief: 'Khối đứng, xem hiệu ứng lỗ sáng trên men.' },
+];
+
+const customizerGlazes: Array<{ id: CustomizerGlazeId; label: string; tone: string; shadow: string }> = [
+  { id: 'milk', label: 'Men sữa', tone: '#F4E4D2', shadow: '#C7A98F' },
+  { id: 'moss', label: 'Men rêu', tone: '#768A74', shadow: '#425846' },
+  { id: 'amber', label: 'Đất nung', tone: '#C46F42', shadow: '#7F3F25' },
+  { id: 'ink', label: 'Đen khói', tone: '#2D2A28', shadow: '#171412' },
+];
+
+const customizerFeatures: Array<{ id: CustomizerFeatureId; label: string }> = [
+  { id: 'handle', label: 'Tay cầm' },
+  { id: 'speckles', label: 'Chấm men' },
+  { id: 'stamp', label: 'Dấu ký hiệu' },
+  { id: 'wavyRim', label: 'Miệng lượn' },
+];
+
+const customizerShapeClass: Record<CustomizerShapeId, string> = {
+  cup: 'h-44 w-32 rounded-b-[38px] rounded-t-[18px]',
+  vase: 'h-56 w-32 rounded-b-[58px] rounded-t-[80px]',
+  plate: 'h-20 w-64 rounded-[999px]',
+  lamp: 'h-52 w-36 rounded-b-[44px] rounded-t-[18px]',
 };
 
 const imagePool = [
@@ -236,6 +268,8 @@ export function ProductPage() {
           </div>
         </div>
 
+        <ProductMiniCustomizer />
+
         <section className="mt-12 grid gap-5 md:grid-cols-3">
           {collections.filter((item) => item !== 'all').slice(0, 3).map((item, index) => (
             <button
@@ -375,6 +409,247 @@ function ProductCard({ product, onAdd, onBuy }: { product: CatalogProduct; onAdd
         </div>
       </div>
     </article>
+  );
+}
+
+function ProductMiniCustomizer() {
+  const [shape, setShape] = useState<CustomizerShapeId>('cup');
+  const [glaze, setGlaze] = useState<CustomizerGlazeId>('milk');
+  const [features, setFeatures] = useState<CustomizerFeatureId[]>(['speckles', 'stamp']);
+  const [engraving, setEngraving] = useState('THỔ 2026');
+  const [brief, setBrief] = useState('Men chảy nhẹ, cảm giác thủ công, dùng làm quà tặng.');
+  const [rotation, setRotation] = useState(24);
+  const [draftImage, setDraftImage] = useState('');
+
+  const selectedShape = customizerShapes.find((item) => item.id === shape) ?? customizerShapes[0];
+  const selectedGlaze = customizerGlazes.find((item) => item.id === glaze) ?? customizerGlazes[0];
+  const hasFeature = (id: CustomizerFeatureId) => features.includes(id);
+
+  const toggleFeature = (id: CustomizerFeatureId) => {
+    setFeatures((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  };
+
+  const handleDraftUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => setDraftImage(String(reader.result ?? ''));
+    reader.readAsDataURL(file);
+  };
+
+  const saveBrief = () => {
+    toast.success('Đã dựng brief demo. Khách có thể gửi mẫu này cho THỔ tư vấn tiếp.');
+  };
+
+  return (
+    <section className="mt-10 overflow-hidden rounded-lg border border-[#D9BFAE] bg-[#FFF8F2] shadow-[0_18px_44px_rgba(100,58,42,0.10)]">
+      <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="p-5 sm:p-7 lg:p-8">
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">
+            <Sparkles className="h-4 w-4" />
+            Mini game custom sản phẩm
+          </div>
+          <h2 className="mt-3 text-3xl font-bold leading-tight text-[#3B2118] sm:text-4xl">
+            Biến ảnh draft của khách thành mẫu gốm demo
+          </h2>
+          <p className="mt-3 max-w-2xl leading-7 text-[#6A5D52]">
+            Upload ảnh tham khảo, chọn dáng, men và vài chi tiết nhỏ. Khung bên phải sẽ dựng một mẫu giả lập trên bàn xoay để khách hình dung nhanh trước khi nhắn tư vấn.
+          </p>
+
+          <div className="mt-6 grid gap-4 xl:grid-cols-[220px_1fr]">
+            <label className="flex min-h-[190px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#B79C84] bg-white text-center transition hover:border-[#716942] hover:bg-[#FBEEE5]">
+              {draftImage ? (
+                <img src={draftImage} alt="Draft khách upload" className="h-full min-h-[190px] w-full object-cover" />
+              ) : (
+                <span className="flex flex-col items-center gap-3 px-4 text-[#716942]">
+                  <UploadCloud className="h-8 w-8" />
+                  <span className="text-sm font-bold">Tải ảnh draft mẫu</span>
+                  <span className="text-xs leading-5 text-[#7A6A58]">Ảnh phác thảo, moodboard hoặc mẫu khách thích</span>
+                </span>
+              )}
+              <input type="file" accept="image/*" onChange={handleDraftUpload} className="sr-only" />
+            </label>
+
+            <div className="grid gap-4">
+              <div>
+                <div className="mb-2 flex items-center gap-2 font-bold text-[#361F17]">
+                  <Sparkles className="h-4 w-4 text-[#716942]" />
+                  Chọn dáng
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {customizerShapes.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setShape(item.id)}
+                      className={`rounded-lg border p-3 text-left transition ${
+                        shape === item.id ? 'border-[#716942] bg-[#EFE2D6]' : 'border-[#E5CDBA] bg-white hover:border-[#716942]'
+                      }`}
+                    >
+                      <span className="block font-bold">{item.label}</span>
+                      <span className="mt-1 block text-xs leading-5 text-[#6A5D52]">{item.brief}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center gap-2 font-bold text-[#361F17]">
+                  <Palette className="h-4 w-4 text-[#716942]" />
+                  Chọn men
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {customizerGlazes.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setGlaze(item.id)}
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold ${
+                        glaze === item.id ? 'border-[#716942] bg-[#716942] text-white' : 'border-[#C0AC8B] bg-white text-[#716942]'
+                      }`}
+                    >
+                      <span className="h-4 w-4 rounded-full border border-black/15" style={{ backgroundColor: item.tone }} />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center gap-2 font-bold text-[#361F17]">
+                  <Check className="h-4 w-4 text-[#716942]" />
+                  Clickbox chi tiết
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {customizerFeatures.map((item) => (
+                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#E5CDBA] bg-white px-4 py-3 text-sm font-bold">
+                      <input
+                        type="checkbox"
+                        checked={hasFeature(item.id)}
+                        onChange={() => toggleFeature(item.id)}
+                        className="h-4 w-4 accent-[#716942]"
+                      />
+                      {item.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 flex items-center gap-2 text-sm font-bold text-[#361F17]">
+                <Type className="h-4 w-4 text-[#716942]" />
+                Chữ / ký hiệu trên mẫu
+              </span>
+              <input
+                value={engraving}
+                maxLength={18}
+                onChange={(event) => setEngraving(event.target.value)}
+                className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4 outline-none focus:ring-2 focus:ring-[#716942]/25"
+                placeholder="Ví dụ: tên, ngày, logo ngắn"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold text-[#361F17]">Yêu cầu khách muốn</span>
+              <input
+                value={brief}
+                maxLength={90}
+                onChange={(event) => setBrief(event.target.value)}
+                className="h-12 w-full rounded-lg border border-[#C0AC8B] bg-white px-4 outline-none focus:ring-2 focus:ring-[#716942]/25"
+                placeholder="Màu, cảm giác, dịp tặng..."
+              />
+            </label>
+          </div>
+        </div>
+
+        <aside className="border-t border-[#E5CDBA] bg-[#EFE2D6] p-5 sm:p-7 lg:border-l lg:border-t-0 lg:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#716942]">Demo đang dựng</p>
+              <h3 className="mt-2 text-2xl font-bold text-[#3B2118]">{selectedShape.label} · {selectedGlaze.label}</h3>
+            </div>
+            <button
+              type="button"
+              onClick={saveBrief}
+              className="shrink-0 rounded-full bg-[#3B2118] px-5 py-3 text-sm font-bold text-[#FFF8F2] hover:opacity-90"
+            >
+              Lưu brief
+            </button>
+          </div>
+
+          <div className="mt-6 rounded-lg border border-[#D9BFAE] bg-[#FBEEE5] p-4">
+            <div className="relative flex min-h-[390px] items-center justify-center overflow-hidden rounded-lg bg-[radial-gradient(circle_at_center,#FFF8F2_0,#EFE2D6_58%,#DCC5B3_100%)]">
+              <div className="absolute top-5 flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-xs font-bold text-[#716942] shadow-sm">
+                <Sparkles className="h-3.5 w-3.5" />
+                THỔ đang dựng mẫu lên bàn xoay
+              </div>
+
+              <div className="absolute bottom-16 h-14 w-[310px] rounded-[999px] bg-[#B79C84] shadow-[0_18px_28px_rgba(54,31,23,0.22)]" />
+              <div className="absolute bottom-20 h-8 w-[250px] rounded-[999px] bg-[#D8C1AE]" />
+
+              <div
+                className="relative z-10 flex h-[280px] w-[330px] items-center justify-center [perspective:900px]"
+                style={{ transform: `rotateY(${rotation}deg)` }}
+              >
+                <div
+                  className={`relative transition-all duration-500 ${customizerShapeClass[shape]}`}
+                  style={{
+                    transform: 'rotateX(4deg)',
+                    background: `linear-gradient(145deg, ${selectedGlaze.tone} 0%, #fff8 48%, ${selectedGlaze.shadow} 100%)`,
+                    boxShadow: '0 24px 44px rgba(54,31,23,0.24), inset -18px -18px 32px rgba(0,0,0,0.16), inset 14px 10px 24px rgba(255,255,255,0.22)',
+                    borderTop: hasFeature('wavyRim') ? '9px dotted rgba(255,255,255,0.58)' : '9px solid rgba(255,255,255,0.34)',
+                  }}
+                >
+                  {hasFeature('speckles') && (
+                    <div className="absolute inset-4 rounded-[inherit] bg-[radial-gradient(circle,rgba(54,31,23,0.22)_1px,transparent_2px)] bg-[length:18px_18px] opacity-70" />
+                  )}
+                  {hasFeature('stamp') && (
+                    <div className="absolute left-1/2 top-1/2 flex h-14 min-w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#3B2118]/25 bg-white/30 px-4 text-center text-xs font-bold uppercase tracking-[0.12em] text-[#3B2118]">
+                      {engraving || 'THỔ'}
+                    </div>
+                  )}
+                  {hasFeature('handle') && shape !== 'plate' && (
+                    <div className="absolute -right-9 top-1/2 h-20 w-12 -translate-y-1/2 rounded-r-full border-[10px] border-l-0 border-white/55" />
+                  )}
+                  {shape === 'lamp' && (
+                    <div className="absolute inset-x-7 top-10 grid grid-cols-3 gap-3">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <span key={index} className="h-3 rounded-full bg-[#FFF8F2]/70 shadow-[0_0_12px_rgba(255,248,242,0.9)]" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <label className="mt-5 block">
+              <span className="mb-2 flex items-center gap-2 text-sm font-bold text-[#361F17]">
+                <Rotate3D className="h-4 w-4 text-[#716942]" />
+                Xoay demo sản phẩm
+              </span>
+              <input
+                type="range"
+                min="-70"
+                max="70"
+                value={rotation}
+                onChange={(event) => setRotation(Number(event.target.value))}
+                className="w-full accent-[#716942]"
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-[#D9BFAE] bg-white/70 p-4">
+            <p className="text-sm font-bold text-[#3B2118]">Brief demo gửi xưởng</p>
+            <p className="mt-2 text-sm leading-6 text-[#6A5D52]">
+              {selectedShape.label}, {selectedGlaze.label.toLowerCase()}, {features.length} chi tiết đã chọn. {brief}
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
   );
 }
 
