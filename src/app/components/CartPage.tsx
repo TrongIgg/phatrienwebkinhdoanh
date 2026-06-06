@@ -32,6 +32,7 @@ export function CartPage() {
   const selectedProductTotal = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const selectedProductCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
   const selectedOrderTotal = selectedProductTotal + workshopTotal;
+  const hasCustomProducts = productItems.some((item) => item.custom);
 
   const formatTime = (ms: number) => {
     const seconds = Math.max(0, Math.floor(ms / 1000));
@@ -234,6 +235,15 @@ export function CartPage() {
                             <p className="text-xs text-[#8A715F]">Địa chỉ nhận hàng sẽ nhập ở checkout.</p>
                           </div>
                         )}
+                        {item.custom && (
+                          <div className="mt-3 rounded-lg border border-[#C96B37]/30 bg-white/75 p-3 text-sm leading-6 text-[#6E4E3F]">
+                            <p className="font-bold text-[#C96B37]">Đơn custom · Nghệ nhân liên hệ sau {item.custom.artisanLeadDays} ngày</p>
+                            <p>{item.custom.shape} · {item.custom.glaze} · Hệ số x{item.custom.multiplier.toFixed(2)}</p>
+                            {item.custom.features.length > 0 && <p>Chi tiết: {item.custom.features.join(', ')}</p>}
+                            {item.custom.engraving && <p>Ký hiệu: {item.custom.engraving}</p>}
+                            {item.custom.brief && <p>Yêu cầu: {item.custom.brief}</p>}
+                          </div>
+                        )}
                         <div className="mt-6 flex items-center gap-5">
                           <button
                             onClick={() => updateProductQuantity(item.id, item.quantity - 1)}
@@ -296,7 +306,9 @@ export function CartPage() {
             <span>{selectedOrderTotal.toLocaleString('vi-VN')}đ</span>
           </div>
           <div className="mt-6 rounded-[20px] bg-[#EFE2D6] p-5 text-[#7A6A58]">
-            {hasProducts && hasWorkshops
+            {hasCustomProducts
+              ? 'Giỏ hàng có mẫu custom. Sau khi thanh toán, THỔ sẽ chuyển brief cho nghệ nhân trong 3 ngày và liên hệ lại để xác nhận chi tiết làm sản phẩm.'
+              : hasProducts && hasWorkshops
               ? 'Bạn đang có cả sản phẩm và workshop. Hai luồng thanh toán được tách riêng để sản phẩm có địa chỉ giao hàng, còn workshop giữ slot 15 phút.'
               : hasWorkshops
                 ? 'Vé workshop không cần địa chỉ giao hàng. Slot được giữ 15 phút và có thể đăng ký nhiều người trong cùng một đơn.'

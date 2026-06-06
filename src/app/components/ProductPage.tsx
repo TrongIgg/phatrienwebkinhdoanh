@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router';
-import { Bell, Check, Palette, Rotate3D, Search, ShoppingCart, Sparkles, Star, Type, UploadCloud } from 'lucide-react';
+import { Bell, Check, ChevronLeft, ChevronRight, FolderOpen, Palette, Rotate3D, Search, ShoppingCart, Sparkles, Star, Type, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiProduct } from '../lib/api';
@@ -161,9 +161,14 @@ function normalize(value: string) {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
+function collectionAnchor(name: string) {
+  return `collection-${normalize(name).replace(/[^a-z0-9]+/g, '-')}`;
+}
+
 export function ProductPage() {
   const { addProduct } = useProductCart();
   const navigate = useNavigate();
+  const collectionRailRef = useRef<HTMLDivElement | null>(null);
   const [products, setProducts] = useState<CatalogProduct[]>(fallbackCatalog);
   const [query, setQuery] = useState('');
   const [collection, setCollection] = useState('all');
@@ -179,6 +184,7 @@ export function ProductPage() {
   }, []);
 
   const collections = useMemo(() => ['all', ...Array.from(new Set(products.map((item) => item.collection)))], [products]);
+  const visibleCollections = collections.filter((item) => item !== 'all');
 
   useEffect(() => {
     setPage(1);
@@ -197,10 +203,23 @@ export function ProductPage() {
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const groupedProducts = collections
-    .filter((item) => item !== 'all')
-    .map((name) => ({ name, items: paginatedProducts.filter((product) => product.collection === name) }))
+  const groupedProducts = visibleCollections
+    .map((name) => ({ name, items: filteredProducts.filter((product) => product.collection === name) }))
     .filter((group) => group.items.length > 0);
+
+  const jumpToCollection = (name: string) => {
+    setCollection('all');
+    window.setTimeout(() => {
+      document.getElementById(collectionAnchor(name))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+
+  const scrollCollectionRail = (direction: 'left' | 'right') => {
+    collectionRailRef.current?.scrollBy({
+      left: direction === 'left' ? -360 : 360,
+      behavior: 'smooth',
+    });
+  };
 
   const addOne = (product: CatalogProduct, goToCart = false) => {
     if (product.stockQty <= 0) {
@@ -271,11 +290,11 @@ export function ProductPage() {
         <ProductMiniCustomizer />
 
         <section className="mt-12 grid gap-5 md:grid-cols-3">
-          {collections.filter((item) => item !== 'all').slice(0, 3).map((item, index) => (
+          {visibleCollections.slice(0, 3).map((item, index) => (
             <button
               key={item}
               type="button"
-              onClick={() => setCollection(item)}
+              onClick={() => jumpToCollection(item)}
               className="overflow-hidden rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] text-left transition hover:-translate-y-1 hover:shadow-lg"
             >
               <AssetImage src={imagePool[index]} alt={item} className="h-44" />
@@ -287,9 +306,45 @@ export function ProductPage() {
           ))}
         </section>
 
+        {visibleCollections.length > 0 && (
+          <div className="mt-8 rounded-lg border border-[#D9BFAE] bg-[#FFF8F2] p-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => scrollCollectionRail('left')}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#C0AC8B] text-[#716942] hover:bg-[#716942] hover:text-white"
+                aria-label="Xem bộ sưu tập trước"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div ref={collectionRailRef} className="flex flex-1 gap-3 overflow-x-auto scroll-smooth px-1 py-1">
+                {visibleCollections.map((item, index) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => jumpToCollection(item)}
+                    className="inline-flex min-w-max items-center gap-2 rounded-full border border-[#C0AC8B] bg-white px-5 py-3 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white"
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFE2D6] text-xs text-[#3B2118]">{index + 1}</span>
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => scrollCollectionRail('right')}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#C0AC8B] text-[#716942] hover:bg-[#716942] hover:text-white"
+                aria-label="Xem bộ sưu tập tiếp theo"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mt-14 space-y-14">
           {groupedProducts.map((group) => (
-            <section key={group.name}>
+            <section key={group.name} id={collectionAnchor(group.name)} className="scroll-mt-28">
               <div className="mb-5 flex items-end justify-between gap-4">
                 <h2 className="text-3xl font-bold">{group.name}</h2>
                 <span className="text-sm text-[#7A6A58]">{group.items.length} sản phẩm</span>
@@ -302,26 +357,6 @@ export function ProductPage() {
             </section>
           ))}
         </div>
-
-        {filteredProducts.length > pageSize && (
-          <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Phân trang sản phẩm">
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-              <button
-                key={pageNumber}
-                type="button"
-                onClick={() => setPage(pageNumber)}
-                className={`h-10 min-w-10 rounded-full border px-4 font-bold transition-colors ${
-                  currentPage === pageNumber
-                    ? 'border-[#716942] bg-[#716942] text-white'
-                    : 'border-[#C0AC8B] bg-[#FFF8F2] text-[#716942] hover:bg-[#EFE2D6]'
-                }`}
-                aria-current={currentPage === pageNumber ? 'page' : undefined}
-              >
-                {pageNumber}
-              </button>
-            ))}
-          </nav>
-        )}
 
         {filteredProducts.length === 0 && outOfStockProducts.length === 0 && (
           <div className="mt-12 rounded-[18px] border border-[#EFD8C7] bg-[#FFF8F2] p-10 text-center text-[#6A5D52]">
@@ -413,6 +448,9 @@ function ProductCard({ product, onAdd, onBuy }: { product: CatalogProduct; onAdd
 }
 
 function ProductMiniCustomizer() {
+  const { addProduct } = useProductCart();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const [shape, setShape] = useState<CustomizerShapeId>('cup');
   const [glaze, setGlaze] = useState<CustomizerGlazeId>('milk');
   const [features, setFeatures] = useState<CustomizerFeatureId[]>(['speckles', 'stamp']);
@@ -424,6 +462,12 @@ function ProductMiniCustomizer() {
   const selectedShape = customizerShapes.find((item) => item.id === shape) ?? customizerShapes[0];
   const selectedGlaze = customizerGlazes.find((item) => item.id === glaze) ?? customizerGlazes[0];
   const hasFeature = (id: CustomizerFeatureId) => features.includes(id);
+  const basePrice = 420000;
+  const multiplier = Math.min(2, 1.5 + features.length * 0.125);
+  const customPrice = Math.round((basePrice * multiplier) / 10000) * 10000;
+  const selectedFeatureLabels = customizerFeatures
+    .filter((item) => features.includes(item.id))
+    .map((item) => item.label);
 
   const toggleFeature = (id: CustomizerFeatureId) => {
     setFeatures((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -442,13 +486,71 @@ function ProductMiniCustomizer() {
     toast.success('Đã dựng brief demo. Khách có thể gửi mẫu này cho THỔ tư vấn tiếp.');
   };
 
+  const addCustomOrder = () => {
+    addProduct({
+      id: `custom-${Date.now()}`,
+      name: `Mẫu custom ${selectedShape.label} · ${selectedGlaze.label}`,
+      price: customPrice,
+      quantity: 1,
+      image: productImages.tealVase,
+      custom: {
+        shape: selectedShape.label,
+        glaze: selectedGlaze.label,
+        features: selectedFeatureLabels,
+        engraving: engraving.trim(),
+        brief: brief.trim(),
+        multiplier,
+        basePrice,
+        artisanLeadDays: 3,
+      },
+    });
+    toast.success('Đã thêm mẫu custom vào giỏ. Nghệ nhân sẽ nhận brief sau 3 ngày và liên hệ tư vấn.');
+    navigate('/cart');
+  };
+
+  if (!open) {
+    return (
+      <section className="mt-10 rounded-lg border border-[#D9BFAE] bg-[#FFF8F2] p-5 shadow-[0_18px_44px_rgba(100,58,42,0.10)] sm:p-7">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="grid w-full gap-5 text-left md:grid-cols-[82px_1fr_auto] md:items-center"
+        >
+          <span className="flex h-20 w-20 items-center justify-center rounded-lg bg-[#EFE2D6] text-[#716942]">
+            <FolderOpen className="h-10 w-10" />
+          </span>
+          <span>
+            <span className="block text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">Bạn muốn customizer?</span>
+            <span className="mt-2 block text-3xl font-bold leading-tight text-[#3B2118]">Click vào đây để tự dựng mẫu sản phẩm</span>
+            <span className="mt-2 block max-w-3xl leading-7 text-[#6A5D52]">
+              Upload ảnh draft, chọn clickbox chi tiết, xem demo trên bàn xoay rồi đặt mẫu custom vào giỏ nếu khách quan tâm.
+            </span>
+          </span>
+          <span className="inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[#3B2118] px-6 py-3 font-bold text-[#FFF8F2]">
+            Mở customizer
+            <ChevronRight className="h-4 w-4" />
+          </span>
+        </button>
+      </section>
+    );
+  }
+
   return (
     <section className="mt-10 overflow-hidden rounded-lg border border-[#D9BFAE] bg-[#FFF8F2] shadow-[0_18px_44px_rgba(100,58,42,0.10)]">
       <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="p-5 sm:p-7 lg:p-8">
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">
-            <Sparkles className="h-4 w-4" />
-            Mini game custom sản phẩm
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">
+              <Sparkles className="h-4 w-4" />
+              Mini game custom sản phẩm
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white"
+            >
+              Thu gọn
+            </button>
           </div>
           <h2 className="mt-3 text-3xl font-bold leading-tight text-[#3B2118] sm:text-4xl">
             Biến ảnh draft của khách thành mẫu gốm demo
@@ -563,6 +665,25 @@ function ProductMiniCustomizer() {
               />
             </label>
           </div>
+          <div className="mt-5 rounded-lg border border-[#D9BFAE] bg-[#FBEEE5] p-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#716942]">Giá gốc demo</p>
+                <p className="mt-1 text-xl font-bold text-[#3B2118]">{basePrice.toLocaleString('vi-VN')}đ</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#716942]">Hệ số custom</p>
+                <p className="mt-1 text-xl font-bold text-[#3B2118]">x{multiplier.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#716942]">Giá dự kiến</p>
+                <p className="mt-1 text-xl font-bold text-[#C96B37]">{customPrice.toLocaleString('vi-VN')}đ</p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[#6A5D52]">
+              Giá tăng theo số clickbox đã chọn, từ khoảng x1.5 đến x2.0. Sau khi đặt, nghệ nhân nhận brief sau 3 ngày và liên hệ lại để xác nhận khả năng làm thực tế.
+            </p>
+          </div>
         </div>
 
         <aside className="border-t border-[#E5CDBA] bg-[#EFE2D6] p-5 sm:p-7 lg:border-l lg:border-t-0 lg:p-8">
@@ -646,6 +767,20 @@ function ProductMiniCustomizer() {
             <p className="mt-2 text-sm leading-6 text-[#6A5D52]">
               {selectedShape.label}, {selectedGlaze.label.toLowerCase()}, {features.length} chi tiết đã chọn. {brief}
             </p>
+          </div>
+          <div className="mt-4 rounded-lg border border-[#716942]/30 bg-[#FFF8F2] p-4">
+            <p className="text-sm font-bold text-[#3B2118]">Thông báo đặt hàng custom</p>
+            <p className="mt-2 text-sm leading-6 text-[#6A5D52]">
+              Nếu khách quan tâm, mẫu này sẽ vào giỏ như một đơn custom. THỔ sẽ báo nghệ nhân nhận brief sau 3 ngày, sau đó liên hệ khách để chốt vật liệu, lịch làm và khả năng hoàn thiện.
+            </p>
+            <button
+              type="button"
+              onClick={addCustomOrder}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C96B37] px-6 py-4 font-bold text-white hover:opacity-90"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              Đặt mẫu custom {customPrice.toLocaleString('vi-VN')}đ
+            </button>
           </div>
         </aside>
       </div>

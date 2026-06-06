@@ -80,6 +80,7 @@ export function CheckoutPage() {
   }, [productItems]);
   const checkoutProductItems = productItems.filter((item) => selectedProductIds.includes(item.id));
   const checkoutProductTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const checkoutHasCustomProducts = checkoutProductItems.some((item) => item.custom);
   const isWorkshopCheckout =
     searchParams.get('autopay') === 'workshop' ||
     (workshopItems.length > 0 && productItems.length === 0);
@@ -151,9 +152,11 @@ export function CheckoutPage() {
         code: orderCode,
         tracking_type: isWorkshopCheckout ? 'workshop' : 'order',
         status: isWorkshopCheckout ? 'confirmed' : 'paid_waiting_pack',
-        title: isWorkshopCheckout ? 'Vé workshop THỔ Studio' : 'Đơn hàng THỔ Studio',
+        title: isWorkshopCheckout ? 'Vé workshop THỔ Studio' : checkoutHasCustomProducts ? 'Đơn custom THỔ Studio' : 'Đơn hàng THỔ Studio',
         message: isWorkshopCheckout
           ? 'Vé đã xác nhận. QR check-in đã gửi qua email/SMS.'
+          : checkoutHasCustomProducts
+            ? 'Đơn custom đã thanh toán. Nghệ nhân sẽ nhận brief sau 3 ngày và liên hệ khách để chốt chi tiết.'
           : 'Đơn hàng đã thanh toán và đang chờ studio đóng gói.',
         manager_name: isWorkshopCheckout ? 'Anh Quân' : 'Chị Linh',
         participant_count: isWorkshopCheckout ? workshopItems.reduce((sum, item) => sum + item.tickets, 0) || null : null,
@@ -166,8 +169,8 @@ export function CheckoutPage() {
             ]
           : [
               { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
-              { stage: 'packing', label: 'Chờ đóng gói', state: 'current' },
-              { stage: 'waiting_carrier', label: 'Đợi đơn vị vận chuyển', state: 'waiting' },
+              { stage: 'packing', label: checkoutHasCustomProducts ? 'Chờ nghệ nhân nhận brief' : 'Chờ đóng gói', state: 'current' },
+              { stage: 'waiting_carrier', label: checkoutHasCustomProducts ? 'Chờ xác nhận làm mẫu' : 'Đợi đơn vị vận chuyển', state: 'waiting' },
               { stage: 'delivering', label: 'Đang giao', state: 'waiting' },
               { stage: 'received', label: 'Đã nhận', state: 'waiting' },
             ],
@@ -282,6 +285,15 @@ export function CheckoutPage() {
               </div>
             )}
 
+            {checkoutHasCustomProducts && (
+              <div className="mb-7 rounded-[16px] border border-[#C96B37]/35 bg-[#FFF8F2] p-5 text-[#6E4E3F]">
+                <p className="font-bold text-[#2B211D]">Đơn custom cần nghệ nhân xác nhận</p>
+                <p className="mt-2 leading-7">
+                  Sau khi thanh toán, THỔ sẽ chuyển brief cho nghệ nhân trong 3 ngày. Nghệ nhân sẽ liên hệ lại để chốt khả năng làm, lịch hoàn thiện và những điều chỉnh cần thiết trước khi bắt đầu.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-6">
               {isWorkshopCheckout && (
                 <div className="rounded-[16px] border border-[#716942]/30 bg-[#F3E2D5] p-4 text-[#6E4E3F]">
@@ -364,6 +376,11 @@ export function CheckoutPage() {
                             Quà tặng · {item.gift.occasion} · {item.gift.includeWrapping ? 'Có giấy gói' : 'Không gói quà'}
                           </p>
                         )}
+                        {item.type === 'product' && item.custom && (
+                          <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
+                            Custom · {item.custom.shape} · {item.custom.glaze} · Nghệ nhân liên hệ sau {item.custom.artisanLeadDays} ngày
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -380,6 +397,27 @@ export function CheckoutPage() {
                       <p>Dịp tặng: {item.type === 'product' ? item.gift?.occasion : ''}</p>
                       <p>{item.type === 'product' && item.gift?.includeWrapping ? 'Có thêm giấy gói quà.' : 'Không cần giấy gói quà.'}</p>
                       {item.type === 'product' && item.gift?.giftNote && <p>Ghi chú: {item.gift.giftNote}</p>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+            {checkoutItems.some((item) => item.type === 'product' && item.custom) && (
+              <section className="rounded-[14px] border border-black/10 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-bold">Thông tin custom</h2>
+                <div className="mt-4 space-y-3 text-sm leading-6 text-[#6E4E3F]">
+                  {checkoutItems.filter((item) => item.type === 'product' && item.custom).map((item) => (
+                    <div key={item.id} className="rounded-[10px] bg-[#FFF8F2] p-4">
+                      <p className="font-bold text-[#2B211D]">{item.name}</p>
+                      {item.type === 'product' && item.custom && (
+                        <>
+                          <p>{item.custom.shape} · {item.custom.glaze} · Hệ số x{item.custom.multiplier.toFixed(2)}</p>
+                          {item.custom.features.length > 0 && <p>Chi tiết: {item.custom.features.join(', ')}</p>}
+                          {item.custom.engraving && <p>Ký hiệu: {item.custom.engraving}</p>}
+                          {item.custom.brief && <p>Yêu cầu: {item.custom.brief}</p>}
+                          <p className="font-bold text-[#C96B37]">Nghệ nhân sẽ nhận brief sau {item.custom.artisanLeadDays} ngày và liên hệ xác nhận.</p>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>

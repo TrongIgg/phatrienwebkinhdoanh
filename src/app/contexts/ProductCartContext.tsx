@@ -14,6 +14,16 @@ export type ProductItem = {
     includeWrapping: boolean;
     giftNote: string;
   };
+  custom?: {
+    shape: string;
+    glaze: string;
+    features: string[];
+    engraving: string;
+    brief: string;
+    multiplier: number;
+    basePrice: number;
+    artisanLeadDays: number;
+  };
 };
 
 export type CheckoutAddress = {
