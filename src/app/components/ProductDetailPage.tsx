@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Bell, Gift, Minus, Plus, ShoppingCart, Star } from 'lucide-react';
 import { toast } from 'sonner';
