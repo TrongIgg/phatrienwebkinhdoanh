@@ -299,8 +299,8 @@ export function CheckoutPage() {
                 <div className="rounded-[16px] border border-[#716942]/30 bg-[#F3E2D5] p-4 text-[#6E4E3F]">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="font-bold text-[#2B211D]">Thông tin đặt chỗ đã lấy từ BookingForm</p>
-                      <p className="mt-1 text-sm">Bạn chỉ cần rà soát. Nếu muốn đổi tên, SĐT hoặc email, hãy quay lại form đặt chỗ.</p>
+                      <p className="font-bold text-[#2B211D]">Xác nhận thông tin đặt chỗ</p>
+                      <p className="mt-1 text-sm">Kiểm tra lại thông tin bên dưới. Nếu cần chỉnh sửa, bấm nút quay lại.</p>
                     </div>
                     {workshopHoldExpiresAt && (
                       <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#716942]">
@@ -309,9 +309,13 @@ export function CheckoutPage() {
                       </span>
                     )}
                   </div>
-                  <Link to={`/booking/${workshopItems[0]?.id.match(/workshop-(\d+)-/)?.[1] ?? '1'}`} className="mt-3 inline-flex text-sm font-bold text-[#716942] underline">
-                    Sửa thông tin
-                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#716942] underline"
+                  >
+                    ← Quay lại chỉnh thông tin
+                  </button>
                 </div>
               )}
 
@@ -434,10 +438,18 @@ export function CheckoutPage() {
         </form>
       </section>
       <PolicyBar />
-      {paymentOpen && createPortal(
-        <PaymentModal method={paymentMethod} total={payableTotal} onClose={() => setPaymentOpen(false)} onSuccess={finishPayment} onFail={cancelPayment} />,
-        document.body,
-      )}
+      {paymentOpen &&
+        createPortal(
+          <PaymentModal
+            method={paymentMethod}
+            total={payableTotal}
+            onClose={() => setPaymentOpen(false)}
+            onBack={() => setPaymentOpen(false)}
+            onSuccess={finishPayment}
+            onFail={cancelPayment}
+          />,
+          document.body,
+        )}
     </CheckoutShell>
   );
 }
@@ -466,7 +478,21 @@ function PaymentChoice({ method, active, onClick }: { method: PaymentMethod; act
   );
 }
 
-function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: PaymentMethod; total: number; onClose: () => void; onSuccess: () => void | Promise<void>; onFail: () => void }) {
+function PaymentModal({
+  method,
+  total,
+  onClose,
+  onBack,
+  onSuccess,
+  onFail,
+}: {
+  method: PaymentMethod;
+  total: number;
+  onClose: () => void;
+  onBack: () => void;
+  onSuccess: () => void | Promise<void>;
+  onFail: () => void;
+}) {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
   const isMomo = method === 'momo';
 
@@ -484,30 +510,63 @@ function PaymentModal({ method, total, onClose, onSuccess, onFail }: { method: P
 
   return (
     <div className="fixed inset-0 z-[999] grid place-items-center overflow-y-auto bg-black/55 px-6 py-10">
-      <div className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'}`}>
+      <div
+        className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${
+          isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'
+        }`}
+      >
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E2E2E2] bg-white p-6">
           <div>
             <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
-            <p className="mt-2 text-[#727272]">QR thanh toán hết hạn sau {minutes}:{seconds}. Hủy thanh toán vé workshop sẽ trả slot ngay.</p>
+            <p className="mt-2 text-[#727272]">
+              QR thanh toán hết hạn sau {minutes}:{seconds}. Hủy thanh toán vé workshop sẽ trả slot ngay.
+            </p>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng thanh toán" type="button"><X className="h-6 w-6" /></button>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng thanh toán" type="button">
+            <X className="h-6 w-6" />
+          </button>
         </div>
+
+        {/* Body */}
         <div className="grid gap-8 p-8 lg:grid-cols-[360px_1fr]">
+          {/* Left – Order summary */}
           <div className="rounded-[10px] bg-white p-7">
             <h3 className="text-2xl font-medium">Thông tin đơn hàng</h3>
             <p className="mt-8 text-[#68788F]">Số tiền thanh toán</p>
-            <p className={`mt-2 text-3xl font-semibold ${isMomo ? 'text-[#DC1A8D]' : 'text-[#00489B]'}`}>{total.toLocaleString('vi-VN')} VND</p>
+            <p className={`mt-2 text-3xl font-semibold ${isMomo ? 'text-[#DC1A8D]' : 'text-[#00489B]'}`}>
+              {total.toLocaleString('vi-VN')} VND
+            </p>
             <p className="mt-8 text-[#68788F]">Thời gian còn lại</p>
             <p className="mt-2 text-4xl font-bold">{minutes}:{seconds}</p>
+
+            {/* Back button – Màn hình B → Màn hình A */}
+            <button
+              type="button"
+              onClick={onBack}
+              className="mt-10 inline-flex items-center gap-2 rounded-full border border-[#716942] px-5 py-2.5 text-sm font-bold text-[#716942] hover:bg-[#716942] hover:text-white transition-colors"
+            >
+              ← Chọn lại phương thức
+            </button>
           </div>
-          <div className={`rounded-[10px] p-8 text-center ${isMomo ? 'bg-[#DC1A8D] text-white' : 'bg-[#F5F7F9] text-black'}`}>
+
+          {/* Right – QR */}
+          <div
+            className={`rounded-[10px] p-8 text-center ${
+              isMomo ? 'bg-[#DC1A8D] text-white' : 'bg-[#F5F7F9] text-black'
+            }`}
+          >
             <h3 className="text-3xl font-medium">Quét mã để thanh toán</h3>
             <div className="mx-auto my-8 flex h-[300px] w-[300px] items-center justify-center rounded-[10px] bg-white">
               <QrCode className={`h-56 w-56 ${isMomo ? 'text-[#DC1A8D]' : 'text-[#0088C9]'}`} />
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <button onClick={onFail} className="rounded-full bg-white px-8 py-4 text-black" type="button">Hủy thanh toán</button>
-              <button onClick={onSuccess} className="rounded-full bg-black px-8 py-4 text-white" type="button">Đã thanh toán</button>
+              <button onClick={onFail} className="rounded-full bg-white px-8 py-4 text-black" type="button">
+                Hủy thanh toán
+              </button>
+              <button onClick={onSuccess} className="rounded-full bg-black px-8 py-4 text-white" type="button">
+                Đã thanh toán
+              </button>
             </div>
           </div>
         </div>
