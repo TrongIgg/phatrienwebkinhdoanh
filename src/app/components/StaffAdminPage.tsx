@@ -17,7 +17,6 @@ import {
   MoreHorizontal,
   Package,
   PackageCheck,
-  Phone,
   Plus,
   QrCode,
   RefreshCw,
@@ -351,15 +350,11 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
         </button>
       </div>
       <ProgressRule />
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 border-b border-[#716942]/40 bg-white/30 lg:grid-cols-[1fr_220px]">
-        <label className="flex h-14 items-center gap-5 border-r border-[#716942]/40 px-5 lg:px-11">
+      <div className="mx-auto max-w-[1440px] border-b border-[#716942]/40 bg-white/30">
+        <label className="flex h-14 items-center gap-5 px-5 lg:px-11">
           <Search className="h-6 w-6 text-[#1E1E1E]" />
           <input className="w-full bg-transparent text-lg outline-none placeholder:text-[#3F3F35]/55" placeholder="Tìm booking, tracker, khách hàng hoặc sản phẩm..." />
         </label>
-        <a href="tel:0912784507" className="flex h-14 items-center justify-center gap-4 text-lg">
-          <Phone className="h-6 w-6" />
-          0912784507
-        </a>
       </div>
     </header>
   );
