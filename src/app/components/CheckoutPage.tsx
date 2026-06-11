@@ -14,6 +14,7 @@ type FormErrors = Partial<Record<keyof CheckoutAddress, string>>;
 
 const ADDRESS_STORAGE_KEY = 'tho-address-suggestions';
 const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
+const CHECKOUT_WORKSHOP_IDS_KEY = 'tho-checkout-workshop-ids';
 const BOOKING_CONTACT_STORAGE_KEY = 'tho-booking-contact';
 const defaultAddress: CheckoutAddress = { name: '', phone: '', email: '', city: '', district: '', ward: '', address: '', note: '', shipping: 'standard' };
 const addressCatalog = {
@@ -42,7 +43,7 @@ export function CheckoutPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { productItems, removeProduct, clearProductCart, setOrderData } = useProductCart();
-  const { workshopItems, workshopTotal, clearWorkshopCart } = useWorkshopCart();
+  const { workshopItems, removeWorkshop, clearWorkshopCart } = useWorkshopCart();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -77,26 +78,48 @@ export function CheckoutPage() {
       return productItems.map((item) => item.id);
     }
   }, [productItems]);
+  const selectedWorkshopIds = useMemo(() => {
+    if (typeof window === 'undefined') return workshopItems.map((item) => item.id);
+    if (searchParams.get('autopay') === 'workshop') return workshopItems.map((item) => item.id);
+    try {
+      const stored = window.sessionStorage.getItem(CHECKOUT_WORKSHOP_IDS_KEY);
+      const parsed = stored ? (JSON.parse(stored) as string[]) : workshopItems.map((item) => item.id);
+      const existingIds = workshopItems.map((item) => item.id);
+      return parsed.filter((id) => existingIds.includes(id));
+    } catch {
+      return workshopItems.map((item) => item.id);
+    }
+  }, [searchParams, workshopItems]);
   const checkoutProductItems = productItems.filter((item) => selectedProductIds.includes(item.id));
   const checkoutProductTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const checkoutHasCustomProducts = checkoutProductItems.some((item) => item.custom);
+  const checkoutWorkshopItems = workshopItems.filter((item) => selectedWorkshopIds.includes(item.id));
+  const checkoutWorkshopTotal = checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
+  const checkoutMode = searchParams.get('mode');
   const isWorkshopCheckout =
     searchParams.get('autopay') === 'workshop' ||
-    (workshopItems.length > 0 && productItems.length === 0);
-  const checkoutItems = isWorkshopCheckout ? workshopItems : checkoutProductItems;
-  const checkoutSubtotal = isWorkshopCheckout ? workshopTotal : checkoutProductTotal;
-  const hasProducts = !isWorkshopCheckout && checkoutProductItems.length > 0;
+    (checkoutWorkshopItems.length > 0 && checkoutProductItems.length === 0 && checkoutMode !== 'product');
+  const isCombinedCheckout = checkoutMode === 'combined';
+  const includesWorkshops = isWorkshopCheckout || isCombinedCheckout;
+  const includesProducts = !isWorkshopCheckout || isCombinedCheckout || checkoutMode === 'product';
+  const checkoutItems = [
+    ...(includesWorkshops ? checkoutWorkshopItems : []),
+    ...(includesProducts ? checkoutProductItems : []),
+  ];
+  const hasWorkshopCheckout = includesWorkshops && checkoutWorkshopItems.length > 0;
+  const hasProducts = includesProducts && checkoutProductItems.length > 0;
+  const checkoutSubtotal = (hasWorkshopCheckout ? checkoutWorkshopTotal : 0) + (hasProducts ? checkoutProductTotal : 0);
   const shippingFee = hasProducts ? 35000 : 0;
   const payableTotal = checkoutSubtotal + shippingFee;
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
   const [now, setNow] = useState(Date.now());
-  const workshopHoldExpiresAt = workshopItems.reduce<number | null>((nearest, item) => {
+  const workshopHoldExpiresAt = checkoutWorkshopItems.reduce<number | null>((nearest, item) => {
     if (!nearest) return item.reservedUntil;
     return item.reservedUntil < nearest ? item.reservedUntil : nearest;
   }, null);
   const workshopHoldSeconds = workshopHoldExpiresAt ? Math.max(0, Math.ceil((workshopHoldExpiresAt - now) / 1000)) : 0;
   const workshopHoldClock = `${String(Math.floor(workshopHoldSeconds / 60)).padStart(2, '0')}:${String(workshopHoldSeconds % 60).padStart(2, '0')}`;
-  const contactReadonly = isWorkshopCheckout && workshopItems.length > 0;
+  const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
 
   const updateField = (field: keyof CheckoutAddress, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -139,36 +162,36 @@ export function CheckoutPage() {
   };
 
   useEffect(() => {
-    if (!isWorkshopCheckout) return;
+    if (!hasWorkshopCheckout) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, [isWorkshopCheckout]);
+  }, [hasWorkshopCheckout]);
 
   useEffect(() => {
-    if (!isWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
-    clearWorkshopCart();
+    if (!hasWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
+    selectedWorkshopIds.forEach((id) => removeWorkshop(id));
     window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
     navigate('/payment-failed');
-  }, [clearWorkshopCart, isWorkshopCheckout, navigate, workshopHoldExpiresAt, workshopHoldSeconds]);
+  }, [hasWorkshopCheckout, navigate, removeWorkshop, selectedWorkshopIds, workshopHoldExpiresAt, workshopHoldSeconds]);
 
   const finishPayment = async () => {
-    const orderCode = `${isWorkshopCheckout ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
+    const orderCode = `${hasWorkshopCheckout && !hasProducts ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
     const customer = hasProducts ? formData : { ...formData, city: '', district: '', ward: '', address: '', shipping: 'none' };
     const trackingRecords: ApiTracking[] = [
       {
         code: orderCode,
-        tracking_type: isWorkshopCheckout ? 'workshop' : 'order',
-        status: isWorkshopCheckout ? 'confirmed' : 'paid_waiting_pack',
-        title: isWorkshopCheckout ? 'Vé workshop THỔ Studio' : checkoutHasCustomProducts ? 'Đơn custom THỔ Studio' : 'Đơn hàng THỔ Studio',
-        message: isWorkshopCheckout
+        tracking_type: hasProducts ? 'order' : 'workshop',
+        status: hasProducts ? 'paid_waiting_pack' : 'confirmed',
+        title: hasProducts ? checkoutHasCustomProducts ? 'Đơn custom THỔ Studio' : 'Đơn hàng THỔ Studio' : 'Vé workshop THỔ Studio',
+        message: !hasProducts
           ? 'Vé đã xác nhận. QR check-in đã gửi qua email/SMS.'
           : checkoutHasCustomProducts
             ? 'Đơn custom đã thanh toán. Nghệ nhân sẽ nhận brief sau 3 ngày và liên hệ khách để chốt chi tiết.'
           : 'Đơn hàng đã thanh toán và đang chờ studio đóng gói.',
-        manager_name: isWorkshopCheckout ? 'Anh Quân' : 'Chị Linh',
-        participant_count: isWorkshopCheckout ? workshopItems.reduce((sum, item) => sum + item.tickets, 0) || null : null,
-        checkin_status: isWorkshopCheckout ? 'pending' : null,
-        timeline: isWorkshopCheckout
+        manager_name: hasWorkshopCheckout && !hasProducts ? 'Anh Quân' : 'Chị Linh',
+        participant_count: hasWorkshopCheckout ? checkoutWorkshopItems.reduce((sum, item) => sum + item.tickets, 0) || null : null,
+        checkin_status: hasWorkshopCheckout ? 'pending' : null,
+        timeline: !hasProducts
           ? [
               { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
               { stage: 'qr_sent', label: 'Đã gửi QR check-in', state: 'current' },
@@ -184,8 +207,8 @@ export function CheckoutPage() {
       },
     ];
 
-    if (isWorkshopCheckout) {
-      workshopItems.forEach((item, index) => {
+    if (hasWorkshopCheckout) {
+      checkoutWorkshopItems.forEach((item, index) => {
         trackingRecords.push({
           code: `CER${orderCode.slice(-6)}-${index + 1}`,
           tracking_type: 'ceramic',
@@ -224,11 +247,8 @@ export function CheckoutPage() {
       createdAt: new Date().toISOString(),
       paymentMethod,
     });
-    if (hasProducts) saveAddressSuggestion(formData);
-    if (isWorkshopCheckout) {
-      clearWorkshopCart();
-      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
-    } else {
+    if (hasProducts) {
+      saveAddressSuggestion(formData);
       if (selectedProductIds.length === productItems.length) {
         clearProductCart();
       } else {
@@ -236,12 +256,22 @@ export function CheckoutPage() {
       }
       window.sessionStorage.removeItem(CHECKOUT_PRODUCT_IDS_KEY);
     }
+    if (hasWorkshopCheckout) {
+      if (selectedWorkshopIds.length === workshopItems.length) {
+        clearWorkshopCart();
+      } else {
+        selectedWorkshopIds.forEach((id) => removeWorkshop(id));
+      }
+      window.sessionStorage.removeItem(CHECKOUT_WORKSHOP_IDS_KEY);
+      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
+    }
     navigate('/success');
   };
 
   const cancelPayment = () => {
-    if (isWorkshopCheckout) {
-      clearWorkshopCart();
+    if (hasWorkshopCheckout) {
+      selectedWorkshopIds.forEach((id) => removeWorkshop(id));
+      window.sessionStorage.removeItem(CHECKOUT_WORKSHOP_IDS_KEY);
       window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
     }
     navigate('/payment-failed');
@@ -254,7 +284,7 @@ export function CheckoutPage() {
           <button onClick={() => navigate(-1)} className="back-btn mb-8" type="button"><ArrowLeft className="h-4 w-4" />Quay lại</button>
           <div className="empty-state rounded-[24px] border-2 border-[#EFD8C7] bg-[#FFF1E8]">
             <ShoppingBag className="mb-7 h-16 w-16 text-[#716942]" />
-            <h1 className="text-4xl font-bold text-[#2B211D]">Chưa có sản phẩm để thanh toán</h1>
+            <h1 className="text-4xl font-bold text-[#2B211D]">Chưa có mục nào để thanh toán</h1>
             <Link to="/cart" className="mt-9 rounded-full bg-[#3A1F17] px-8 py-3 font-semibold text-white">Quay lại giỏ hàng</Link>
           </div>
         </section>
@@ -269,7 +299,9 @@ export function CheckoutPage() {
         <button onClick={() => navigate('/cart')} className="back-btn mb-8" type="button"><ArrowLeft className="h-4 w-4" />Quay lại giỏ hàng</button>
         <h1 className="text-center text-[35px] font-bold text-[#252323]">THANH TOÁN</h1>
         <p className="mt-3 text-center text-lg text-[#6A4A3D]">
-          {isWorkshopCheckout
+          {hasWorkshopCheckout && hasProducts
+            ? 'Thanh toán chung sản phẩm và vé workshop. Phí vận chuyển chỉ áp dụng cho sản phẩm vật lý.'
+            : hasWorkshopCheckout
             ? 'Thanh toán vé workshop không yêu cầu địa chỉ giao hàng và không cộng phí vận chuyển.'
             : 'Thanh toán sản phẩm vật lý yêu cầu địa chỉ giao hàng và dùng phí vận chuyển tiêu chuẩn 35.000đ.'}
         </p>
@@ -302,7 +334,7 @@ export function CheckoutPage() {
             )}
 
             <div className="space-y-6">
-              {isWorkshopCheckout && (
+              {hasWorkshopCheckout && (
                 <div className="rounded-[16px] border border-[#716942]/30 bg-[#F3E2D5] p-4 text-[#6E4E3F]">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -367,7 +399,7 @@ export function CheckoutPage() {
             </div>
 
             <button type="submit" disabled={submitting} className="mt-10 flex h-12 w-full items-center justify-center bg-black text-sm font-semibold uppercase tracking-wide text-white disabled:opacity-70">
-              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</> : isWorkshopCheckout ? 'Tiến hành thanh toán' : 'Đặt hàng'}
+              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</> : hasWorkshopCheckout ? 'Tiến hành thanh toán' : 'Đặt hàng'}
             </button>
           </div>
 
@@ -455,8 +487,8 @@ export function CheckoutPage() {
           <PaymentModal
             method={paymentMethod}
             total={payableTotal}
-            initialSeconds={isWorkshopCheckout ? workshopHoldSeconds || 15 * 60 : 5 * 60}
-            isWorkshopCheckout={isWorkshopCheckout}
+            initialSeconds={hasWorkshopCheckout ? workshopHoldSeconds || 15 * 60 : 5 * 60}
+            isWorkshopCheckout={hasWorkshopCheckout}
             onClose={() => setPaymentOpen(false)}
             onBack={() => setPaymentOpen(false)}
             onSuccess={finishPayment}

@@ -7,21 +7,29 @@ import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PlaceholderImage, PolicyBar, workshopImages } from './DesignPrimitives';
 
 const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
+const CHECKOUT_WORKSHOP_IDS_KEY = 'tho-checkout-workshop-ids';
 
 export function CartPage() {
   const navigate = useNavigate();
   const { productItems, removeProduct, updateProductQuantity } = useProductCart();
-  const { workshopItems, removeWorkshop, updateWorkshopTickets, workshopTotal } = useWorkshopCart();
+  const { workshopItems, removeWorkshop, updateWorkshopTickets } = useWorkshopCart();
   const [now, setNow] = useState(Date.now());
   const [removingIds, setRemovingIds] = useState<string[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>(() => productItems.map((item) => item.id));
+  const [selectedWorkshopIds, setSelectedWorkshopIds] = useState<string[]>(() =>
+    workshopItems.filter((item) => item.reservedUntil > Date.now()).map((item) => item.id),
+  );
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const nearestWorkshop = workshopItems.reduce<(typeof workshopItems)[number] | null>((nearest, item) => {
+  const activeWorkshopItems = workshopItems.filter((item) => item.reservedUntil > now);
+  const selectedWorkshops = activeWorkshopItems.filter((item) => selectedWorkshopIds.includes(item.id));
+  const selectedWorkshopTotal = selectedWorkshops.reduce((sum, item) => sum + item.price * item.tickets, 0);
+  const selectedWorkshopTicketCount = selectedWorkshops.reduce((sum, item) => sum + item.tickets, 0);
+  const nearestWorkshop = activeWorkshopItems.reduce<(typeof workshopItems)[number] | null>((nearest, item) => {
     if (!nearest) return item;
     return item.reservedUntil < nearest.reservedUntil ? item : nearest;
   }, null);
@@ -31,7 +39,8 @@ export function CartPage() {
   const selectedProducts = productItems.filter((item) => selectedProductIds.includes(item.id));
   const selectedProductTotal = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const selectedProductCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
-  const selectedOrderTotal = selectedProductTotal + workshopTotal;
+  const selectedOrderTotal = selectedProductTotal + selectedWorkshopTotal;
+  const selectedItemCount = selectedProductCount + selectedWorkshopTicketCount;
   const hasCustomProducts = productItems.some((item) => item.custom);
 
   const formatTime = (ms: number) => {
@@ -49,6 +58,7 @@ export function CartPage() {
 
   const handleRemoveWorkshop = (id: string) => {
     setRemovingIds((prev) => [...prev, id]);
+    setSelectedWorkshopIds((prev) => prev.filter((itemId) => itemId !== id));
     window.setTimeout(() => removeWorkshop(id), 320);
   };
 
@@ -65,8 +75,38 @@ export function CartPage() {
     window.sessionStorage.setItem(CHECKOUT_PRODUCT_IDS_KEY, JSON.stringify(selectedProductIds));
   }, [selectedProductIds]);
 
+  useEffect(() => {
+    setSelectedWorkshopIds((prev) => {
+      const activeIds = activeWorkshopItems.map((item) => item.id);
+      return prev.filter((id) => activeIds.includes(id));
+    });
+  }, [workshopItems, now]);
+
+  useEffect(() => {
+    setSelectedWorkshopIds((prev) => {
+      const activeIds = activeWorkshopItems.map((item) => item.id);
+      const added = activeIds.filter((id) => !prev.includes(id));
+      return [...prev, ...added];
+    });
+  }, [workshopItems]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(CHECKOUT_WORKSHOP_IDS_KEY, JSON.stringify(selectedWorkshopIds));
+  }, [selectedWorkshopIds]);
+
   const toggleProduct = (id: string) => {
     setSelectedProductIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
+    );
+  };
+
+  const toggleWorkshop = (id: string) => {
+    const item = workshopItems.find((workshop) => workshop.id === id);
+    if (!item || item.reservedUntil <= now) {
+      toast.error('Vé workshop đã hết hạn giữ chỗ. Vui lòng xóa và đặt lại.');
+      return;
+    }
+    setSelectedWorkshopIds((prev) =>
       prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
     );
   };
@@ -75,6 +115,28 @@ export function CartPage() {
     setSelectedProductIds((prev) =>
       prev.length === productItems.length ? [] : productItems.map((item) => item.id),
     );
+  };
+
+  const handleCheckoutSelected = () => {
+    if (selectedItemCount === 0) {
+      toast.error('Vui lòng chọn ít nhất một sản phẩm hoặc vé workshop để thanh toán.');
+      return;
+    }
+
+    window.sessionStorage.setItem(CHECKOUT_PRODUCT_IDS_KEY, JSON.stringify(selectedProductIds));
+    window.sessionStorage.setItem(CHECKOUT_WORKSHOP_IDS_KEY, JSON.stringify(selectedWorkshopIds));
+
+    if (selectedProducts.length > 0 && selectedWorkshops.length > 0) {
+      navigate('/checkout?mode=combined');
+      return;
+    }
+
+    if (selectedWorkshops.length > 0) {
+      navigate('/checkout?autopay=workshop');
+      return;
+    }
+
+    navigate('/checkout?mode=product');
   };
 
   if (!hasProducts && !hasWorkshops) {
@@ -130,30 +192,62 @@ export function CartPage() {
             <div className="mb-6">
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-[#EFE7E1] px-5 py-2 text-sm font-bold text-[#7A3E2D]">Vé Workshop</span>
-                <span className="inline-flex items-center gap-2 text-sm font-bold text-[#8B765D]">
-                  <TimerReset className="h-4 w-4" />
-                  Giữ chỗ còn {formatTime(remainingMs)}
-                </span>
+                {nearestWorkshop ? (
+                  <span className="inline-flex items-center gap-2 text-sm font-bold text-[#8B765D]">
+                    <TimerReset className="h-4 w-4" />
+                    Giữ chỗ còn {formatTime(remainingMs)}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 text-sm font-bold text-[#8B765D]">
+                    <Clock className="h-4 w-4" />
+                    Có vé đã hết hạn
+                  </span>
+                )}
               </div>
 
               <div className="space-y-5">
-                {workshopItems.map((item) => (
+                {workshopItems.map((item) => {
+                  const isExpired = item.reservedUntil <= now;
+                  const isSelected = selectedWorkshopIds.includes(item.id);
+
+                  return (
                   <article
                     key={item.id}
-                    className={`rounded-[18px] border-2 border-[#EFD8C7] bg-[#FFF1E8] p-5 ${removingIds.includes(item.id) ? 'cart-item-removing' : ''}`}
+                    className={`rounded-[18px] border-2 p-5 transition ${
+                      isExpired
+                        ? 'border-[#D4C8BE] bg-[#EFEAE5] opacity-75'
+                        : 'border-[#EFD8C7] bg-[#FFF1E8]'
+                    } ${removingIds.includes(item.id) ? 'cart-item-removing' : ''}`}
                   >
-                    <div className="grid gap-5 md:grid-cols-[96px_1fr_auto]">
-                      <AssetImage src={workshopImages.handsWarm} alt={item.name} className="h-[87px] w-[87px] rounded-[12px]" />
+                    <div className="grid gap-5 md:grid-cols-[40px_96px_1fr_auto]">
+                      <label className="flex items-start pt-2" aria-label={`Chọn thanh toán ${item.name}`}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled={isExpired}
+                          onChange={() => toggleWorkshop(item.id)}
+                          className="h-5 w-5 accent-[#716942] disabled:opacity-40"
+                        />
+                      </label>
+                      <AssetImage src={workshopImages.handsWarm} alt={item.name} className={`h-[87px] w-[87px] rounded-[12px] ${isExpired ? 'grayscale' : ''}`} />
                       <div>
-                        <h2 className="text-lg font-bold text-[#2B211D]">{item.name}</h2>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h2 className={`text-lg font-bold ${isExpired ? 'text-[#7A6A58]' : 'text-[#2B211D]'}`}>{item.name}</h2>
+                          {isExpired && (
+                            <span className="rounded-full bg-[#D8CEC5] px-3 py-1 text-xs font-bold text-[#6E4E3F]">
+                              Hết hạn giữ chỗ
+                            </span>
+                          )}
+                        </div>
                         <p className="mt-3 text-sm text-[#6E4E3F]">{item.date} · {item.time}</p>
                         <p className="mt-3 text-sm text-[#8A715F]">Giảng viên: {item.instructor}</p>
                         <p className="mt-2 text-sm text-[#8A715F]">Gói: {item.package}</p>
                         <div className="mt-5 flex flex-wrap items-center gap-4">
                           <span className="text-sm font-bold text-[#6E4E3F]">Số slot</span>
-                          <div className="inline-flex h-10 items-center rounded-full border border-[#E5CDBA] bg-white">
+                          <div className={`inline-flex h-10 items-center rounded-full border border-[#E5CDBA] ${isExpired ? 'bg-[#E4DDD6]' : 'bg-white'}`}>
                             <button
                               onClick={() => updateWorkshopTickets(item.id, item.tickets - 1)}
+                              disabled={isExpired}
                               className="px-4"
                               aria-label="Giảm số slot workshop"
                               type="button"
@@ -163,12 +257,14 @@ export function CartPage() {
                             <span className="min-w-10 text-center font-bold">{item.tickets}</span>
                             <button
                               onClick={() => {
+                                if (isExpired) return;
                                 if (item.maxTickets && item.tickets >= item.maxTickets) {
                                   toast.error(`Workshop chỉ còn ${item.maxTickets} slot.`);
                                   return;
                                 }
                                 updateWorkshopTickets(item.id, item.tickets + 1);
                               }}
+                              disabled={isExpired}
                               className="px-4"
                               aria-label="Tăng số slot workshop"
                               type="button"
@@ -179,14 +275,15 @@ export function CartPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-8 md:text-right">
-                        <p className="text-2xl text-[#2B211D]">{(item.price * item.tickets).toLocaleString('vi-VN')}đ</p>
+                        <p className={`text-2xl ${isExpired ? 'text-[#8A7C70]' : 'text-[#2B211D]'}`}>{(item.price * item.tickets).toLocaleString('vi-VN')}đ</p>
                         <button onClick={() => handleRemoveWorkshop(item.id)} className="text-[#BFA083] hover:text-[#A33A2F]" aria-label="Xóa workshop" type="button">
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
                   </article>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -289,8 +386,8 @@ export function CartPage() {
           <div className="space-y-4 text-xl">
             {hasWorkshops && (
               <div className="flex justify-between text-[#756D4E]">
-                <span>Workshop ({workshopItems.reduce((sum, item) => sum + item.tickets, 0)} slot)</span>
-                <span>{workshopTotal.toLocaleString('vi-VN')}đ</span>
+                <span>Workshop đã chọn ({selectedWorkshopTicketCount} slot)</span>
+                <span>{selectedWorkshopTotal.toLocaleString('vi-VN')}đ</span>
               </div>
             )}
             {hasProducts && (
@@ -309,33 +406,22 @@ export function CartPage() {
             {hasCustomProducts
               ? 'Giỏ hàng có mẫu custom. Sau khi thanh toán, THỔ sẽ chuyển brief cho nghệ nhân trong 3 ngày và liên hệ lại để xác nhận chi tiết làm sản phẩm.'
               : hasProducts && hasWorkshops
-              ? 'Bạn đang có cả sản phẩm và workshop. Hai luồng thanh toán được tách riêng để sản phẩm có địa chỉ giao hàng, còn workshop giữ slot 15 phút.'
+              ? 'Bạn có thể tick sản phẩm và vé workshop muốn thanh toán. Vé workshop hết hạn sẽ chuyển xám và cần xóa hoặc đặt lại trước khi thanh toán.'
               : hasWorkshops
-                ? 'Vé workshop không cần địa chỉ giao hàng. Slot được giữ 15 phút và có thể đăng ký nhiều người trong cùng một đơn.'
+                ? 'Tick vé workshop còn hạn để thanh toán, hoặc xóa vé đã hết hạn khỏi giỏ hàng.'
                 : 'Sản phẩm vật lý sẽ được thanh toán với địa chỉ giao hàng và phí vận chuyển ở bước tiếp theo.'}
           </div>
-          <div className="mt-8 space-y-3">
-            {hasProducts && (
-              <Link
-                to="/checkout?mode=product"
-                onClick={(event) => {
-                  if (selectedProducts.length === 0) {
-                    event.preventDefault();
-                    toast.error('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
-                  }
-                }}
-                className={`block rounded-full py-4 text-center text-lg font-semibold text-white hover:bg-[#2B160F] ${
-                  selectedProducts.length === 0 ? 'bg-[#8B765D] opacity-70' : 'bg-[#3A1F17]'
-                }`}
-              >
-                Thanh toán sản phẩm
-              </Link>
-            )}
-            {hasWorkshops && (
-              <Link to="/checkout?autopay=workshop" className="block rounded-full border border-[#3A1F17]/25 py-4 text-center text-lg font-semibold text-[#3A1F17] hover:bg-[#3A1F17] hover:text-white">
-                Thanh toán vé workshop
-              </Link>
-            )}
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={handleCheckoutSelected}
+              disabled={selectedItemCount === 0}
+              className={`block w-full rounded-full py-4 text-center text-lg font-semibold text-white hover:bg-[#2B160F] disabled:cursor-not-allowed disabled:bg-[#8B765D] disabled:opacity-70 ${
+                selectedItemCount === 0 ? 'bg-[#8B765D] opacity-70' : 'bg-[#3A1F17]'
+              }`}
+            >
+              Thanh toán đã chọn
+            </button>
           </div>
           {nearestWorkshop && (
             <div className="mt-5 flex items-center gap-2 text-sm text-[#8B765D]">

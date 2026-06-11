@@ -37,8 +37,7 @@ function readWorkshopCartFromStorage(): WorkshopItem[] {
       ? (JSON.parse(stored) as WorkshopItem[])
       : ((JSON.parse(window.localStorage.getItem(LEGACY_CART_STORAGE_KEY) ?? '[]') as WorkshopItem[])
           .filter((item) => item.type === 'workshop'));
-    const now = Date.now();
-    return rawItems.filter((item) => item.reservedUntil > now);
+    return rawItems;
   } catch {
     return [];
   }
@@ -50,15 +49,6 @@ export function WorkshopCartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     window.localStorage.setItem(WORKSHOP_CART_STORAGE_KEY, JSON.stringify(workshopItems));
   }, [workshopItems]);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      const now = Date.now();
-      setWorkshopItems((prev) => prev.filter((item) => item.reservedUntil > now));
-    }, 1000);
-
-    return () => window.clearInterval(interval);
-  }, []);
 
   const addWorkshop = (workshop: Omit<WorkshopItem, 'type' | 'reservedUntil'>) => {
     const reservedUntil = Date.now() + 15 * 60 * 1000;
