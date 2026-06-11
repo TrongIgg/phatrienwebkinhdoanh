@@ -83,9 +83,6 @@ export function WorkshopDetailPage() {
 
     setSubmitting(true);
 
-    // Slot lock happens implicitly — expires in 15 min from now
-    const holdExpiresAt = Date.now() + 15 * 60 * 1000;
-
     // Persist contact info so CheckoutPage can pre-fill
     window.localStorage.setItem(
       BOOKING_CONTACT_STORAGE_KEY,
@@ -95,7 +92,6 @@ export function WorkshopDetailPage() {
         email: formData.email,
         note: formData.notes,
         slotCount,
-        holdExpiresAt,
       }),
     );
 
@@ -111,7 +107,6 @@ export function WorkshopDetailPage() {
       tickets: slotCount,
       maxTickets: workshop.slots.available,
       package: workshop.package,
-      reservedUntil: holdExpiresAt,
     });
 
     // Navigate straight to payment method selection

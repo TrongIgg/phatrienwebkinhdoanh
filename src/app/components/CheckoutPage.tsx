@@ -47,7 +47,6 @@ export function CheckoutPage() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [autoPayHandled, setAutoPayHandled] = useState(false);
   const [formData, setFormData] = useState<CheckoutAddress>(() => {
     const customer = readCustomerSession();
     const customerDefaults = customer
@@ -108,7 +107,16 @@ export function CheckoutPage() {
     const nextErrors: FormErrors = {};
     const phone = formData.phone.replace(/[\s.-]/g, '');
     if (!formData.name.trim()) nextErrors.name = 'Vui lòng nhập họ tên.';
-    if (!/^(0\d{9}|\+84\d{9})$/.test(phone)) nextErrors.phone = 'Số điện thoại cần có dạng 09xxxxxxxx hoặc +84xxxxxxxxx.';
+    if (isWorkshopCheckout) {
+      if (!formData.phone.trim() && !formData.email.trim()) {
+        nextErrors.phone = 'Vui lòng nhập số điện thoại hoặc email để nhận xác nhận.';
+        nextErrors.email = 'Vui lòng nhập số điện thoại hoặc email để nhận xác nhận.';
+      } else if (formData.phone.trim() && !/^(0\d{9}|\+84\d{9})$/.test(phone)) {
+        nextErrors.phone = 'Số điện thoại cần có dạng 09xxxxxxxx hoặc +84xxxxxxxxx.';
+      }
+    } else if (!/^(0\d{9}|\+84\d{9})$/.test(phone)) {
+      nextErrors.phone = 'Số điện thoại cần có dạng 09xxxxxxxx hoặc +84xxxxxxxxx.';
+    }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) nextErrors.email = 'Email chưa đúng định dạng.';
     if (hasProducts) {
       if (!formData.city.trim()) nextErrors.city = 'Vui lòng nhập Tỉnh/TP.';
@@ -131,18 +139,17 @@ export function CheckoutPage() {
   };
 
   useEffect(() => {
-    if (autoPayHandled || searchParams.get('autopay') !== 'workshop' || workshopItems.length === 0) return;
-    setAutoPayHandled(true);
-    window.setTimeout(() => {
-      if (validate()) setPaymentOpen(true);
-    }, 300);
-  }, [autoPayHandled, searchParams, workshopItems.length]);
-
-  useEffect(() => {
     if (!isWorkshopCheckout) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [isWorkshopCheckout]);
+
+  useEffect(() => {
+    if (!isWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
+    clearWorkshopCart();
+    window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
+    navigate('/payment-failed');
+  }, [clearWorkshopCart, isWorkshopCheckout, navigate, workshopHoldExpiresAt, workshopHoldSeconds]);
 
   const finishPayment = async () => {
     const orderCode = `${isWorkshopCheckout ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
@@ -350,12 +357,17 @@ export function CheckoutPage() {
 
               <label className="block">
                 <span className="mb-2 block font-bold">Ghi chú đơn hàng</span>
-                <textarea value={formData.note} onChange={(event) => updateField('note', event.target.value)} className="min-h-[86px] w-full border border-[#949494] bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-[#716942]/30" />
+                <textarea
+                  value={formData.note}
+                  readOnly={contactReadonly}
+                  onChange={(event) => updateField('note', event.target.value)}
+                  className={`min-h-[86px] w-full border border-[#949494] px-4 py-3 outline-none focus:ring-2 focus:ring-[#716942]/30 ${contactReadonly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'}`}
+                />
               </label>
             </div>
 
             <button type="submit" disabled={submitting} className="mt-10 flex h-12 w-full items-center justify-center bg-black text-sm font-semibold uppercase tracking-wide text-white disabled:opacity-70">
-              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</> : 'Đặt hàng'}
+              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</> : isWorkshopCheckout ? 'Tiến hành thanh toán' : 'Đặt hàng'}
             </button>
           </div>
 
@@ -443,6 +455,8 @@ export function CheckoutPage() {
           <PaymentModal
             method={paymentMethod}
             total={payableTotal}
+            initialSeconds={isWorkshopCheckout ? workshopHoldSeconds || 15 * 60 : 5 * 60}
+            isWorkshopCheckout={isWorkshopCheckout}
             onClose={() => setPaymentOpen(false)}
             onBack={() => setPaymentOpen(false)}
             onSuccess={finishPayment}
@@ -481,6 +495,8 @@ function PaymentChoice({ method, active, onClick }: { method: PaymentMethod; act
 function PaymentModal({
   method,
   total,
+  initialSeconds,
+  isWorkshopCheckout,
   onClose,
   onBack,
   onSuccess,
@@ -488,12 +504,14 @@ function PaymentModal({
 }: {
   method: PaymentMethod;
   total: number;
+  initialSeconds: number;
+  isWorkshopCheckout: boolean;
   onClose: () => void;
   onBack: () => void;
   onSuccess: () => void | Promise<void>;
   onFail: () => void;
 }) {
-  const [secondsLeft, setSecondsLeft] = useState(5 * 60);
+  const [secondsLeft, setSecondsLeft] = useState(() => Math.max(1, initialSeconds));
   const isMomo = method === 'momo';
 
   useEffect(() => {
@@ -520,7 +538,7 @@ function PaymentModal({
           <div>
             <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
             <p className="mt-2 text-[#727272]">
-              QR thanh toán hết hạn sau {minutes}:{seconds}. Hủy thanh toán vé workshop sẽ trả slot ngay.
+              QR thanh toán hết hạn sau {minutes}:{seconds}. {isWorkshopCheckout ? 'Hủy thanh toán vé workshop sẽ trả slot ngay.' : 'Hủy thanh toán sẽ đưa bạn về trang chưa hoàn tất.'}
             </p>
           </div>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng thanh toán" type="button">

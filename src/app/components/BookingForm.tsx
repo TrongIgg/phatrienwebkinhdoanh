@@ -17,8 +17,6 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
   const [loading, setLoading] = useState(!fallback);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', notes: '' });
   const [slotCount, setSlotCount] = useState(1);
-  const [holdExpiresAt, setHoldExpiresAt] = useState<number | null>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(15 * 60);
 
   useEffect(() => {
     if (!workshopId) return;
@@ -29,18 +27,6 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
       })
       .finally(() => setLoading(false));
   }, [workshopId]);
-
-  useEffect(() => {
-    if (!holdExpiresAt) return;
-
-    const updateRemaining = () => {
-      setRemainingSeconds(Math.max(0, Math.ceil((holdExpiresAt - Date.now()) / 1000)));
-    };
-
-    updateRemaining();
-    const timer = window.setInterval(updateRemaining, 1000);
-    return () => window.clearInterval(timer);
-  }, [holdExpiresAt]);
 
   if (loading) {
     return (
@@ -74,8 +60,6 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
       return;
     }
 
-    const expiresAt = Date.now() + 15 * 60 * 1000;
-
     clearWorkshopCart();
     addWorkshop({
       id: `workshop-${workshop.id}-${Date.now()}`,
@@ -97,16 +81,12 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
         email: formData.email,
         note: formData.notes,
         slotCount,
-        holdExpiresAt: expiresAt,
       }),
     );
 
-    setHoldExpiresAt(expiresAt);
-    toast.success('Đã giữ slot workshop 15 phút. Bạn có thể thanh toán ngay để khóa chỗ.');
+    toast.success('Thông tin đã sẵn sàng. Chọn phương thức thanh toán để giữ slot 15 phút.');
+    navigate('/checkout?autopay=workshop');
   };
-
-  const holdMinutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
-  const holdSeconds = String(remainingSeconds % 60).padStart(2, '0');
 
   return (
     <div className="min-h-screen bg-[#F7F1EC]">
@@ -148,25 +128,6 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
                 Ngày và giờ đã cố định theo workshop bạn chọn. Slot được giữ 15 phút sau khi mở QR thanh toán; nếu hủy, slot được trả lại ngay.
               </p>
             </div>
-
-            {holdExpiresAt && (
-              <div className="mb-6 rounded-lg border border-[#716942]/30 bg-[#F3E2D5] p-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#716942]">Đang giữ chỗ</p>
-                    <p className="mt-2 text-3xl font-bold text-[#3B2118]">{holdMinutes}:{holdSeconds}</p>
-                    <p className="mt-1 text-sm text-[#6f5d52]">Hoàn tất thanh toán trước khi đồng hồ về 00:00.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/checkout?autopay=workshop')}
-                    className="rounded-full bg-[#3B2118] px-6 py-3 font-bold text-[#FFF8F2] hover:opacity-90"
-                  >
-                    Thanh toán giữ chỗ
-                  </button>
-                </div>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-6">
               <Field label="Họ và tên" value={formData.name} onChange={(value) => setFormData({ ...formData, name: value })} placeholder="Nhập họ tên của bạn" required />
@@ -220,7 +181,7 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
               </label>
 
               <button type="submit" className="w-full rounded-full bg-[#3B2118] py-4 text-[#FFF8F2] transition-opacity hover:opacity-90">
-                {holdExpiresAt ? 'Cập nhật thông tin giữ chỗ' : 'Giữ chỗ 15 phút'}
+                Thanh toán ngay
               </button>
             </form>
           </div>
