@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
 import { WorkshopPage } from './components/WorkshopPage';
+import { BookingForm } from './components/BookingForm';
 import { ProductPage } from './components/ProductPage';
 import { WorkshopDetailPage } from './components/WorkshopDetailPage';
 import { ProductDetailPage } from './components/ProductDetailPage';
@@ -114,6 +115,7 @@ function AppLayout() {
             <Route path="/" element={<HomePage />} />
             <Route path="/workshop" element={<WorkshopPage />} />
             <Route path="/workshop/:workshopId" element={<WorkshopDetailPage />} />
+            <Route path="/booking/:workshopId" element={<BookingForm />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
