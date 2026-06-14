@@ -7,8 +7,11 @@ import {
   Camera,
   CheckCircle2,
   ChevronDown,
+  ClipboardCheck,
   Clock3,
+  Download,
   Edit3,
+  FileVideo,
   Gift,
   ImageUp,
   LogOut,
@@ -362,21 +365,70 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
 
 function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking[]; productJobs: ProductJob[]; dashboard: ApiStaffDashboard | null }) {
   const reviewNotifications = readReviewNotifications();
+  const [interaction, setInteraction] = useState<'upload' | 'approve' | 'tracking' | null>(null);
+  const [generatedTrackingCode, setGeneratedTrackingCode] = useState(bookings[0]?.tracking_code ?? 'THO-WORKSHOP-001');
+  const [approvedMedia, setApprovedMedia] = useState(1);
+  const selectedBooking = bookings[0];
+
+  const exportBookingsCsv = () => {
+    const headings = ['Ma booking', 'Khach hang', 'Lien he', 'Dich vu', 'Ngay', 'Gio', 'Gia', 'Trang thai', 'Nguoi phu trach'];
+    const rows = bookings.map((booking) => [
+      booking.id,
+      booking.customer,
+      booking.phone,
+      booking.workshop,
+      booking.date,
+      booking.time,
+      booking.price,
+      statusLabel[booking.status],
+      booking.staff,
+    ]);
+    const csv = [headings, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tho-booking-dashboard.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Đã xuất file CSV booking demo.');
+  };
+
+  const createTrackingCode = () => {
+    const nextCode = `THO-WS-${String(Date.now()).slice(-5)}`;
+    setGeneratedTrackingCode(nextCode);
+    setInteraction('tracking');
+    toast.success('Đã tạo mã tracking cho khách workshop.');
+  };
 
   return (
     <div className="space-y-7">
-      <PageTitle title="DASHBOARD" subtitle="Quản lý booking, product và lịch vận hành (đồng bộ DB)" />
+      <PageTitle title="DASHBOARD" subtitle="Theo dõi booking, doanh thu, check-in workshop và media tracking trong 1 tuần vận hành." />
       <MetricGrid metrics={[
         { label: 'Hôm nay', value: String(dashboard?.today ?? bookings.length), icon: <CalendarDays /> },
         { label: 'Tuần này', value: String(dashboard?.week ?? bookings.length), icon: <Clock3 /> },
         { label: 'Tổng khách', value: String(dashboard?.customers ?? bookings.length), icon: <UserRoundCheck /> },
         { label: 'Doanh thu', value: `${dashboard?.revenue_million ?? 0}M`, icon: <PackageCheck /> },
       ]} />
+      <AdminInteractionPanel
+        booking={selectedBooking}
+        generatedTrackingCode={generatedTrackingCode}
+        approvedMedia={approvedMedia}
+        onOpenUpload={() => setInteraction('upload')}
+        onOpenApprove={() => setInteraction('approve')}
+        onCreateTracking={createTrackingCode}
+        onExportCsv={exportBookingsCsv}
+      />
       <StaffNotificationPanel notifications={reviewNotifications} />
       <AnalyticsDashboard bookings={bookings} productJobs={productJobs} dashboard={dashboard} />
       <section className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)]">
         <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <h2 className="text-4xl font-semibold">Danh sách booking</h2>
+          <div>
+            <h2 className="text-4xl font-semibold">Danh sách booking</h2>
+            <p className="mt-1 text-[#3F3F35]/70">Dữ liệu mẫu đã trải đủ 7 ngày để thử lọc, xuất báo cáo và kiểm tra luồng check-in.</p>
+          </div>
           <div className="flex gap-3">
             <SearchBox className="w-full lg:w-[520px]" placeholder="Tìm mã booking, khách hàng..." />
             <FilterButton label="Lọc: Tất cả" />
@@ -384,6 +436,232 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
         </div>
         <BookingTable bookings={bookings} compact={false} />
       </section>
+      <DashboardInteractionDialog
+        type={interaction}
+        booking={selectedBooking}
+        generatedTrackingCode={generatedTrackingCode}
+        approvedMedia={approvedMedia}
+        onApprove={() => {
+          setApprovedMedia((count) => count + 1);
+          toast.success('Đã duyệt media demo cho trang tracking khách.');
+          setInteraction(null);
+        }}
+        onClose={() => setInteraction(null)}
+      />
+    </div>
+  );
+}
+
+function AdminInteractionPanel({
+  booking,
+  generatedTrackingCode,
+  approvedMedia,
+  onOpenUpload,
+  onOpenApprove,
+  onCreateTracking,
+  onExportCsv,
+}: {
+  booking?: Booking;
+  generatedTrackingCode: string;
+  approvedMedia: number;
+  onOpenUpload: () => void;
+  onOpenApprove: () => void;
+  onCreateTracking: () => void;
+  onExportCsv: () => void;
+}) {
+  const actions = [
+    {
+      label: 'Upload ảnh/video',
+      helper: 'Mở popup để staff chọn media cho trang tracking.',
+      icon: <UploadCloud />,
+      onClick: onOpenUpload,
+      className: 'bg-[#361F17] text-white',
+    },
+    {
+      label: 'Duyệt media',
+      helper: `${approvedMedia} file đã duyệt cho khách xem.`,
+      icon: <ClipboardCheck />,
+      onClick: onOpenApprove,
+      className: 'border border-[#3F3F35]/30 bg-white text-[#361F17]',
+    },
+    {
+      label: 'Tạo mã tracking',
+      helper: booking ? `${booking.customer} · ${generatedTrackingCode}` : generatedTrackingCode,
+      icon: <QrCode />,
+      onClick: onCreateTracking,
+      className: 'border border-[#3F3F35]/30 bg-white text-[#361F17]',
+    },
+    {
+      label: 'Xuất CSV',
+      helper: 'Tải file báo cáo booking hiện tại.',
+      icon: <Download />,
+      onClick: onExportCsv,
+      className: 'border border-[#3F3F35]/30 bg-white text-[#361F17]',
+    },
+  ];
+
+  return (
+    <section className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)]">
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Tương tác vận hành nhanh</h2>
+          <p className="mt-1 max-w-[760px] text-[#3F3F35]/75">
+            Khu này mô phỏng thao tác admin/staff hay dùng sau khi khách vào workshop: thêm media, duyệt hiển thị, tạo mã tracking và xuất dữ liệu báo cáo.
+          </p>
+        </div>
+        <Badge className="bg-[#F0F3E3] text-[#59612E]">Có thể bấm thử</Badge>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {actions.map((action) => (
+          <button
+            key={action.label}
+            type="button"
+            onClick={action.onClick}
+            className={`min-h-[116px] rounded-lg p-4 text-left shadow-[0_8px_18px_rgba(54,31,23,0.05)] transition hover:-translate-y-0.5 ${action.className}`}
+          >
+            <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#F5F1ED] text-[#361F17] [&>svg]:h-5 [&>svg]:w-5">
+              {action.icon}
+            </span>
+            <span className="block text-lg font-bold">{action.label}</span>
+            <span className={`mt-1 block text-sm ${action.className.includes('text-white') ? 'text-white/75' : 'text-[#3F3F35]/70'}`}>
+              {action.helper}
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DashboardInteractionDialog({
+  type,
+  booking,
+  generatedTrackingCode,
+  approvedMedia,
+  onApprove,
+  onClose,
+}: {
+  type: 'upload' | 'approve' | 'tracking' | null;
+  booking?: Booking;
+  generatedTrackingCode: string;
+  approvedMedia: number;
+  onApprove: () => void;
+  onClose: () => void;
+}) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (type) setSelectedFile(null);
+  }, [type]);
+
+  if (!type) return null;
+
+  const trackingCode = booking?.tracking_code || generatedTrackingCode;
+  const saveDemoMedia = () => {
+    const mediaType: TrackingMedia['media_type'] = selectedFile?.type.startsWith('video') ? 'video' : 'image';
+    const previewUrl = selectedFile && mediaType === 'image' ? URL.createObjectURL(selectedFile) : productImages.tealVase;
+    upsertTrackingMedia({
+      id: `${trackingCode}-dashboard-${Date.now()}`,
+      tracking_code: trackingCode,
+      booking_code: booking?.id,
+      media_type: mediaType,
+      stage: 'Workshop',
+      title: selectedFile?.name || 'Ảnh demo sau workshop',
+      description: mediaType === 'video'
+        ? 'Video ngắn được staff thêm để khách xem lại quá trình.'
+        : 'Ảnh được staff thêm để khách xem tiến độ trên trang tracking.',
+      url: previewUrl,
+      uploaded_by: 'Admin THỔ',
+      created_at: new Date().toISOString(),
+      is_new: true,
+    });
+    toast.success('Đã thêm media vào dữ liệu tracking demo.');
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#361F17]/45 px-5 py-8">
+      <div className="w-full max-w-[560px] rounded-lg bg-white p-6 shadow-[0_24px_70px_rgba(54,31,23,0.24)]">
+        {type === 'upload' && (
+          <>
+            <div className="mb-5 flex items-start gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F1ED] text-[#361F17]">
+                {selectedFile?.type.startsWith('video') ? <FileVideo className="h-6 w-6" /> : <ImageUp className="h-6 w-6" />}
+              </span>
+              <div>
+                <h3 className="text-2xl font-bold">Upload media tracking</h3>
+                <p className="text-[#3F3F35]/70">Chọn ảnh hoặc video ngắn, sau đó lưu vào tracking của booking workshop.</p>
+              </div>
+            </div>
+            <label className="flex min-h-[150px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[#C0AC8B] bg-[#F5F1ED] p-5 text-center">
+              <UploadCloud className="mb-3 h-8 w-8 text-[#716942]" />
+              <span className="font-bold">{selectedFile ? selectedFile.name : 'Bấm để duyệt ảnh/video'}</span>
+              <span className="mt-1 text-sm text-[#3F3F35]/65">JPG, PNG hoặc MP4 demo.</span>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                className="sr-only"
+                onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Info label="Booking" value={booking?.id ?? 'Demo'} />
+              <Info label="Mã tracking" value={trackingCode} />
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
+              <button type="button" onClick={saveDemoMedia} className="h-11 rounded-lg bg-[#361F17] px-5 font-bold text-white">Lưu media demo</button>
+            </div>
+          </>
+        )}
+
+        {type === 'approve' && (
+          <>
+            <div className="mb-5 flex items-start gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF4D8] text-[#59612E]">
+                <ClipboardCheck className="h-6 w-6" />
+              </span>
+              <div>
+                <h3 className="text-2xl font-bold">Duyệt media trước khi hiển thị</h3>
+                <p className="text-[#3F3F35]/70">Admin xác nhận ảnh/video phù hợp rồi mới cho hiện ở trang tracking của khách.</p>
+              </div>
+            </div>
+            <div className="rounded-lg border border-[#3F3F35]/10 bg-[#F5F1ED] p-4">
+              <p className="font-bold text-[#361F17]">Ảnh sản phẩm theo stage</p>
+              <p className="mt-1 text-sm text-[#3F3F35]/70">Nguồn: Staff upload · Trạng thái: chờ duyệt · Đã duyệt: {approvedMedia}</p>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
+              <button type="button" onClick={onApprove} className="h-11 rounded-lg bg-[#361F17] px-5 font-bold text-white">Duyệt file</button>
+            </div>
+          </>
+        )}
+
+        {type === 'tracking' && (
+          <>
+            <div className="mb-5 flex items-start gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F1ED] text-[#361F17]">
+                <QrCode className="h-6 w-6" />
+              </span>
+              <div>
+                <h3 className="text-2xl font-bold">Mã tracking đã tạo</h3>
+                <p className="text-[#3F3F35]/70">Dùng khi khách check-in workshop để theo dõi ảnh, video và tiến độ sản phẩm sau buổi học.</p>
+              </div>
+            </div>
+            <div className="rounded-lg bg-[#361F17] p-5 text-white">
+              <p className="text-sm uppercase tracking-[0.16em] text-white/65">Tracking code</p>
+              <p className="mt-2 text-4xl font-bold">{generatedTrackingCode}</p>
+              <p className="mt-3 text-white/75">{booking ? `${booking.customer} · ${booking.workshop}` : 'Khách workshop demo'}</p>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
+              <Link to={`/tracking?code=${encodeURIComponent(generatedTrackingCode)}`} className="inline-flex h-11 items-center rounded-lg bg-[#361F17] px-5 font-bold text-white">
+                Mở trang tracking
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -464,10 +742,13 @@ function AnalyticsDashboard({
         { id: 'PJ-DEMO-3', booking_id: 'BK-DEMO-3', customer: 'Quỳnh Chi', product: 'DIY kit', stage: 'drying', status: 'photo_needed', image: '0 ảnh', owner: 'Chị Hạnh', due: '12/06/2026' },
       ] as ProductJob[];
   const revenueBars = [
-    { label: 'T2', value: 5.2 },
+    { label: 'T2', value: 4.8 },
     { label: 'T3', value: 7.8 },
     { label: 'T4', value: 6.4 },
-    { label: 'T5', value: dashboard?.revenue_million ?? 9.6 },
+    { label: 'T5', value: 5.9 },
+    { label: 'T6', value: dashboard?.revenue_million ?? 8.2 },
+    { label: 'T7', value: 9.4 },
+    { label: 'CN', value: 6.7 },
   ];
   const maxRevenue = Math.max(...revenueBars.map((item) => item.value), 1);
   const districtCounts = demoBookings.reduce<Record<string, number>>((acc, booking) => {
@@ -496,15 +777,18 @@ function AnalyticsDashboard({
             <TrendingUp className="h-7 w-7 text-[#716942]" />
             Analytics cho chủ studio
           </h2>
-          <p className="mt-1 text-[#3F3F35]/75">Doanh thu, khu vực khách, repeat booking, workshop nổi bật và gift flow.</p>
+          <p className="mt-1 text-[#3F3F35]/75">Tóm tắt doanh thu, khu vực khách, repeat booking, workshop nổi bật và gift flow trong 7 ngày.</p>
         </div>
-        <Badge className="bg-[#EFF4D8] text-[#59612E]">Demo analytics</Badge>
+        <Badge className="bg-[#EFF4D8] text-[#59612E]">Dữ liệu 1 tuần</Badge>
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-lg border border-[#3F3F35]/10 bg-[#F5F1ED] p-5">
-          <h3 className="mb-4 text-xl font-bold">Doanh thu theo tuần</h3>
-          <div className="grid h-[220px] grid-cols-4 items-end gap-4">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-xl font-bold">Doanh thu theo tuần</h3>
+            <span className="text-sm font-semibold text-[#716942]">Theo ngày mở workshop</span>
+          </div>
+          <div className="grid h-[240px] grid-cols-7 items-end gap-3">
             {revenueBars.map((item) => (
               <div key={item.label} className="flex h-full flex-col justify-end gap-2">
                 <div className="flex items-end rounded-t-lg bg-[#716942]" style={{ height: `${Math.max(18, (item.value / maxRevenue) * 100)}%` }}>
@@ -521,6 +805,12 @@ function AnalyticsDashboard({
           <AnalyticsStat icon={<Gift />} label="Đơn quà tặng" value={String(giftCount)} helper="Từ nút Mua làm quà và tag gift." />
           <AnalyticsStat icon={<CalendarDays />} label="Workshop nổi bật" value={topWorkshop} helper="Workshop có số booking cao nhất." />
         </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <WorkflowNote title="Check-in" value={`${demoBookings.filter((item) => item.checkin_status === 'checked_in').length}/${demoBookings.length}`} helper="Theo dõi khách đã tới lớp trong tuần." />
+        <WorkflowNote title="Media chờ upload" value={String(demoProductJobs.filter((item) => item.status === 'photo_needed').length)} helper="Gợi ý staff bổ sung ảnh hoặc video cho tracking." />
+        <WorkflowNote title="Báo cáo CSV" value={`${demoBookings.length} dòng`} helper="Số dòng sẽ xuất khi admin bấm nút CSV." />
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
@@ -544,6 +834,16 @@ function AnalyticsStat({ icon, label, value, helper }: { icon: ReactNode; label:
       <div className="mb-3 flex items-center gap-3 text-[#716942] [&>svg]:h-6 [&>svg]:w-6">{icon}<span className="font-bold">{label}</span></div>
       <p className="text-3xl font-bold text-[#361F17]">{value}</p>
       <p className="mt-2 text-sm text-[#3F3F35]/70">{helper}</p>
+    </article>
+  );
+}
+
+function WorkflowNote({ title, value, helper }: { title: string; value: string; helper: string }) {
+  return (
+    <article className="rounded-lg border border-[#3F3F35]/10 bg-white p-4">
+      <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#716942]">{title}</p>
+      <p className="mt-2 text-2xl font-bold text-[#361F17]">{value}</p>
+      <p className="mt-1 text-sm text-[#3F3F35]/70">{helper}</p>
     </article>
   );
 }
