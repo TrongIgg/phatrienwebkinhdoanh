@@ -366,6 +366,31 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
   const reviewNotifications = readReviewNotifications();
   const selectedBooking = bookings[0];
   const showInDevelopment = () => toast.info('Tính năng đang phát triển.');
+  const exportBookingsCsv = () => {
+    const headings = ['Ma booking', 'Khach hang', 'Lien he', 'Dich vu', 'Ngay', 'Gio', 'Gia', 'Trang thai', 'Nguoi phu trach'];
+    const rows = bookings.map((booking) => [
+      booking.id,
+      booking.customer,
+      booking.phone,
+      booking.workshop,
+      booking.date,
+      booking.time,
+      booking.price,
+      statusLabel[booking.status],
+      booking.staff,
+    ]);
+    const csv = [headings, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tho-booking-dashboard.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Đã xuất file CSV booking demo.');
+  };
 
   return (
     <div className="space-y-7">
@@ -383,7 +408,7 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
         onOpenUpload={showInDevelopment}
         onOpenApprove={showInDevelopment}
         onCreateTracking={showInDevelopment}
-        onExportCsv={showInDevelopment}
+        onExportCsv={exportBookingsCsv}
       />
       <StaffNotificationPanel notifications={reviewNotifications} />
       <AnalyticsDashboard bookings={bookings} productJobs={productJobs} dashboard={dashboard} />
