@@ -11,7 +11,6 @@ import {
   Clock3,
   Download,
   Edit3,
-  FileVideo,
   Gift,
   ImageUp,
   LogOut,
@@ -365,43 +364,8 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
 
 function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking[]; productJobs: ProductJob[]; dashboard: ApiStaffDashboard | null }) {
   const reviewNotifications = readReviewNotifications();
-  const [interaction, setInteraction] = useState<'upload' | 'approve' | 'tracking' | null>(null);
-  const [generatedTrackingCode, setGeneratedTrackingCode] = useState(bookings[0]?.tracking_code ?? 'THO-WORKSHOP-001');
-  const [approvedMedia, setApprovedMedia] = useState(1);
   const selectedBooking = bookings[0];
-
-  const exportBookingsCsv = () => {
-    const headings = ['Ma booking', 'Khach hang', 'Lien he', 'Dich vu', 'Ngay', 'Gio', 'Gia', 'Trang thai', 'Nguoi phu trach'];
-    const rows = bookings.map((booking) => [
-      booking.id,
-      booking.customer,
-      booking.phone,
-      booking.workshop,
-      booking.date,
-      booking.time,
-      booking.price,
-      statusLabel[booking.status],
-      booking.staff,
-    ]);
-    const csv = [headings, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'tho-booking-dashboard.csv';
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success('Đã xuất file CSV booking demo.');
-  };
-
-  const createTrackingCode = () => {
-    const nextCode = `THO-WS-${String(Date.now()).slice(-5)}`;
-    setGeneratedTrackingCode(nextCode);
-    setInteraction('tracking');
-    toast.success('Đã tạo mã tracking cho khách workshop.');
-  };
+  const showInDevelopment = () => toast.info('Tính năng đang phát triển.');
 
   return (
     <div className="space-y-7">
@@ -414,12 +378,12 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
       ]} />
       <AdminInteractionPanel
         booking={selectedBooking}
-        generatedTrackingCode={generatedTrackingCode}
-        approvedMedia={approvedMedia}
-        onOpenUpload={() => setInteraction('upload')}
-        onOpenApprove={() => setInteraction('approve')}
-        onCreateTracking={createTrackingCode}
-        onExportCsv={exportBookingsCsv}
+        generatedTrackingCode={selectedBooking?.tracking_code ?? 'THO-WORKSHOP-001'}
+        approvedMedia={1}
+        onOpenUpload={showInDevelopment}
+        onOpenApprove={showInDevelopment}
+        onCreateTracking={showInDevelopment}
+        onExportCsv={showInDevelopment}
       />
       <StaffNotificationPanel notifications={reviewNotifications} />
       <AnalyticsDashboard bookings={bookings} productJobs={productJobs} dashboard={dashboard} />
@@ -436,18 +400,6 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
         </div>
         <BookingTable bookings={bookings} compact={false} />
       </section>
-      <DashboardInteractionDialog
-        type={interaction}
-        booking={selectedBooking}
-        generatedTrackingCode={generatedTrackingCode}
-        approvedMedia={approvedMedia}
-        onApprove={() => {
-          setApprovedMedia((count) => count + 1);
-          toast.success('Đã duyệt media demo cho trang tracking khách.');
-          setInteraction(null);
-        }}
-        onClose={() => setInteraction(null)}
-      />
     </div>
   );
 }
@@ -530,139 +482,6 @@ function AdminInteractionPanel({
         ))}
       </div>
     </section>
-  );
-}
-
-function DashboardInteractionDialog({
-  type,
-  booking,
-  generatedTrackingCode,
-  approvedMedia,
-  onApprove,
-  onClose,
-}: {
-  type: 'upload' | 'approve' | 'tracking' | null;
-  booking?: Booking;
-  generatedTrackingCode: string;
-  approvedMedia: number;
-  onApprove: () => void;
-  onClose: () => void;
-}) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    if (type) setSelectedFile(null);
-  }, [type]);
-
-  if (!type) return null;
-
-  const trackingCode = booking?.tracking_code || generatedTrackingCode;
-  const saveDemoMedia = () => {
-    const mediaType: TrackingMedia['media_type'] = selectedFile?.type.startsWith('video') ? 'video' : 'image';
-    const previewUrl = selectedFile && mediaType === 'image' ? URL.createObjectURL(selectedFile) : productImages.tealVase;
-    upsertTrackingMedia({
-      id: `${trackingCode}-dashboard-${Date.now()}`,
-      tracking_code: trackingCode,
-      booking_code: booking?.id,
-      media_type: mediaType,
-      stage: 'Workshop',
-      title: selectedFile?.name || 'Ảnh demo sau workshop',
-      description: mediaType === 'video'
-        ? 'Video ngắn được staff thêm để khách xem lại quá trình.'
-        : 'Ảnh được staff thêm để khách xem tiến độ trên trang tracking.',
-      url: previewUrl,
-      uploaded_by: 'Admin THỔ',
-      created_at: new Date().toISOString(),
-      is_new: true,
-    });
-    toast.success('Đã thêm media vào dữ liệu tracking demo.');
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#361F17]/45 px-5 py-8">
-      <div className="w-full max-w-[560px] rounded-lg bg-white p-6 shadow-[0_24px_70px_rgba(54,31,23,0.24)]">
-        {type === 'upload' && (
-          <>
-            <div className="mb-5 flex items-start gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F1ED] text-[#361F17]">
-                {selectedFile?.type.startsWith('video') ? <FileVideo className="h-6 w-6" /> : <ImageUp className="h-6 w-6" />}
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold">Upload media tracking</h3>
-                <p className="text-[#3F3F35]/70">Chọn ảnh hoặc video ngắn, sau đó lưu vào tracking của booking workshop.</p>
-              </div>
-            </div>
-            <label className="flex min-h-[150px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[#C0AC8B] bg-[#F5F1ED] p-5 text-center">
-              <UploadCloud className="mb-3 h-8 w-8 text-[#716942]" />
-              <span className="font-bold">{selectedFile ? selectedFile.name : 'Bấm để duyệt ảnh/video'}</span>
-              <span className="mt-1 text-sm text-[#3F3F35]/65">JPG, PNG hoặc MP4 demo.</span>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                className="sr-only"
-                onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
-              />
-            </label>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Info label="Booking" value={booking?.id ?? 'Demo'} />
-              <Info label="Mã tracking" value={trackingCode} />
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
-              <button type="button" onClick={saveDemoMedia} className="h-11 rounded-lg bg-[#361F17] px-5 font-bold text-white">Lưu media demo</button>
-            </div>
-          </>
-        )}
-
-        {type === 'approve' && (
-          <>
-            <div className="mb-5 flex items-start gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF4D8] text-[#59612E]">
-                <ClipboardCheck className="h-6 w-6" />
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold">Duyệt media trước khi hiển thị</h3>
-                <p className="text-[#3F3F35]/70">Admin xác nhận ảnh/video phù hợp rồi mới cho hiện ở trang tracking của khách.</p>
-              </div>
-            </div>
-            <div className="rounded-lg border border-[#3F3F35]/10 bg-[#F5F1ED] p-4">
-              <p className="font-bold text-[#361F17]">Ảnh sản phẩm theo stage</p>
-              <p className="mt-1 text-sm text-[#3F3F35]/70">Nguồn: Staff upload · Trạng thái: chờ duyệt · Đã duyệt: {approvedMedia}</p>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
-              <button type="button" onClick={onApprove} className="h-11 rounded-lg bg-[#361F17] px-5 font-bold text-white">Duyệt file</button>
-            </div>
-          </>
-        )}
-
-        {type === 'tracking' && (
-          <>
-            <div className="mb-5 flex items-start gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F1ED] text-[#361F17]">
-                <QrCode className="h-6 w-6" />
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold">Mã tracking đã tạo</h3>
-                <p className="text-[#3F3F35]/70">Dùng khi khách check-in workshop để theo dõi ảnh, video và tiến độ sản phẩm sau buổi học.</p>
-              </div>
-            </div>
-            <div className="rounded-lg bg-[#361F17] p-5 text-white">
-              <p className="text-sm uppercase tracking-[0.16em] text-white/65">Tracking code</p>
-              <p className="mt-2 text-4xl font-bold">{generatedTrackingCode}</p>
-              <p className="mt-3 text-white/75">{booking ? `${booking.customer} · ${booking.workshop}` : 'Khách workshop demo'}</p>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button type="button" onClick={onClose} className="h-11 rounded-lg border border-[#3F3F35]/30 px-5 font-bold">Đóng</button>
-              <Link to={`/tracking?code=${encodeURIComponent(generatedTrackingCode)}`} className="inline-flex h-11 items-center rounded-lg bg-[#361F17] px-5 font-bold text-white">
-                Mở trang tracking
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
   );
 }
 
