@@ -199,9 +199,6 @@ export function Header() {
                   {item.label}
                 </NavLink>
               ))}
-              <a href="tel:0912784507" className="text-[20px] font-bold text-[#361F17]">
-                0912784507
-              </a>
               <Link
                 to="/workshop"
                 className="inline-flex h-11 items-center justify-center rounded-full bg-[#361F17] px-5 font-bold text-white"

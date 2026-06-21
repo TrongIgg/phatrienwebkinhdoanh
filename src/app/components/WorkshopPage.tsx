@@ -155,7 +155,7 @@ export function WorkshopPage() {
 
   useEffect(() => {
     api.workshops()
-      .then((rows) => setWorkshops(rows.map(mapWorkshop)))
+      .then((rows) => setWorkshops(rows.length > 0 ? rows.map(mapWorkshop) : fallbackWorkshops))
       .catch(() => setWorkshops(fallbackWorkshops));
   }, []);
 
@@ -332,7 +332,7 @@ export function WorkshopPage() {
                   <p className="text-2xl font-bold text-[#643A2A]">{workshop.price.toLocaleString('vi-VN')}đ</p>
                   <div className="flex gap-2">
                     <Link to={`/workshop/${workshop.id}`} className="rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">Chi tiết</Link>
-                    <Link to={`/booking/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:opacity-85">Đặt chỗ</Link>
+                    <Link to={`/workshop/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:opacity-85">Đặt chỗ</Link>
                   </div>
                 </div>
               </div>

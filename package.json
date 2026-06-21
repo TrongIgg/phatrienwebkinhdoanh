@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "capture:figma": "node scripts/capture-figma-pages.mjs",
+    "figma:html-imports": "node scripts/make-figma-html-imports.mjs",
     "dev": "vite"
   },
   "dependencies": {

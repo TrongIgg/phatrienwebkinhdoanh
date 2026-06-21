@@ -231,7 +231,7 @@ export function HomePage() {
                   <p className="mt-2 text-sm leading-5 text-[#6A6A6A]">{workshop.description}</p>
                   <div className="mt-4 flex gap-3">
                     <Link to={`/workshop/${workshop.id}`} className="rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] transition-colors hover:bg-[#716942] hover:text-white">Chi tiết</Link>
-                    <Link to={`/booking/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-85">Đặt chỗ</Link>
+                    <Link to={`/workshop/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-85">Đặt chỗ</Link>
                   </div>
                 </div>
               </div>
