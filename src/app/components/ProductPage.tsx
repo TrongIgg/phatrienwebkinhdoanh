@@ -180,7 +180,7 @@ export function ProductPage() {
 
   useEffect(() => {
     api.products()
-      .then((rows) => setProducts(rows.map(mapApiProduct)))
+      .then((rows) => setProducts(rows.length > 0 ? rows.map(mapApiProduct) : fallbackCatalog()))
       .catch(() => setProducts(fallbackCatalog()));
   }, []);
 

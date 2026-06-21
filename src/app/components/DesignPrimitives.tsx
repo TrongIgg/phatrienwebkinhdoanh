@@ -530,18 +530,17 @@ export function EndBodyFooter() {
             </a>
           </div>
 
-          <h3 className="mt-7 text-xl font-light">Tổng đài hỗ trợ trực tuyến</h3>
+          <h3 className="mt-7 text-xl font-light">Hỗ trợ trực tuyến</h3>
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm font-light leading-5">
-            <li>Mua hàng 0912784507 (7h30 - 22h00)</li>
-            <li>Khiếu nại 0912784507 (8h00 - 21h30)</li>
+            <li>Tư vấn mua hàng qua kênh mạng xã hội của THỔ</li>
+            <li>Tiếp nhận góp ý và khiếu nại qua biểu mẫu liên hệ</li>
           </ul>
         </div>
       </div>
 
       <p className="mx-auto max-w-[1220px] px-8 pb-10 pt-4 text-center text-base font-light leading-5">
-        Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ: 0912784507 cấp tại Sở KH & ĐT TP. HCM.
+        Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ, cấp tại Sở KH & ĐT TP. HCM.
         Địa chỉ văn phòng: XXX-XXX Võ Văn Ngân, Thành phố Thủ Đức, Thành phố Hồ Chí Minh, Việt Nam.
-        Điện thoại: 028.7108.9666.
       </p>
 
     </footer>

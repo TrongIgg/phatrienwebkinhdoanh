@@ -174,7 +174,7 @@ export function WorkshopCustomizer() {
                       Qua bước tiếp theo
                     </button>
                   ) : (
-                    <Link to={`/booking/${selectedShape.workshopId}`} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3B2118] px-5 py-3 font-bold text-[#FFF8F2]">
+                    <Link to={`/workshop/${selectedShape.workshopId}`} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3B2118] px-5 py-3 font-bold text-[#FFF8F2]">
                       <Check className="h-4 w-4" />
                       Đặt workshop này
                     </Link>

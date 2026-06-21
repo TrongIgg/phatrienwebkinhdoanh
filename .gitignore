@@ -7,3 +7,28 @@ dist
 *.sqlite-wal
 vite-*.log
 .vercelignore
+.tmp-figma-capture-*
+
+# IDE
+.idea/
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Figma export artifacts (không cần lưu trên Git)
+figma-captures/
+figma-captures-sliced/
+figma-html-imports/
+
+# Scripts capture và test thủ công
+scripts/
+test/
+
+# OS
+.DS_Store
+Thumbs.db
