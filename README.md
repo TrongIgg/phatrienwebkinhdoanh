@@ -137,7 +137,7 @@ Schema hiện có (tự khởi tạo + migration inline):
 
 ### Tính năng đặc thù đã hoàn thiện
 
-1. **Hai giỏ hàng tách biệt** — `ProductCartContext` và `WorkshopCartContext` riêng, checkout không lẫn nghiệp vụ
+1. **Hai giỏ hàng lai** — `ProductCartContext` và `WorkshopCartContext`, checkout không lẫn nghiệp vụ
 2. **Ceramic Tracker** — 7 giai đoạn: tạo hình → phơi khô → nung sơ → tráng men → nung hoàn thiện → sẵn sàng → hoàn tất; staff cập nhật stage → tự đồng bộ timeline phía khách
 3. **Chatbot tư vấn workshop** — hỏi phong cách (tối giản / màu sắc / tự nhiên), kinh nghiệm, mục đích → gợi ý workshop_id → lưu DB → staff đọc được trong dashboard
 4. **Tracking đa loại** — phân biệt `ORD…` (đơn hàng), `WS…` (workshop/vé), `THO…`/`CER…` (ceramic tracker)
