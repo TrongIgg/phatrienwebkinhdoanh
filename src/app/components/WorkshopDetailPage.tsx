@@ -12,16 +12,22 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
-import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, workshopImages } from './DesignPrimitives';
 import { fallbackWorkshops, mapWorkshop, type WorkshopView } from './WorkshopPage';
 
-const BOOKING_CONTACT_STORAGE_KEY = 'tho-booking-contact';
+export type WorkshopBookingPayload = {
+  workshop: WorkshopView;
+  contact: { name: string; phone: string; email: string; notes: string };
+  slotCount: number;
+};
 
-export function WorkshopDetailPage() {
+export function WorkshopDetailPage({
+  onBookingSubmit,
+}: {
+  onBookingSubmit: (payload: WorkshopBookingPayload) => void;
+}) {
   const { workshopId } = useParams();
   const navigate = useNavigate();
-  const { addWorkshop, clearWorkshopCart } = useWorkshopCart();
 
   const fallback = fallbackWorkshops.find((item) => item.id === workshopId) ?? null;
   const [workshop, setWorkshop] = useState<WorkshopView | null>(fallback);
@@ -83,34 +89,8 @@ export function WorkshopDetailPage() {
 
     setSubmitting(true);
 
-    // Persist contact info so CheckoutPage can pre-fill
-    window.localStorage.setItem(
-      BOOKING_CONTACT_STORAGE_KEY,
-      JSON.stringify({
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        note: formData.notes,
-        slotCount,
-      }),
-    );
-
-    // Push workshop into cart context
-    clearWorkshopCart();
-    addWorkshop({
-      id: `workshop-${workshop.id}-${Date.now()}`,
-      name: workshop.name,
-      date: workshop.fullDate,
-      time: workshop.time,
-      instructor: workshop.instructor,
-      price: workshop.price,
-      tickets: slotCount,
-      maxTickets: workshop.slots.available,
-      package: workshop.package,
-    });
-
-    // Navigate straight to payment method selection
-    navigate('/checkout?autopay=workshop');
+    // Emit data lên page layer — không tự xử lý cart/localStorage/navigate
+    onBookingSubmit({ workshop, contact: { ...formData }, slotCount });
   };
 
   const slotsUrgent = workshop.slots.available <= 3;

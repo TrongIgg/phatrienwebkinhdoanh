@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import {
   CalendarCheck,
   CheckCircle2,
@@ -15,7 +15,6 @@ import {
   UserRound,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useProductCart } from '../contexts/ProductCartContext';
 import { api, type ApiTracking } from '../lib/api';
 import { findLocalTrackingRecord, readLocalTrackingRecords } from '../lib/trackingStorage';
 import { AssetImage, productImages, workshopImages } from './DesignPrimitives';
@@ -153,9 +152,33 @@ function buildCeramicTimeline(timeline: ApiTracking['timeline']) {
   });
 }
 
-function CustomTrackingResult({ result }: { result: ApiTracking }) {
-  const navigate = useNavigate();
-  const { addProduct, productItems } = useProductCart();
+export type CustomCheckoutPayload = {
+  cartItemId: string;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    custom: {
+      shape: string;
+      glaze: string;
+      features: string[];
+      engraving?: string;
+      brief?: string;
+      multiplier: number;
+      basePrice: number;
+      artisanLeadDays: number;
+    };
+  };
+};
+
+function CustomTrackingResult({
+  result,
+  onProceedToCheckout,
+}: {
+  result: ApiTracking;
+  onProceedToCheckout: (payload: CustomCheckoutPayload) => void;
+}) {
   const request = result.custom_request;
 
   if (!request) {
@@ -169,13 +192,14 @@ function CustomTrackingResult({ result }: { result: ApiTracking }) {
   }
 
   const cartItemId = `custom-${result.code}`;
-  const addCustomToCheckout = () => {
-    if (!productItems.some((item) => item.id === cartItemId)) {
-      addProduct({
+  const handleCheckout = () => {
+    if (!request.paymentReady) return;
+    onProceedToCheckout({
+      cartItemId,
+      product: {
         id: cartItemId,
         name: `Mẫu custom ${request.shape} · ${request.glaze}`,
         price: request.estimatedPrice,
-        quantity: 1,
         image: productImages.tealVase,
         custom: {
           shape: request.shape,
@@ -187,11 +211,8 @@ function CustomTrackingResult({ result }: { result: ApiTracking }) {
           basePrice: request.basePrice,
           artisanLeadDays: request.artisanLeadDays,
         },
-      });
-    }
-    window.sessionStorage.setItem('tho-checkout-product-ids', JSON.stringify([cartItemId]));
-    toast.success('Đã chuyển brief custom sang thanh toán.');
-    navigate('/checkout?mode=product');
+      },
+    });
   };
 
   return (
@@ -252,7 +273,7 @@ function CustomTrackingResult({ result }: { result: ApiTracking }) {
           </div>
           <button
             type="button"
-            onClick={addCustomToCheckout}
+            onClick={handleCheckout}
             disabled={!request.paymentReady}
             className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-lg bg-primary px-5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
           >
@@ -267,7 +288,11 @@ function CustomTrackingResult({ result }: { result: ApiTracking }) {
   );
 }
 
-export function TrackingPage() {
+export function TrackingPage({
+  onCustomCheckout,
+}: {
+  onCustomCheckout: (payload: CustomCheckoutPayload) => void;
+}) {
   const [searchParams] = useSearchParams();
   const codeFromUrl = searchParams.get('code')?.trim() ?? '';
   const [trackingType, setTrackingType] = useState<TrackingType>('ceramic');
@@ -408,7 +433,7 @@ export function TrackingPage() {
             </div>
           )}
           {submitted && !loading && error && <div className="motion-section rounded-lg border border-border bg-card p-8 text-center text-destructive">{error}</div>}
-          {submitted && !loading && !error && result && resultType === 'custom' && <CustomTrackingResult result={result} />}
+          {submitted && !loading && !error && result && resultType === 'custom' && <CustomTrackingResult result={result} onProceedToCheckout={onCustomCheckout} />}
           {submitted && !loading && !error && result && resultType === 'ceramic' && <CeramicTrackingExperience code={trackingCode} result={result} />}
           {submitted && !loading && !error && result && resultType !== 'ceramic' && resultType !== 'custom' && <SimpleTrackingResult type={resultType} code={trackingCode} result={result} />}
         </div>

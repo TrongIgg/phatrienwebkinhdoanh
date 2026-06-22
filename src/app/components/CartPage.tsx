@@ -6,13 +6,23 @@ import { useProductCart } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PlaceholderImage, PolicyBar, workshopImages } from './DesignPrimitives';
 
+export type CheckoutSelection = {
+  selectedProductIds: string[];
+  selectedWorkshopIds: string[];
+};
+
 const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
 const CHECKOUT_WORKSHOP_IDS_KEY = 'tho-checkout-workshop-ids';
 
-export function CartPage() {
-  const navigate = useNavigate();
+export function CartPage({
+  onCheckout,
+}: {
+  /** Page layer quyết định navigate đến route nào dựa trên selection */
+  onCheckout: (selection: CheckoutSelection) => void;
+}) {
   const { productItems, removeProduct, updateProductQuantity } = useProductCart();
   const { workshopItems, removeWorkshop, updateWorkshopTickets } = useWorkshopCart();
+  const navigate = useNavigate();
   const [now, setNow] = useState(Date.now());
   const [removingIds, setRemovingIds] = useState<string[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>(() => productItems.map((item) => item.id));
@@ -126,17 +136,8 @@ export function CartPage() {
     window.sessionStorage.setItem(CHECKOUT_PRODUCT_IDS_KEY, JSON.stringify(selectedProductIds));
     window.sessionStorage.setItem(CHECKOUT_WORKSHOP_IDS_KEY, JSON.stringify(selectedWorkshopIds));
 
-    if (selectedProducts.length > 0 && selectedWorkshops.length > 0) {
-      navigate('/checkout?mode=combined');
-      return;
-    }
-
-    if (selectedWorkshops.length > 0) {
-      navigate('/checkout?autopay=workshop');
-      return;
-    }
-
-    navigate('/checkout?mode=product');
+    // Để page layer quyết định navigate đến route nào
+    onCheckout({ selectedProductIds, selectedWorkshopIds });
   };
 
   if (!hasProducts && !hasWorkshops) {

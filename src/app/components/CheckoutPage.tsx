@@ -1,22 +1,67 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, TimerReset, X } from 'lucide-react';
 import { useProductCart, type CheckoutAddress } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
-import { saveLocalTrackingRecords } from '../lib/trackingStorage';
-import { api, type ApiTracking } from '../lib/api';
+import { type ApiTracking } from '../lib/api';
 import { readCustomerSession } from '../lib/customerExperience';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export type OrderPayload = {
+  orderCode: string;
+  checkoutItems: CheckoutItem[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  customer: CheckoutAddress;
+  paymentMethod: PaymentMethod;
+  hasWorkshopCheckout: boolean;
+  hasProducts: boolean;
+  selectedProductIds: string[];
+  selectedWorkshopIds: string[];
+  trackingRecords: ApiTracking[];
+};
 
 type PaymentMethod = 'momo' | 'vnpay';
 type FormErrors = Partial<Record<keyof CheckoutAddress, string>>;
+type CheckoutItem = {
+  id: string;
+  name: string;
+  price: number;
+  type: 'product' | 'workshop';
+  quantity?: number;
+  tickets?: number;
+  date?: string;
+  time?: string;
+  image?: string;
+  gift?: { occasion: string; includeWrapping: boolean; giftNote: string };
+  custom?: {
+    shape: string;
+    glaze: string;
+    features: string[];
+    engraving?: string;
+    brief?: string;
+    multiplier: number;
+    basePrice: number;
+    artisanLeadDays: number;
+  };
+};
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const ADDRESS_STORAGE_KEY = 'tho-address-suggestions';
 const CHECKOUT_PRODUCT_IDS_KEY = 'tho-checkout-product-ids';
 const CHECKOUT_WORKSHOP_IDS_KEY = 'tho-checkout-workshop-ids';
 const BOOKING_CONTACT_STORAGE_KEY = 'tho-booking-contact';
-const defaultAddress: CheckoutAddress = { name: '', phone: '', email: '', city: '', district: '', ward: '', address: '', note: '', shipping: 'standard' };
+
+const defaultAddress: CheckoutAddress = {
+  name: '', phone: '', email: '', city: '', district: '', ward: '',
+  address: '', note: '', shipping: 'standard',
+};
+
 const addressCatalog = {
   cities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'],
   districts: ['Thủ Đức', 'Quận 1', 'Bình Thạnh', 'Hoàn Kiếm', 'Ba Đình', 'Hải Châu'],
@@ -32,30 +77,31 @@ function readSavedAddresses() {
   }
 }
 
-function saveAddressSuggestion(address: CheckoutAddress) {
-  const existing = readSavedAddresses();
-  const fingerprint = `${address.address}-${address.ward}-${address.district}-${address.city}`.toLowerCase();
-  const next = [address, ...existing.filter((item) => `${item.address}-${item.ward}-${item.district}-${item.city}`.toLowerCase() !== fingerprint)].slice(0, 4);
-  window.localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(next));
-}
+// ─── Main Component ───────────────────────────────────────────────────────────
 
-export function CheckoutPage() {
-  const navigate = useNavigate();
+export function CheckoutPage({
+  onPaymentSuccess,
+  onPaymentCancel,
+}: {
+  /** Gọi sau khi user xác nhận thanh toán — page layer xử lý API, clear cart, navigate */
+  onPaymentSuccess: (payload: OrderPayload) => Promise<void>;
+  /** Gọi khi user hủy thanh toán hoặc giờ giữ slot hết */
+  onPaymentCancel: (selectedWorkshopIds: string[]) => void;
+}) {
   const [searchParams] = useSearchParams();
-  const { productItems, removeProduct, clearProductCart, setOrderData } = useProductCart();
-  const { workshopItems, removeWorkshop, clearWorkshopCart } = useWorkshopCart();
+  const { productItems } = useProductCart();
+  const { workshopItems } = useWorkshopCart();
+
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [now, setNow] = useState(Date.now());
+
   const [formData, setFormData] = useState<CheckoutAddress>(() => {
     const customer = readCustomerSession();
     const customerDefaults = customer
-      ? {
-          name: customer.display_name,
-          phone: customer.phone,
-          email: customer.email,
-        }
+      ? { name: customer.display_name, phone: customer.phone, email: customer.email }
       : {};
     try {
       const bookingContact = window.localStorage.getItem(BOOKING_CONTACT_STORAGE_KEY);
@@ -66,6 +112,8 @@ export function CheckoutPage() {
       return { ...defaultAddress, ...customerDefaults };
     }
   });
+
+  // ── Selection ────────────────────────────────────────────────────────────
 
   const selectedProductIds = useMemo(() => {
     if (typeof window === 'undefined') return productItems.map((item) => item.id);
@@ -78,6 +126,7 @@ export function CheckoutPage() {
       return productItems.map((item) => item.id);
     }
   }, [productItems]);
+
   const selectedWorkshopIds = useMemo(() => {
     if (typeof window === 'undefined') return workshopItems.map((item) => item.id);
     if (searchParams.get('autopay') === 'workshop') return workshopItems.map((item) => item.id);
@@ -90,11 +139,15 @@ export function CheckoutPage() {
       return workshopItems.map((item) => item.id);
     }
   }, [searchParams, workshopItems]);
+
+  // ── Derived state ────────────────────────────────────────────────────────
+
   const checkoutProductItems = productItems.filter((item) => selectedProductIds.includes(item.id));
   const checkoutProductTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const checkoutHasCustomProducts = checkoutProductItems.some((item) => item.custom);
   const checkoutWorkshopItems = workshopItems.filter((item) => selectedWorkshopIds.includes(item.id));
   const checkoutWorkshopTotal = checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
+
   const checkoutMode = searchParams.get('mode');
   const isWorkshopCheckout =
     searchParams.get('autopay') === 'workshop' ||
@@ -102,7 +155,8 @@ export function CheckoutPage() {
   const isCombinedCheckout = checkoutMode === 'combined';
   const includesWorkshops = isWorkshopCheckout || isCombinedCheckout;
   const includesProducts = !isWorkshopCheckout || isCombinedCheckout || checkoutMode === 'product';
-  const checkoutItems = [
+
+  const checkoutItems: CheckoutItem[] = [
     ...(includesWorkshops ? checkoutWorkshopItems : []),
     ...(includesProducts ? checkoutProductItems : []),
   ];
@@ -111,15 +165,34 @@ export function CheckoutPage() {
   const checkoutSubtotal = (hasWorkshopCheckout ? checkoutWorkshopTotal : 0) + (hasProducts ? checkoutProductTotal : 0);
   const shippingFee = hasProducts ? 35000 : 0;
   const payableTotal = checkoutSubtotal + shippingFee;
+
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
-  const [now, setNow] = useState(Date.now());
+  const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
+
   const workshopHoldExpiresAt = checkoutWorkshopItems.reduce<number | null>((nearest, item) => {
     if (!nearest) return item.reservedUntil;
     return item.reservedUntil < nearest ? item.reservedUntil : nearest;
   }, null);
-  const workshopHoldSeconds = workshopHoldExpiresAt ? Math.max(0, Math.ceil((workshopHoldExpiresAt - now) / 1000)) : 0;
+  const workshopHoldSeconds = workshopHoldExpiresAt
+    ? Math.max(0, Math.ceil((workshopHoldExpiresAt - now) / 1000))
+    : 0;
   const workshopHoldClock = `${String(Math.floor(workshopHoldSeconds / 60)).padStart(2, '0')}:${String(workshopHoldSeconds % 60).padStart(2, '0')}`;
-  const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
+
+  // ── Timer ────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!hasWorkshopCheckout) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [hasWorkshopCheckout]);
+
+  // Khi giờ giữ slot hết → báo lên page layer
+  useEffect(() => {
+    if (!hasWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
+    onPaymentCancel(selectedWorkshopIds);
+  }, [hasWorkshopCheckout, onPaymentCancel, selectedWorkshopIds, workshopHoldExpiresAt, workshopHoldSeconds]);
+
+  // ── Form logic ───────────────────────────────────────────────────────────
 
   const updateField = (field: keyof CheckoutAddress, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -161,35 +234,26 @@ export function CheckoutPage() {
     }, 450);
   };
 
-  useEffect(() => {
-    if (!hasWorkshopCheckout) return;
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, [hasWorkshopCheckout]);
+  // ── Payment logic ─────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (!hasWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
-    selectedWorkshopIds.forEach((id) => removeWorkshop(id));
-    window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
-    navigate('/payment-failed');
-  }, [hasWorkshopCheckout, navigate, removeWorkshop, selectedWorkshopIds, workshopHoldExpiresAt, workshopHoldSeconds]);
-
-  const finishPayment = async () => {
-    const orderCode = `${hasWorkshopCheckout && !hasProducts ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
-    const customer = hasProducts ? formData : { ...formData, city: '', district: '', ward: '', address: '', shipping: 'none' };
-    const trackingRecords: ApiTracking[] = [
+  const buildTrackingRecords = (orderCode: string): ApiTracking[] => {
+    const records: ApiTracking[] = [
       {
         code: orderCode,
         tracking_type: hasProducts ? 'order' : 'workshop',
         status: hasProducts ? 'paid_waiting_pack' : 'confirmed',
-        title: hasProducts ? checkoutHasCustomProducts ? 'Đơn custom THỔ Studio' : 'Đơn hàng THỔ Studio' : 'Vé workshop THỔ Studio',
+        title: hasProducts
+          ? checkoutHasCustomProducts ? 'Đơn custom THỔ Studio' : 'Đơn hàng THỔ Studio'
+          : 'Vé workshop THỔ Studio',
         message: !hasProducts
           ? 'Vé đã xác nhận. QR check-in đã gửi qua email/SMS.'
           : checkoutHasCustomProducts
-            ? 'Đơn custom đã thanh toán. Nghệ nhân sẽ nhận brief sau 3 ngày và liên hệ khách để chốt chi tiết.'
-          : 'Đơn hàng đã thanh toán và đang chờ studio đóng gói.',
+            ? 'Đơn custom đã thanh toán. Nghệ nhân sẽ nhận brief sau 3 ngày.'
+            : 'Đơn hàng đã thanh toán và đang chờ studio đóng gói.',
         manager_name: hasWorkshopCheckout && !hasProducts ? 'Anh Quân' : 'Chị Linh',
-        participant_count: hasWorkshopCheckout ? checkoutWorkshopItems.reduce((sum, item) => sum + item.tickets, 0) || null : null,
+        participant_count: hasWorkshopCheckout
+          ? checkoutWorkshopItems.reduce((sum, item) => sum + item.tickets, 0) || null
+          : null,
         checkin_status: hasWorkshopCheckout ? 'pending' : null,
         timeline: !hasProducts
           ? [
@@ -209,7 +273,7 @@ export function CheckoutPage() {
 
     if (hasWorkshopCheckout) {
       checkoutWorkshopItems.forEach((item, index) => {
-        trackingRecords.push({
+        records.push({
           code: `CER${orderCode.slice(-6)}-${index + 1}`,
           tracking_type: 'ceramic',
           status: 'waiting_workshop',
@@ -230,58 +294,48 @@ export function CheckoutPage() {
       });
     }
 
-    saveLocalTrackingRecords(trackingRecords);
-    try {
-      const persistedRecords = await api.createTrackingRecords(trackingRecords);
-      saveLocalTrackingRecords(persistedRecords);
-    } catch (error) {
-      console.warn('Tracking records are kept in this browser session until the backend is available.', error);
-    }
-    setOrderData({
+    return records;
+  };
+
+  const finishPayment = async () => {
+    const orderCode = `${hasWorkshopCheckout && !hasProducts ? 'WS' : 'ORD'}-${Date.now().toString().slice(-8)}`;
+    const customer = hasProducts
+      ? formData
+      : { ...formData, city: '', district: '', ward: '', address: '', shipping: 'none' };
+    const trackingRecords = buildTrackingRecords(orderCode);
+
+    // Emit payload lên page layer — không tự xử lý cart hay navigate
+    await onPaymentSuccess({
       orderCode,
-      items: checkoutItems.map((item) => ({ ...item })),
+      checkoutItems,
       subtotal: checkoutSubtotal,
       shippingFee,
       total: payableTotal,
       customer,
-      createdAt: new Date().toISOString(),
       paymentMethod,
+      hasWorkshopCheckout,
+      hasProducts,
+      selectedProductIds,
+      selectedWorkshopIds,
+      trackingRecords,
     });
-    if (hasProducts) {
-      saveAddressSuggestion(formData);
-      if (selectedProductIds.length === productItems.length) {
-        clearProductCart();
-      } else {
-        selectedProductIds.forEach((id) => removeProduct(id));
-      }
-      window.sessionStorage.removeItem(CHECKOUT_PRODUCT_IDS_KEY);
-    }
-    if (hasWorkshopCheckout) {
-      if (selectedWorkshopIds.length === workshopItems.length) {
-        clearWorkshopCart();
-      } else {
-        selectedWorkshopIds.forEach((id) => removeWorkshop(id));
-      }
-      window.sessionStorage.removeItem(CHECKOUT_WORKSHOP_IDS_KEY);
-      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
-    }
-    navigate('/success');
   };
 
   const cancelPayment = () => {
-    if (hasWorkshopCheckout) {
-      selectedWorkshopIds.forEach((id) => removeWorkshop(id));
-      window.sessionStorage.removeItem(CHECKOUT_WORKSHOP_IDS_KEY);
-      window.localStorage.removeItem(BOOKING_CONTACT_STORAGE_KEY);
-    }
-    navigate('/payment-failed');
+    setPaymentOpen(false);
+    // Báo lên page layer — không tự navigate hay xóa cart
+    onPaymentCancel(selectedWorkshopIds);
   };
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   if (checkoutItems.length === 0) {
     return (
       <CheckoutShell active={2}>
         <section className="mx-auto max-w-[920px] px-6 py-16">
-          <button onClick={() => navigate(-1)} className="back-btn mb-8" type="button"><ArrowLeft className="h-4 w-4" />Quay lại</button>
+          <Link to="/cart" className="back-btn mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#716942]">
+            <ArrowLeft className="h-4 w-4" />Quay lại giỏ hàng
+          </Link>
           <div className="empty-state rounded-[24px] border-2 border-[#EFD8C7] bg-[#FFF1E8]">
             <ShoppingBag className="mb-7 h-16 w-16 text-[#716942]" />
             <h1 className="text-4xl font-bold text-[#2B211D]">Chưa có mục nào để thanh toán</h1>
@@ -296,7 +350,9 @@ export function CheckoutPage() {
   return (
     <CheckoutShell active={2}>
       <section className="mx-auto max-w-[1440px] px-6 py-12 lg:px-20">
-        <button onClick={() => navigate('/cart')} className="back-btn mb-8" type="button"><ArrowLeft className="h-4 w-4" />Quay lại giỏ hàng</button>
+        <Link to="/cart" className="back-btn mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#716942]">
+          <ArrowLeft className="h-4 w-4" />Quay lại giỏ hàng
+        </Link>
         <h1 className="text-center text-[35px] font-bold text-[#252323]">THANH TOÁN</h1>
         <p className="mt-3 text-center text-lg text-[#6A4A3D]">
           {hasWorkshopCheckout && hasProducts
@@ -348,13 +404,9 @@ export function CheckoutPage() {
                       </span>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#716942] underline"
-                  >
+                  <Link to="/cart" className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#716942] underline">
                     ← Quay lại chỉnh thông tin
-                  </button>
+                  </Link>
                 </div>
               )}
 
@@ -418,7 +470,9 @@ export function CheckoutPage() {
                       <AssetImage src={item.type === 'workshop' ? workshopImages.handsWarm : item.image} alt={item.name} className="h-[84px] w-[84px] rounded-[10px]" />
                       <div>
                         <h3 className="font-bold text-[#2B211D]">{item.name}</h3>
-                        <p className="mt-2 text-sm text-[#6E4E3F]">{item.type === 'workshop' ? `${item.date} · ${item.time}` : `Số lượng: ${item.quantity}`}</p>
+                        <p className="mt-2 text-sm text-[#6E4E3F]">
+                          {item.type === 'workshop' ? `${item.date} · ${item.time}` : `Số lượng: ${item.quantity}`}
+                        </p>
                         {item.type === 'product' && item.gift && (
                           <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
                             Quà tặng · {item.gift.occasion} · {item.gift.includeWrapping ? 'Có giấy gói' : 'Không gói quà'}
@@ -435,42 +489,7 @@ export function CheckoutPage() {
                 ))}
               </div>
             </section>
-            {checkoutItems.some((item) => item.type === 'product' && item.gift) && (
-              <section className="rounded-[14px] border border-black/10 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold">Thông tin quà tặng</h2>
-                <div className="mt-4 space-y-3 text-sm leading-6 text-[#6E4E3F]">
-                  {checkoutItems.filter((item) => item.type === 'product' && item.gift).map((item) => (
-                    <div key={item.id} className="rounded-[10px] bg-[#FFF8F2] p-4">
-                      <p className="font-bold text-[#2B211D]">{item.name}</p>
-                      <p>Dịp tặng: {item.type === 'product' ? item.gift?.occasion : ''}</p>
-                      <p>{item.type === 'product' && item.gift?.includeWrapping ? 'Có thêm giấy gói quà.' : 'Không cần giấy gói quà.'}</p>
-                      {item.type === 'product' && item.gift?.giftNote && <p>Ghi chú: {item.gift.giftNote}</p>}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-            {checkoutItems.some((item) => item.type === 'product' && item.custom) && (
-              <section className="rounded-[14px] border border-black/10 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold">Thông tin custom</h2>
-                <div className="mt-4 space-y-3 text-sm leading-6 text-[#6E4E3F]">
-                  {checkoutItems.filter((item) => item.type === 'product' && item.custom).map((item) => (
-                    <div key={item.id} className="rounded-[10px] bg-[#FFF8F2] p-4">
-                      <p className="font-bold text-[#2B211D]">{item.name}</p>
-                      {item.type === 'product' && item.custom && (
-                        <>
-                          <p>{item.custom.shape} · {item.custom.glaze} · Hệ số x{item.custom.multiplier.toFixed(2)}</p>
-                          {item.custom.features.length > 0 && <p>Chi tiết: {item.custom.features.join(', ')}</p>}
-                          {item.custom.engraving && <p>Ký hiệu: {item.custom.engraving}</p>}
-                          {item.custom.brief && <p>Yêu cầu: {item.custom.brief}</p>}
-                          <p className="font-bold text-[#C96B37]">Nghệ nhân sẽ nhận brief sau {item.custom.artisanLeadDays} ngày và liên hệ xác nhận.</p>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+
             <section className="rounded-[14px] border border-black/10 bg-white p-8 shadow-sm">
               <h2 className="text-xl font-bold">Thanh toán</h2>
               <div className="mt-6 grid grid-cols-2 gap-4">
@@ -481,7 +500,9 @@ export function CheckoutPage() {
           </aside>
         </form>
       </section>
+
       <PolicyBar />
+
       {paymentOpen &&
         createPortal(
           <PaymentModal
@@ -500,22 +521,65 @@ export function CheckoutPage() {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required, bare = false, placeholder, error, list, readOnly = false }: { label?: string; value: string; onChange: (value: string) => void; type?: string; required?: boolean; bare?: boolean; placeholder?: string; error?: string; list?: string; readOnly?: boolean }) {
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function Field({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  required,
+  bare = false,
+  placeholder,
+  error,
+  list,
+  readOnly = false,
+}: {
+  label?: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  required?: boolean;
+  bare?: boolean;
+  placeholder?: string;
+  error?: string;
+  list?: string;
+  readOnly?: boolean;
+}) {
   const input = (
     <div>
-      <input type={type} value={value} list={list} readOnly={readOnly} onChange={(event) => onChange(event.target.value)} className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`} placeholder={placeholder} required={required} />
+      <input
+        type={type}
+        value={value}
+        list={list}
+        readOnly={readOnly}
+        onChange={(event) => onChange(event.target.value)}
+        className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`}
+        placeholder={placeholder}
+        required={required}
+      />
       {error && <p className="field-error"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
     </div>
   );
   if (bare) return input;
-  return <label className="block"><span className="mb-2 block font-bold">{label} {required && <span className="text-red-600">*</span>}</span>{input}</label>;
+  return (
+    <label className="block">
+      <span className="mb-2 block font-bold">{label} {required && <span className="text-red-600">*</span>}</span>
+      {input}
+    </label>
+  );
 }
 
 function SummaryLine({ label, value, strong = false }: { label: string; value: number; strong?: boolean }) {
-  return <div className={`flex justify-between ${strong ? 'text-2xl font-bold' : 'text-lg'}`}><span>{label}</span><span>{value.toLocaleString('vi-VN')}đ</span></div>;
+  return (
+    <div className={`flex justify-between ${strong ? 'text-2xl font-bold' : 'text-lg'}`}>
+      <span>{label}</span>
+      <span>{value.toLocaleString('vi-VN')}đ</span>
+    </div>
+  );
 }
 
-function PaymentChoice({ method, active, onClick }: { method: PaymentMethod; active: boolean; onClick: () => void }) {
+function PaymentChoice({ method, active, onClick }: { method: 'momo' | 'vnpay'; active: boolean; onClick: () => void }) {
   return (
     <button type="button" onClick={onClick} className={`flex min-h-[150px] flex-col items-center justify-center rounded-[10px] border text-center transition hover:shadow-md ${active ? 'border-2 border-[#716942]' : 'border-[#D4D4D4]'}`}>
       <CreditCard className="mb-4 h-12 w-12 text-[#716942]" />
@@ -534,7 +598,7 @@ function PaymentModal({
   onSuccess,
   onFail,
 }: {
-  method: PaymentMethod;
+  method: 'momo' | 'vnpay';
   total: number;
   initialSeconds: number;
   isWorkshopCheckout: boolean;
@@ -560,12 +624,7 @@ function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-[999] grid place-items-center overflow-y-auto bg-black/55 px-6 py-10">
-      <div
-        className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${
-          isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'
-        }`}
-      >
-        {/* Header */}
+      <div className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'}`}>
         <div className="flex items-center justify-between border-b border-[#E2E2E2] bg-white p-6">
           <div>
             <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
@@ -578,9 +637,7 @@ function PaymentModal({
           </button>
         </div>
 
-        {/* Body */}
         <div className="grid gap-8 p-8 lg:grid-cols-[360px_1fr]">
-          {/* Left – Order summary */}
           <div className="rounded-[10px] bg-white p-7">
             <h3 className="text-2xl font-medium">Thông tin đơn hàng</h3>
             <p className="mt-8 text-[#68788F]">Số tiền thanh toán</p>
@@ -589,8 +646,6 @@ function PaymentModal({
             </p>
             <p className="mt-8 text-[#68788F]">Thời gian còn lại</p>
             <p className="mt-2 text-4xl font-bold">{minutes}:{seconds}</p>
-
-            {/* Back button – Màn hình B → Màn hình A */}
             <button
               type="button"
               onClick={onBack}
@@ -600,12 +655,7 @@ function PaymentModal({
             </button>
           </div>
 
-          {/* Right – QR */}
-          <div
-            className={`rounded-[10px] p-8 text-center ${
-              isMomo ? 'bg-[#DC1A8D] text-white' : 'bg-[#F5F7F9] text-black'
-            }`}
-          >
+          <div className={`rounded-[10px] p-8 text-center ${isMomo ? 'bg-[#DC1A8D] text-white' : 'bg-[#F5F7F9] text-black'}`}>
             <h3 className="text-3xl font-medium">Quét mã để thanh toán</h3>
             <div className="mx-auto my-8 flex h-[300px] w-[300px] items-center justify-center rounded-[10px] bg-white">
               <QrCode className={`h-56 w-56 ${isMomo ? 'text-[#DC1A8D]' : 'text-[#0088C9]'}`} />

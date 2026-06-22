@@ -1,16 +1,25 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { ArrowLeft, Calendar, Clock, UserRound, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { api } from '../lib/api';
 import { AssetImage, workshopImages } from './DesignPrimitives';
 import { fallbackWorkshops, mapWorkshop, type WorkshopView } from './WorkshopPage';
 
-export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: string } = {}) {
+export type BookingPayload = {
+  workshop: WorkshopView;
+  contact: { name: string; phone: string; email: string; note: string };
+  slotCount: number;
+};
+
+export function BookingForm({
+  workshopIdOverride,
+  onSubmitSuccess,
+}: {
+  workshopIdOverride?: string;
+  onSubmitSuccess: (payload: BookingPayload) => void;
+}) {
   const params = useParams();
-  const navigate = useNavigate();
-  const { addWorkshop, clearWorkshopCart } = useWorkshopCart();
   const workshopId = workshopIdOverride ?? params.workshopId;
   const fallback = fallbackWorkshops.find((item) => item.id === workshopId) ?? null;
   const [workshop, setWorkshop] = useState<WorkshopView | null>(fallback);
@@ -60,32 +69,17 @@ export function BookingForm({ workshopIdOverride }: { workshopIdOverride?: strin
       return;
     }
 
-    clearWorkshopCart();
-    addWorkshop({
-      id: `workshop-${workshop.id}-${Date.now()}`,
-      name: workshop.name,
-      date: workshop.fullDate,
-      time: workshop.time,
-      instructor: workshop.instructor,
-      price: workshop.price,
-      tickets: slotCount,
-      maxTickets: workshop.slots.available,
-      package: workshop.package,
-    });
-
-    window.localStorage.setItem(
-      'tho-booking-contact',
-      JSON.stringify({
+    // Chỉ emit data lên — không navigate, không cart, không localStorage
+    onSubmitSuccess({
+      workshop,
+      contact: {
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
         note: formData.notes,
-        slotCount,
-      }),
-    );
-
-    toast.success('Thông tin đã sẵn sàng. Chọn phương thức thanh toán để giữ slot 15 phút.');
-    navigate('/checkout?autopay=workshop');
+      },
+      slotCount,
+    });
   };
 
   return (
