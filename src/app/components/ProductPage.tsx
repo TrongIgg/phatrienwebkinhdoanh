@@ -99,6 +99,21 @@ const localDescriptions: Record<string, string> = {
   'THO-LAMP-MOON': 'Khối đèn tròn, men trắng đục, dành cho bàn ngủ hoặc góc đọc.',
   'THO-CUP-DAWN': 'Thành ly mảnh, men chuyển sắc hồng đất, hợp cà phê sáng.',
   'THO-CUP-MOSS': 'Hai chiếc ly thấp, lòng men loang như rêu sau mưa.',
+  'THO-CUP-SOUL': 'Ly gốm dáng cao, màu đất mộc thô nhám, tạo cảm giác ấm áp tinh tế.',
+  'THO-PLATE-LEAF': 'Đĩa tạo hình chiếc lá độc đáo, men chảy nhẹ viền mộc, hợp đựng bánh kẹo.',
+  'THO-PLATE-CELADON': 'Đĩa nông lòng men celadon bóng mịn, tôn lên sắc xanh ngọc bích sang trọng.',
+  'THO-BOWL-CELADON': 'Bát ăn gốm tròn dày, giữ nhiệt tốt, men ngọc thanh nhã cho mâm cơm.',
+  'THO-CUP-CELADON': 'Ly nhỏ không quai, giữ hơi ấm lâu, men ngọc sáng dịu cho buổi thưởng trà.',
+  'THO-VASE-ROCK': 'Bình cắm hoa vân đá xám đất, dáng thắt eo nhẹ nghệ thuật.',
+  'THO-CUP-MILK': 'Ly uống trà sữa hoặc cafe có quai tròn to bản dễ thương, men kem ấm.',
+  'THO-PLATE-MILK': 'Đĩa sứ men sữa loang nhẹ ở viền nâu mộc mạc, phù hợp tráng miệng.',
+  'THO-BOWL-ASH': 'Chén trà sâu lòng màu men xám khói loang lổ cá tính.',
+  'THO-HOLDER-SMOKE': 'Đế gốm tròn nhỏ nâng nén hương trầm, thiết kế tinh xảo.',
+  'THO-KIT-SOLO': 'Bộ đất sét tự khô, dụng cụ điêu khắc cơ bản và màu acrylic tự vẽ tại nhà.',
+  'THO-SCULPT-FISH': 'Tượng cá nhỏ tối giản mang ý nghĩa bình an, thích hợp bàn làm việc.',
+  'THO-SCULPT-CAT': 'Tượng mèo lười cuộn tròn nghỉ ngơi tinh nghịch, men kem đất sét.',
+  'THO-LAMP-DESK': 'Thân đèn gốm men chảy kết hợp chao vải ấm áp cho phòng làm việc.',
+  'THO-LAMP-STONE': 'Đèn ngủ gốm mộc phác thảo hình cây nấm rừng dễ thương.',
 };
 
 function mapApiProduct(product: ApiProduct, index: number): CatalogProduct {
@@ -122,24 +137,40 @@ function fallbackCatalog(): CatalogProduct[] {
   const seeds = [
     ['THO-CUP-DAWN', 'Ly sứ bình minh', 'Thành ly mảnh, men chuyển sắc hồng đất, hợp cà phê sáng.', 'cup', 'Bàn trà chậm', 260000, 12, 4.8, 34],
     ['THO-CUP-MOSS', 'Cặp ly men rêu', 'Hai chiếc ly thấp, lòng men loang như rêu sau mưa.', 'cup', 'Bàn trà chậm', 420000, 9, 4.9, 41],
+    ['THO-CUP-MOON', 'Ly gốm ánh trăng', 'Ly gốm trắng ánh trăng, cầm chắc tay, dùng hằng ngày hoặc làm quà.', 'cup', 'Bàn trà chậm', 260000, 14, 4.9, 31],
+    ['THO-CUP-SOUL', 'Ly gốm mộc bản', 'Ly gốm dáng cao, màu đất mộc thô nhám, tạo cảm giác ấm áp tinh tế.', 'cup', 'Bàn trà chậm', 290000, 15, 4.8, 16],
     ['THO-BOWL-RAIN', 'Bát men mưa', 'Bát sâu lòng, vệt men chảy nhẹ, dùng cho trà, cháo hoặc decor.', 'tableware', 'Bàn ăn nghệ thuật', 310000, 16, 4.7, 22],
     ['THO-PLATE-LOTUS', 'Đĩa sen vẽ tay', 'Nét sen mảnh trên nền men kem, mỗi chiếc có một nhịp cọ riêng.', 'tableware', 'Bàn ăn nghệ thuật', 540000, 0, 4.8, 20],
     ['THO-PLATE-STONE', 'Đĩa đá mộc', 'Bề mặt nhám vừa phải, sắc đất trầm, hợp bày bánh và trái cây.', 'tableware', 'Bàn ăn nghệ thuật', 460000, 7, 4.6, 18],
-    ['THO-VASE-CELADON', 'Bình men celadon oval', 'Dáng oval nhỏ, men celadon xanh ngọc, hợp bàn trà hoặc kệ decor.', 'decor', 'Men xanh nhẹ', 380000, 8, 4.8, 24],
+    ['THO-PLATE-LEAF', 'Đĩa tạo hình chiếc lá', 'Đĩa tạo hình chiếc lá độc đáo, men chảy nhẹ viền mộc, hợp đựng bánh kẹo.', 'tableware', 'Bàn ăn nghệ thuật', 340000, 10, 4.7, 12],
+    ['THO-CELADON-S', 'Bình men celadon oval', 'Dáng oval nhỏ, men celadon xanh ngọc, hợp bàn trà hoặc kệ decor.', 'decor', 'Men xanh nhẹ', 380000, 8, 4.8, 24],
+    ['THO-PLATE-CELADON', 'Đĩa men ngọc Celadon', 'Đĩa nông lòng men celadon bóng mịn, tôn lên sắc xanh ngọc bích sang trọng.', 'tableware', 'Men xanh nhẹ', 320000, 12, 4.8, 15],
+    ['THO-BOWL-CELADON', 'Bát ăn men ngọc', 'Bát ăn gốm tròn dày, giữ nhiệt tốt, men ngọc thanh nhã cho mâm cơm.', 'tableware', 'Men xanh nhẹ', 280000, 14, 4.9, 19],
+    ['THO-CUP-CELADON', 'Ly men ngọc dáng lùn', 'Ly nhỏ không quai, giữ hơi ấm lâu, men ngọc sáng dịu cho buổi thưởng trà.', 'cup', 'Men xanh nhẹ', 220000, 8, 4.7, 11],
     ['THO-VASE-TALL', 'Lọ hoa thân cao đất mộc', 'Dáng cao thanh, sắc đất cháy ấm, đẹp với một cành khô.', 'decor', 'Đất mộc hiện đại', 760000, 5, 4.6, 12],
     ['THO-VASE-BLACK', 'Bình đen khói', 'Nền men đen sâu, miệng nhỏ, tạo điểm lặng cho góc phòng.', 'decor', 'Đất mộc hiện đại', 820000, 4, 4.9, 16],
     ['THO-VASE-SAND', 'Bình cát biển', 'Men cát mờ, thân gốm hơi lệch cố ý để giữ cảm giác thủ công.', 'decor', 'Đất mộc hiện đại', 690000, 6, 4.7, 19],
+    ['THO-VASE-ROCK', 'Lọ hoa mộc vân đá', 'Bình cắm hoa vân đá xám đất, dáng thắt eo nhẹ nghệ thuật.', 'decor', 'Đất mộc hiện đại', 720000, 5, 4.8, 14],
     ['THO-JAR-MILK', 'Hũ sữa men kem', 'Hũ nhỏ có nắp, dùng đựng trà, muối tắm hoặc vật kỷ niệm.', 'decor', 'Men sữa', 330000, 10, 4.8, 27],
     ['THO-TRAY-CLOUD', 'Khay mây men trắng', 'Khay thấp, vành cong nhẹ, dùng đặt trang sức hoặc tách trà.', 'decor', 'Men sữa', 290000, 11, 4.7, 15],
+    ['THO-CUP-MILK', 'Ly quai tròn men sữa', 'Ly uống trà sữa hoặc cafe có quai tròn to bản dễ thương, men kem ấm.', 'cup', 'Men sữa', 270000, 13, 4.8, 22],
+    ['THO-PLATE-MILK', 'Đĩa tròn men sữa viền nâu', 'Đĩa sứ men sữa loang nhẹ ở viền nâu mộc mạc, phù hợp tráng miệng.', 'tableware', 'Men sữa', 310000, 9, 4.7, 18],
     ['THO-INCENSE-ASH', 'Đế hương tro xám', 'Một miếng gốm nhỏ cho góc thiền, men xám tro và vệt hỏa biến.', 'decor', 'Men khói', 180000, 18, 4.6, 13],
     ['THO-CANDLE-CLAY', 'Chén nến đất nung', 'Chén gốm dày giữ nhiệt tốt, thơm mùi đất khi đặt cạnh nến.', 'decor', 'Men khói', 240000, 14, 4.8, 21],
+    ['THO-BOWL-ASH', 'Bát trà men khói trầm', 'Chén trà sâu lòng màu men xám khói loang lổ cá tính.', 'tableware', 'Men khói', 290000, 11, 4.8, 14],
+    ['THO-HOLDER-SMOKE', 'Đế hương men đen khói', 'Đế gốm tròn nhỏ nâng nén hương trầm, thiết kế tinh xảo.', 'decor', 'Men khói', 160000, 20, 4.6, 8],
     ['THO-KIT-GLAZE', 'DIY kit tô men cơ bản', 'Bộ phôi gốm, cọ, màu men và hướng dẫn để tiếp tục chơi đất tại nhà.', 'kit', 'Tự tay làm gốm', 220000, 24, 4.7, 18],
     ['THO-KIT-FAMILY', 'DIY kit gia đình', 'Bộ phôi nhiều kích thước cho 3-4 người, có bảng gợi ý họa tiết.', 'kit', 'Tự tay làm gốm', 620000, 8, 4.9, 29],
     ['THO-KIT-COUPLE', 'DIY kit cặp đôi', 'Hai phôi ly, màu men đôi và thiệp nhỏ để ghi ngày làm cùng nhau.', 'kit', 'Tự tay làm gốm', 390000, 12, 4.8, 25],
+    ['THO-KIT-SOLO', 'DIY kit cá nhân tự làm', 'Bộ đất sét tự khô, dụng cụ điêu khắc cơ bản và màu acrylic tự vẽ tại nhà.', 'kit', 'Tự tay làm gốm', 250000, 15, 4.8, 30],
     ['THO-SCULPT-BIRD', 'Tượng gốm chim nhỏ', 'Một dáng chim tối giản, đặt cạnh sách hoặc khung cửa sổ.', 'decor', 'Tượng nhỏ', 350000, 6, 4.6, 11],
     ['THO-SCULPT-HOUSE', 'Nhà gốm mini', 'Mái nhà nâu, thân men kem, hợp làm quà tân gia.', 'decor', 'Tượng nhỏ', 410000, 3, 4.8, 14],
+    ['THO-SCULPT-FISH', 'Tượng cá nhỏ tối giản', 'Tượng cá nhỏ tối giản mang ý nghĩa bình an, thích hợp bàn làm việc.', 'decor', 'Tượng nhỏ', 380000, 7, 4.7, 12],
+    ['THO-SCULPT-CAT', 'Tượng mèo lười cuộn tròn', 'Tượng mèo lười cuộn tròn nghỉ ngơi tinh nghịch, men kem đất sét.', 'decor', 'Tượng nhỏ', 340000, 10, 4.9, 25],
     ['THO-LAMP-WARM', 'Đèn gốm ánh ấm', 'Chao đục lỗ thủ công, ánh sáng rơi thành những chấm mềm.', 'decor', 'Ánh sáng gốm', 1180000, 2, 4.9, 9],
     ['THO-LAMP-MOON', 'Đèn trăng men sữa', 'Khối đèn tròn, men trắng đục, dành cho bàn ngủ hoặc góc đọc.', 'decor', 'Ánh sáng gốm', 1320000, 0, 4.9, 7],
+    ['THO-LAMP-DESK', 'Đèn bàn gốm cổ điển', 'Thân đèn gốm men chảy kết hợp chao vải ấm áp cho phòng làm việc.', 'decor', 'Ánh sáng gốm', 1250000, 4, 4.8, 10],
+    ['THO-LAMP-STONE', 'Đèn ngủ gốm mộc dáng nấm', 'Đèn ngủ gốm mộc phác thảo hình cây nấm rừng dễ thương.', 'decor', 'Ánh sáng gốm', 980000, 6, 4.7, 5],
   ] as const;
 
   return seeds.map(([sku, detailName, description, category, collection, price, stockQty, rating, reviewCount], index) => ({
@@ -428,7 +459,7 @@ function ProductCard({ product, onAdd, onBuy }: { product: CatalogProduct; onAdd
             Còn {product.stockQty}
           </span>
         </div>
-        <p className="mt-2 min-h-[72px] border-t border-[#EFE2D6] pt-4 text-[15px] leading-7 text-[#6A6A6A]">{product.description}</p>
+        <Link to={`/product/${product.id}`} className="block mt-2 min-h-[72px] border-t border-[#EFE2D6] pt-4 text-[15px] leading-7 text-[#6A6A6A] hover:text-[#716942]">{product.description}</Link>
         <div className="mt-4 flex items-center gap-2 text-sm text-[#716942]">
           <Star className="h-4 w-4 fill-[#716942]" />
           <span>{product.rating.toFixed(1)} · {product.reviewCount} đánh giá</span>

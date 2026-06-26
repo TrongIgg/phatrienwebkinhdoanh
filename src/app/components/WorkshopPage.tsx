@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { Calendar, Clock, Flame, Search, Sparkles, Users } from 'lucide-react';
+import { Calendar, Clock, Flame, Search, Users } from 'lucide-react';
 import { api, type ApiWorkshop } from '../lib/api';
-import { getHomeCampaign, readBehaviorTags, type BehaviorTag } from '../lib/personalization';
+import { readBehaviorTags, type BehaviorTag } from '../lib/personalization';
 import { AssetImage, workshopImages } from './DesignPrimitives';
 import { WorkshopChatbot } from './WorkshopChatbot';
 
@@ -192,9 +192,6 @@ export function WorkshopPage() {
       );
     }).sort((a, b) => personalizedRank(b) - personalizedRank(a));
   }, [workshops, query, audience, type, priceRange, dateRange, behaviorTags]);
-
-  const campaign = getHomeCampaign(behaviorTags);
-
   return (
     <div className="min-h-screen bg-[#FBEEE5] text-[#361F17]">
       <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-20">
@@ -202,30 +199,6 @@ export function WorkshopPage() {
         <p className="mx-auto mt-4 max-w-3xl text-center text-xl leading-8 text-[#3F3F35]">
           Lọc theo loại workshop, ngân sách, thời gian và nhóm khách để chọn buổi học hợp nhịp của bạn.
         </p>
-
-        <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="rounded-lg bg-[#361F17] p-6 text-[#FBEEE5] shadow-[0_18px_42px_rgba(54,31,23,0.12)]">
-            <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C96B37] text-white">
-                <Sparkles className="h-6 w-6" />
-              </span>
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#C0AC8B]">{campaign.eyebrow}</p>
-                <h2 className="mt-2 text-3xl font-bold leading-tight">{campaign.title}</h2>
-                <p className="mt-3 max-w-3xl text-lg leading-7 text-[#FBEEE5]/80">{campaign.body}</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-lg border border-[#C0AC8B] bg-white p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#716942]">Tín hiệu đang dùng</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {(behaviorTags.length ? behaviorTags : ['first_timer']).map((tag) => (
-                <span key={tag} className="rounded-full bg-[#F4E4D8] px-3 py-1 text-sm font-bold text-[#643A2A]">#{tag}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
         <div className="mt-8">
           <WorkshopChatbot compact />
         </div>

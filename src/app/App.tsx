@@ -5,18 +5,18 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
 import { WorkshopPage } from './components/WorkshopPage';
-import { BookingForm } from './components/BookingForm';
+import { BookingPage } from './pages/BookingPage';
 import { ProductPage } from './components/ProductPage';
-import { WorkshopDetailPage } from './components/WorkshopDetailPage';
-import { ProductDetailPage } from './components/ProductDetailPage';
+import { WorkshopDetailPage } from './pages/WorkshopDetailPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
 import { AboutPage } from './components/AboutPage';
 import { ReviewPage } from './components/ReviewPage';
-import { CartPage } from './components/CartPage';
-import { CheckoutPage } from './components/CheckoutPage';
+import { CartPage } from './pages/CartPage';
+import { CheckoutPage } from './pages/CheckoutPage';
 import { WorkshopCustomizer } from './components/WorkshopCustomizer';
 import { PaymentSuccess } from './components/PaymentSuccess';
 import { PaymentFailure } from './components/PaymentFailure';
-import { TrackingPage } from './components/TrackingPage';
+import { TrackingPage } from './pages/TrackingPage';
 import { FigmaExportPage } from './components/FigmaExportPage';
 import { PolicyPage } from './components/PolicyPage';
 import { StaffAdminPage } from './components/StaffAdminPage';
@@ -115,7 +115,7 @@ function AppLayout() {
             <Route path="/" element={<HomePage />} />
             <Route path="/workshop" element={<WorkshopPage />} />
             <Route path="/workshop/:workshopId" element={<WorkshopDetailPage />} />
-            <Route path="/booking/:workshopId" element={<BookingForm />} />
+            <Route path="/booking/:workshopId" element={<BookingPage />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
