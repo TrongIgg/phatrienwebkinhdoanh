@@ -13,6 +13,10 @@ import {
   ShieldCheck,
   Star,
   Truck,
+  Database,
+  MonitorSmartphone,
+  Server,
+  ArrowRightLeft,
 } from 'lucide-react';
 
 export const palette = {
@@ -561,4 +565,46 @@ export function JourneyIcon({ type }: { type: 'calendar' | 'booking' | 'workshop
   };
   const Icon = map[type];
   return <Icon className="h-12 w-12 text-[#361F17]" />;
+}
+
+export function DatabaseConnectionViz({ className = '' }: { className?: string }) {
+  return (
+    <div className={`flex flex-col items-center rounded-[20px] border border-[#EFD8C7] bg-[#FFF8F2] p-8 text-center shadow-sm ${className}`}>
+      <h3 className="mb-8 text-lg font-bold text-[#361F17]">Hệ thống đồng bộ số lượng theo thời gian thực</h3>
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        <div className="flex flex-col items-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EFE2D6] text-[#716942] shadow-sm">
+            <MonitorSmartphone className="h-7 w-7" />
+          </div>
+          <span className="mt-3 text-[11px] font-bold uppercase tracking-wider text-[#716942]">Thiết bị của bạn</span>
+        </div>
+        
+        <div className="flex w-12 justify-center text-[#C0AC8B] sm:w-16">
+          <ArrowRightLeft className="h-6 w-6 animate-pulse" />
+        </div>
+
+        <div className="flex flex-col items-center">
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-[#716942] text-white shadow-md ring-4 ring-[#716942]/20">
+            <Server className="relative z-10 h-7 w-7" />
+            <div className="absolute inset-0 animate-ping rounded-2xl bg-[#716942] opacity-20" />
+          </div>
+          <span className="mt-3 text-[11px] font-bold uppercase tracking-wider text-[#716942]">THỔ Server</span>
+        </div>
+
+        <div className="flex w-12 justify-center text-[#C0AC8B] sm:w-16">
+          <ArrowRightLeft className="h-6 w-6 animate-pulse" style={{ animationDelay: '500ms' }} />
+        </div>
+
+        <div className="flex flex-col items-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EFE2D6] text-[#361F17] shadow-sm">
+            <Database className="h-7 w-7" />
+          </div>
+          <span className="mt-3 text-[11px] font-bold uppercase tracking-wider text-[#361F17]">Database</span>
+        </div>
+      </div>
+      <p className="mt-6 max-w-[420px] text-sm leading-6 text-[#6E4E3F]">
+        Dữ liệu kho và slot workshop được kết nối trực tiếp đến hệ thống máy chủ, đảm bảo số lượng hiển thị luôn chính xác nhất.
+      </p>
+    </div>
+  );
 }

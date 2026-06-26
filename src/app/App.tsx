@@ -8,7 +8,7 @@ import { WorkshopPage } from './components/WorkshopPage';
 import { BookingForm } from './components/BookingForm';
 import { ProductPage } from './components/ProductPage';
 import { WorkshopDetailPage } from './components/WorkshopDetailPage';
-import { ProductDetailPage } from './components/ProductDetailPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
 import { AboutPage } from './components/AboutPage';
 import { ReviewPage } from './components/ReviewPage';
 import { CartPage } from './components/CartPage';
