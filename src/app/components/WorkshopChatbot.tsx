@@ -49,6 +49,16 @@ const questions: Question[] = [
       { label: 'Thư giãn', value: 'relax', hint: 'Gợi ý buổi tối hoặc cuối tuần' },
     ],
   },
+  {
+    key: 'groupSize',
+    prompt: 'Bạn dự định đi mấy người?',
+    options: [
+      { label: '1 người', value: '1', hint: 'Trải nghiệm cá nhân, tập trung và sâu' },
+      { label: '2 người', value: '2', hint: 'Đi cùng bạn bè hoặc người thương' },
+      { label: '3–4 người', value: '3_4', hint: 'Nhóm nhỏ hoặc gia đình' },
+      { label: '5+ người', value: '5_plus', hint: 'Nhóm lớn, team building hoặc sự kiện' },
+    ],
+  },
 ];
 
 const optionLabels: Record<string, string> = {
@@ -63,6 +73,10 @@ const optionLabels: Record<string, string> = {
   gift: 'Làm quà tặng',
   home: 'Trang trí nhà',
   relax: 'Thư giãn / trải nghiệm',
+  '1': '1 người (cá nhân)',
+  '2': '2 người (đôi/bạn bè)',
+  '3_4': '3–4 người (nhóm/gia đình)',
+  '5_plus': '5+ người (nhóm lớn)',
 };
 
 function createSessionId() {
@@ -113,6 +127,7 @@ export function WorkshopChatbot({ compact = false }: { compact?: boolean }) {
         style_preference: nextAnswers.stylePreference,
         experience_level: nextAnswers.experienceLevel,
         purpose: nextAnswers.purpose,
+        group_size: nextAnswers.groupSize,
         custom_request: nextAnswers.customRequest,
         recommended_workshop_id: Number(nextAnswers.recommendedWorkshopId),
         behavior_tags: behaviorTags,
@@ -221,7 +236,7 @@ export function WorkshopChatbot({ compact = false }: { compact?: boolean }) {
                 Đặt chỗ ngay
               </Link>
             </div>
-            <div className="mt-5 grid gap-2 text-sm text-[#716942] sm:grid-cols-3">
+            <div className="mt-5 grid gap-2 text-sm text-[#716942] sm:grid-cols-2 lg:grid-cols-4">
               {questions.map((question) => (
                 <div key={question.key} className="rounded-lg bg-[#F4E4D8] p-3">
                   <span className="block font-bold text-[#361F17]">{question.prompt.split('?')[0]}</span>
