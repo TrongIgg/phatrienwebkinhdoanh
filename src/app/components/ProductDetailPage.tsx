@@ -1,12 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { ArrowLeft, Bell, Gift, Minus, Plus, ShoppingCart, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { api } from '../lib/api';
-import { saveGiftOrder } from '../lib/customerExperience';
 import { AssetImage, productImages, ReviewStrip } from './DesignPrimitives';
 import { fallbackCatalog, mapApiProduct, type CatalogProduct } from './ProductPage';
+
+export type GiftOrderData = {
+  id: string;
+  product_id: string;
+  product_name: string;
+  occasion: string;
+  include_wrapping: boolean;
+  gift_note: string;
+  created_at: string;
+};
 
 type GiftDraft = {
   occasion: string;
@@ -20,9 +29,16 @@ const defaultGiftDraft: GiftDraft = {
   giftNote: '',
 };
 
-export function ProductDetailPage() {
+export function ProductDetailPage({
+  onNavigateToCart,
+  onGiftAdded,
+}: {
+  /** Gọi khi user bấm 'Mua ngay' — page quyết định điều hướng */
+  onNavigateToCart?: () => void;
+  /** Gọi khi user thêm quà tặng — page lưu gift order rồi redirect */
+  onGiftAdded?: (giftOrder: GiftOrderData) => void;
+}) {
   const { productId } = useParams();
-  const navigate = useNavigate();
   const { addProduct } = useProductCart();
   const fallback = fallbackCatalog().find((item) => item.id === productId) ?? null;
   const [product, setProduct] = useState<CatalogProduct | null>(fallback);
@@ -96,7 +112,8 @@ export function ProductDetailPage() {
     }
 
     toast.success('Đã thêm sản phẩm vào giỏ hàng.');
-    if (goToCart) navigate('/cart');
+    // Page layer quyết định có redirect không
+    if (goToCart) onNavigateToCart?.();
   };
 
   const increaseQuantity = () => {
@@ -139,7 +156,9 @@ export function ProductDetailPage() {
       return;
     }
 
-    saveGiftOrder({
+    toast.success('Đã thêm quà tặng vào giỏ hàng.');
+    // Page layer xử lý saveGiftOrder và redirect
+    onGiftAdded?.({
       id: giftId,
       product_id: product.id,
       product_name: product.detailName,
@@ -148,18 +167,16 @@ export function ProductDetailPage() {
       gift_note: giftDraft.giftNote.trim().slice(0, 100),
       created_at: new Date().toISOString(),
     });
-    toast.success('Đã thêm quà tặng vào giỏ hàng.');
-    navigate('/cart');
   };
 
   return (
     <div className="min-h-screen bg-[#FBEEE5] text-[#361F17]">
       <section className="mx-auto grid max-w-[1440px] gap-10 px-6 py-14 lg:grid-cols-[0.95fr_1fr] lg:px-20">
         <div>
-          <button onClick={() => navigate('/product')} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-5 py-2 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
+          <Link to="/product" className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-5 py-2 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
             <ArrowLeft className="h-4 w-4" />
             Về trang sản phẩm
-          </button>
+          </Link>
           <AssetImage src={selectedImage || product.image} alt={product.detailName} className="aspect-[4/4.4] rounded-lg" loading="eager" />
           <div className="mt-4 grid grid-cols-4 gap-3">
             {galleryImages.map((image) => (

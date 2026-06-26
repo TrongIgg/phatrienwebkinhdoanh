@@ -14,6 +14,7 @@ export type ChatbotAnswers = {
   stylePreference?: string;
   experienceLevel?: string;
   purpose?: string;
+  groupSize?: string;
   customRequest?: string;
   recommendedWorkshopId?: string;
 };
@@ -77,6 +78,9 @@ export function behaviorTagsFromAnswers(answers: ChatbotAnswers): BehaviorTag[] 
   if (answers.stylePreference === 'colorful') tags.add('color_lover');
   if (answers.stylePreference === 'natural') tags.add('natural');
 
+  if (answers.groupSize === '2') tags.add('duo');
+  if (answers.groupSize === '3_4' || answers.groupSize === '5_plus') tags.add('family');
+
   const custom = (answers.customRequest ?? '').toLowerCase();
   if (custom.includes('cap doi') || custom.includes('cặp đôi') || custom.includes('doi')) tags.add('duo');
   if (custom.includes('gia dinh') || custom.includes('gia đình')) tags.add('family');
@@ -86,6 +90,8 @@ export function behaviorTagsFromAnswers(answers: ChatbotAnswers): BehaviorTag[] 
 }
 
 export function recommendWorkshopId(answers: ChatbotAnswers): string {
+  if (answers.groupSize === '3_4' || answers.groupSize === '5_plus') return '4';
+  if (answers.groupSize === '2') return '3';
   if (answers.experienceLevel === 'experienced' || answers.customRequest?.toLowerCase().includes('premium')) return '5';
   if (answers.purpose === 'gift') return '3';
   if (answers.purpose === 'home' || answers.stylePreference === 'natural') return '6';

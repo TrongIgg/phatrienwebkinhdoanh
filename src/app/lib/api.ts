@@ -97,6 +97,7 @@ export type ApiChatbotSessionPayload = {
   style_preference?: string;
   experience_level?: string;
   purpose?: string;
+  group_size?: string;
   custom_request?: string;
   recommended_workshop_id?: number;
   behavior_tags?: string[];
