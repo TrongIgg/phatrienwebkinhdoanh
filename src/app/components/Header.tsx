@@ -12,6 +12,7 @@ import {
   type CustomerSession,
   type SocialProvider,
 } from '../lib/customerExperience';
+import { createPortal } from 'react-dom';
 import { readLocalTrackingRecords, cancelLocalTrackingRecord, type ApiTracking } from '../lib/trackingStorage';
 import { CancelConfirmationModal } from './TrackingPage';
 import { toast } from 'sonner';
@@ -240,9 +241,11 @@ export function Header() {
       </div>
 
       <ProgressRule />
-      {historyModalOpen && (
-        <OrderHistoryModal onClose={() => setHistoryModalOpen(false)} />
-      )}
+      {historyModalOpen &&
+        createPortal(
+          <OrderHistoryModal onClose={() => setHistoryModalOpen(false)} />,
+          document.body,
+        )}
     </header>
   );
 }
