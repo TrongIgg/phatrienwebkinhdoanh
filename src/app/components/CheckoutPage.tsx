@@ -63,7 +63,71 @@ const defaultAddress: CheckoutAddress = {
 };
 
 const addressCatalog = {
-  cities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'],
+  cities: [
+    'An Giang',
+    'Bà Rịa - Vũng Tàu',
+    'Bắc Giang',
+    'Bắc Kạn',
+    'Bạc Liêu',
+    'Bắc Ninh',
+    'Bến Tre',
+    'Bình Định',
+    'Bình Dương',
+    'Bình Phước',
+    'Bình Thuận',
+    'Cà Mau',
+    'Cần Thơ',
+    'Cao Bằng',
+    'Đà Nẵng',
+    'Đắk Lắk',
+    'Đắk Nông',
+    'Điện Biên',
+    'Đồng Nai',
+    'Đồng Tháp',
+    'Gia Lai',
+    'Hà Giang',
+    'Hà Nam',
+    'Hà Nội',
+    'Hà Tĩnh',
+    'Hải Dương',
+    'Hải Phòng',
+    'Hậu Giang',
+    'Hòa Bình',
+    'Hưng Yên',
+    'Khánh Hòa',
+    'Kiên Giang',
+    'Kon Tum',
+    'Lai Châu',
+    'Lâm Đồng',
+    'Lạng Sơn',
+    'Lào Cai',
+    'Long An',
+    'Nam Định',
+    'Nghệ An',
+    'Ninh Bình',
+    'Ninh Thuận',
+    'Phú Thọ',
+    'Phú Yên',
+    'Quảng Bình',
+    'Quảng Nam',
+    'Quảng Ngãi',
+    'Quảng Ninh',
+    'Quảng Trị',
+    'Sóc Trăng',
+    'Sơn La',
+    'Tây Ninh',
+    'Thái Bình',
+    'Thái Nguyên',
+    'Thanh Hóa',
+    'Thừa Thiên Huế',
+    'Tiền Giang',
+    'TP. Hồ Chí Minh',
+    'Trà Vinh',
+    'Tuyên Quang',
+    'Vĩnh Long',
+    'Vĩnh Phúc',
+    'Yên Bái'
+  ],
   districts: ['Thủ Đức', 'Quận 1', 'Bình Thạnh', 'Hoàn Kiếm', 'Ba Đình', 'Hải Châu'],
   wards: ['Linh Trung', 'Linh Chiểu', 'Bến Nghé', 'Đa Kao', 'Tràng Tiền', 'Mỹ An'],
 };
@@ -432,8 +496,8 @@ export function CheckoutPage({
                     <label className="mb-2 block font-bold">Địa chỉ giao hàng <span className="text-red-600">*</span></label>
                     <div className="grid gap-3 md:grid-cols-[0.85fr_0.85fr_0.85fr_1.35fr]">
                       <Field bare placeholder="Tỉnh/TP" options={addressCatalog.cities} value={formData.city} error={errors.city} onChange={(value) => updateField('city', value)} />
-                      <Field bare placeholder="Quận/Huyện" options={addressCatalog.districts} value={formData.district} error={errors.district} onChange={(value) => updateField('district', value)} />
-                      <Field bare placeholder="Phường/Xã" options={addressCatalog.wards} value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
+                      <Field bare placeholder="Quận/Huyện" value={formData.district} error={errors.district} onChange={(value) => updateField('district', value)} />
+                      <Field bare placeholder="Phường/Xã" value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
                       <Field bare placeholder="Số nhà, tên đường..." value={formData.address} error={errors.address} onChange={(value) => updateField('address', value)} />
                     </div>
                   </div>
