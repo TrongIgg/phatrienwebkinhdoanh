@@ -4,7 +4,7 @@ import { ArrowLeft, Bell, Gift, Minus, Plus, ShoppingCart, Star } from 'lucide-r
 import { toast } from 'sonner';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { api } from '../lib/api';
-import { AssetImage, productImages, ReviewStrip } from './DesignPrimitives';
+import { AssetImage, DatabaseConnectionViz, productImages, ReviewStrip } from './DesignPrimitives';
 import { fallbackCatalog, mapApiProduct, type CatalogProduct } from './ProductPage';
 
 export type GiftOrderData = {
@@ -272,16 +272,19 @@ export function ProductDetailPage({
               </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button onClick={() => addToCart(false)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#716942] px-7 py-4 font-bold text-[#716942] hover:bg-[#716942] hover:text-white">
-                  <ShoppingCart className="h-5 w-5" />
-                  Thêm vào giỏ
+                <button
+                  onClick={() => isGift ? addGiftToCart() : addToCart(false)}
+                  className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-7 py-4 font-bold transition-colors ${
+                    isGift
+                      ? 'bg-[#DC2626] text-white hover:bg-[#B91C1C]'
+                      : 'border border-[#716942] text-[#716942] hover:bg-[#716942] hover:text-white'
+                  }`}
+                >
+                  {isGift ? <Gift className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                  {isGift ? 'Thêm vào giỏ quà tặng' : 'Thêm vào giỏ'}
                 </button>
                 <button onClick={() => addToCart(true)} className="flex-1 rounded-full bg-[#716942] px-7 py-4 font-bold text-white hover:opacity-90">
                   Mua ngay
-                </button>
-                <button onClick={isGift ? addGiftToCart : () => setIsGift(true)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#C96B37] px-7 py-4 font-bold text-white hover:opacity-90">
-                  <Gift className="h-5 w-5" />
-                  {isGift ? 'Thêm quà vào giỏ' : 'Mua làm quà'}
                 </button>
               </div>
             </>
@@ -302,6 +305,7 @@ export function ProductDetailPage({
       </section>
 
       <section className="mx-auto max-w-[1440px] px-6 pb-20 lg:px-20">
+        <DatabaseConnectionViz className="mb-20" />
         <h2 className="mb-6 text-3xl font-bold">Đánh giá cho sản phẩm này</h2>
         <ReviewStrip />
       </section>
