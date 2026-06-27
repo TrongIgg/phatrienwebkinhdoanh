@@ -176,6 +176,68 @@ export function CheckoutPage({
       return { ...defaultAddress, ...customerDefaults };
     }
   });
+  const [apiProvinces, setApiProvinces] = useState<{ name: string; code: number }[]>([]);
+  const [apiWards, setApiWards] = useState<{ name: string; code: number }[]>([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      setLoadingProvinces(true);
+      try {
+        const res = await fetch('/api/v2/p/');
+        if (!res.ok) throw new Error('API failed');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const sorted = data
+            .map((p: any) => ({ name: p.name, code: p.code }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+          setApiProvinces(sorted);
+        } else {
+          throw new Error('Not an array');
+        }
+      } catch (err) {
+        console.warn('Provinces API failed, using fallback list', err);
+        setApiProvinces(addressCatalog.cities.map((name) => ({ name, code: 0 })));
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  // Fetch wards when city changes
+  useEffect(() => {
+    if (!formData.city || apiProvinces.length === 0) return;
+    const selectedProv = apiProvinces.find((p) => p.name === formData.city);
+    if (selectedProv && selectedProv.code > 0) {
+      const fetchWards = async () => {
+        setLoadingWards(true);
+        try {
+          const res = await fetch(`/api/v2/w/?province=${selectedProv.code}`);
+          if (!res.ok) throw new Error('Wards API failed');
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const sorted = data
+              .map((w: any) => ({ name: w.name, code: w.code }))
+              .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+            setApiWards(sorted);
+          }
+        } catch (err) {
+          console.warn('Wards API failed', err);
+        } finally {
+          setLoadingWards(false);
+        }
+      };
+      fetchWards();
+    }
+  }, [formData.city, apiProvinces]);
+
+  const handleCityChange = (cityName: string) => {
+    updateField('city', cityName);
+    updateField('ward', ''); // Reset ward on city change
+    setApiWards([]);
+  };
 
   // ── Selection ────────────────────────────────────────────────────────────
 
@@ -495,9 +557,9 @@ export function CheckoutPage({
                   <div>
                     <label className="mb-2 block font-bold">Địa chỉ giao hàng <span className="text-red-600">*</span></label>
                     <div className="grid gap-3 md:grid-cols-[0.85fr_0.85fr_0.85fr_1.35fr]">
-                      <Field bare placeholder="Tỉnh/TP" options={addressCatalog.cities} value={formData.city} error={errors.city} onChange={(value) => updateField('city', value)} />
+                      <Field bare placeholder={loadingProvinces ? 'Đang tải...' : 'Tỉnh/TP'} options={apiProvinces.map((p) => p.name)} value={formData.city} error={errors.city} onChange={handleCityChange} />
                       <Field bare placeholder="Quận/Huyện" value={formData.district} error={errors.district} onChange={(value) => updateField('district', value)} />
-                      <Field bare placeholder="Phường/Xã" value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
+                      <Field bare placeholder={loadingWards ? 'Đang tải...' : 'Phường/Xã'} options={apiWards.length > 0 ? apiWards.map((w) => w.name) : undefined} value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
                       <Field bare placeholder="Số nhà, tên đường..." value={formData.address} error={errors.address} onChange={(value) => updateField('address', value)} />
                     </div>
                   </div>
