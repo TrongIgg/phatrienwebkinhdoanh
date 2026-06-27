@@ -138,47 +138,53 @@ export function Header() {
                 </button>
               )}
 
-              {loginOpen && (
-                <div className="absolute right-0 top-14 z-50 w-[280px] rounded-lg border border-[#E2CDBD] bg-[#FFF8F2] p-4 shadow-[0_16px_40px_rgba(54,31,23,0.18)]">
-                  {customer ? (
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <img src={customer.avatar_url} alt={customer.display_name} className="h-11 w-11 rounded-full object-cover" />
-                        <div className="min-w-0">
-                          <p className="truncate font-bold text-[#361F17]">{customer.display_name}</p>
-                          <p className="truncate text-xs text-[#716942]">{customer.email}</p>
+              {loginOpen &&
+                createPortal(
+                  <>
+                    {/* Transparent backdrop to close popover */}
+                    <div className="fixed inset-0 z-[9998]" onClick={() => setLoginOpen(false)} />
+                    <div className="fixed right-4 top-20 z-[9999] w-[280px] rounded-lg border border-[#E2CDBD] bg-[#FFF8F2] p-4 shadow-[0_16px_40px_rgba(54,31,23,0.18)] sm:right-[max(1rem,calc((100vw-1440px)/2+12rem))]">
+                      {customer ? (
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <img src={customer.avatar_url} alt={customer.display_name} className="h-11 w-11 rounded-full object-cover" />
+                            <div className="min-w-0">
+                              <p className="truncate font-bold text-[#361F17]">{customer.display_name}</p>
+                              <p className="truncate text-xs text-[#716942]">{customer.email}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setHistoryModalOpen(true);
+                              setLoginOpen(false);
+                            }}
+                            className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#361F17] font-bold text-[#FBEEE5] hover:bg-[#716942] transition-colors text-sm"
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            Lịch sử đơn hàng & vé
+                          </button>
+                          <button
+                            type="button"
+                            onClick={logoutCustomer}
+                            className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#361F17] font-bold text-[#361F17]"
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Đăng xuất demo
+                          </button>
                         </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHistoryModalOpen(true);
-                          setLoginOpen(false);
-                        }}
-                        className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#361F17] font-bold text-[#FBEEE5] hover:bg-[#716942] transition-colors text-sm"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        Lịch sử đơn hàng & vé
-                      </button>
-                      <button
-                        type="button"
-                        onClick={logoutCustomer}
-                        className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#361F17] font-bold text-[#361F17]"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Đăng xuất demo
-                      </button>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-sm font-bold text-[#361F17]">Đăng nhập nhanh để tự điền checkout và review</p>
+                          <SocialLoginButton label="Tiếp tục với Google" icon={<Mail className="h-4 w-4" />} onClick={() => loginWithProvider('google')} />
+                          <SocialLoginButton label="Tiếp tục với Facebook" icon={<Facebook className="h-4 w-4" />} onClick={() => loginWithProvider('facebook')} />
+                          <SocialLoginButton label="Tiếp tục với Zalo" icon={<span className="text-xs font-black">Z</span>} onClick={() => loginWithProvider('zalo')} />
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-sm font-bold text-[#361F17]">Đăng nhập nhanh để tự điền checkout và review</p>
-                      <SocialLoginButton label="Tiếp tục với Google" icon={<Mail className="h-4 w-4" />} onClick={() => loginWithProvider('google')} />
-                      <SocialLoginButton label="Tiếp tục với Facebook" icon={<Facebook className="h-4 w-4" />} onClick={() => loginWithProvider('facebook')} />
-                      <SocialLoginButton label="Tiếp tục với Zalo" icon={<span className="text-xs font-black">Z</span>} onClick={() => loginWithProvider('zalo')} />
-                    </div>
-                  )}
-                </div>
-              )}
+                  </>,
+                  document.body,
+                )}
             </div>
 
             <Link
