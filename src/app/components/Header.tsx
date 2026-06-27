@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from 'react-router';
-import { Facebook, LogOut, Mail, Menu, ShoppingCart, UserCircle, X } from 'lucide-react';
+import { Facebook, LogOut, Mail, Menu, ShoppingCart, UserCircle, X, CalendarCheck, Package, Sparkles } from 'lucide-react';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useProductCart } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
@@ -12,6 +12,9 @@ import {
   type CustomerSession,
   type SocialProvider,
 } from '../lib/customerExperience';
+import { readLocalTrackingRecords, cancelLocalTrackingRecord, type ApiTracking } from '../lib/trackingStorage';
+import { CancelConfirmationModal } from './TrackingPage';
+import { toast } from 'sonner';
 
 const navItems = [
   { label: 'Trang chủ', to: '/' },
@@ -29,6 +32,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [customer, setCustomer] = useState<CustomerSession | null>(() => readCustomerSession());
   const prevCountRef = useRef(0);
 
@@ -146,8 +150,19 @@ export function Header() {
                       </div>
                       <button
                         type="button"
+                        onClick={() => {
+                          setHistoryModalOpen(true);
+                          setLoginOpen(false);
+                        }}
+                        className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#361F17] font-bold text-[#FBEEE5] hover:bg-[#716942] transition-colors text-sm"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Lịch sử đơn hàng & vé
+                      </button>
+                      <button
+                        type="button"
                         onClick={logoutCustomer}
-                        className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#361F17] font-bold text-[#361F17]"
+                        className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#361F17] font-bold text-[#361F17]"
                       >
                         <LogOut className="h-4 w-4" />
                         Đăng xuất demo
@@ -225,6 +240,9 @@ export function Header() {
       </div>
 
       <ProgressRule />
+      {historyModalOpen && (
+        <OrderHistoryModal onClose={() => setHistoryModalOpen(false)} />
+      )}
     </header>
   );
 }
@@ -239,5 +257,148 @@ function SocialLoginButton({ label, icon, onClick }: { label: string; icon: Reac
       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#361F17] text-white">{icon}</span>
       {label}
     </button>
+  );
+}
+
+function OrderHistoryModal({ onClose }: { onClose: () => void }) {
+  const [records, setRecords] = useState<ApiTracking[]>([]);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedRecordToCancel, setSelectedRecordToCancel] = useState<ApiTracking | null>(null);
+
+  const loadRecords = () => {
+    setRecords(readLocalTrackingRecords());
+  };
+
+  useEffect(() => {
+    loadRecords();
+    window.addEventListener('tho-tracking-records-changed', loadRecords);
+    return () => window.removeEventListener('tho-tracking-records-changed', loadRecords);
+  }, []);
+
+  const handleCancelClick = (record: ApiTracking) => {
+    setSelectedRecordToCancel(record);
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (!selectedRecordToCancel) return;
+    const updated = cancelLocalTrackingRecord(selectedRecordToCancel.code);
+    if (updated) {
+      toast.success(`Đã hủy thành công đơn/vé ${updated.code}!`);
+      loadRecords();
+    } else {
+      toast.error('Không thể thực hiện hủy đơn lúc này.');
+    }
+    setCancelModalOpen(false);
+    setSelectedRecordToCancel(null);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] grid place-items-center bg-black/60 px-4 py-8 overflow-y-auto">
+      <div className="w-full max-w-[720px] rounded-2xl bg-[#FBEEE5] border border-[#E2CDBD] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#E2CDBD] bg-white p-5">
+          <div>
+            <h3 className="text-xl font-bold text-[#361F17] flex items-center gap-2">
+              📜 Lịch sử mua hàng & Đặt chỗ
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">Danh sách các đơn hàng và vé đã đặt của bạn.</p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng lịch sử" type="button">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+          {records.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-[#EFD8C7]">
+              <ShoppingCart className="h-12 w-12 text-[#716942] mx-auto mb-3 opacity-60" />
+              <p className="text-foreground font-bold">Chưa có đơn hàng hoặc vé nào</p>
+              <p className="text-xs text-muted-foreground mt-1">Các đơn hàng hoặc vé đã thanh toán sẽ tự động xuất hiện ở đây.</p>
+            </div>
+          ) : (
+            records.map((record) => {
+              const isCancelled = record.status === 'cancelled';
+              const isOrder = record.tracking_type === 'order' || record.tracking_type === 'custom';
+
+              return (
+                <div key={record.code} className="bg-white p-4 rounded-xl border border-[#EFD8C7] hover:shadow-sm transition-shadow">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-[#F7F1EC] pb-3 mb-3">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-sm font-bold text-[#361F17]">{record.code}</span>
+                        <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${
+                          isCancelled
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-green-100 text-green-700'
+                        }`}>
+                          {isCancelled ? 'Đã hủy' : record.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Thời gian đặt: {record.createdAt ? new Date(record.createdAt).toLocaleString('vi-VN') : 'Đang cập nhật'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/tracking?code=${record.code}`}
+                        onClick={onClose}
+                        className="text-xs bg-[#716942]/10 text-[#716942] hover:bg-[#716942]/20 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Theo dõi hành trình →
+                      </Link>
+                      {!isCancelled && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelClick(record)}
+                          className="text-xs bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          Hủy đơn
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Items list */}
+                  {record.items && record.items.length > 0 && (
+                    <div className="space-y-2">
+                      {record.items.map((item) => (
+                        <div key={item.id} className="flex items-center gap-3 bg-[#FFF8F2] p-2 rounded-lg border border-[#EFD8C7] text-xs">
+                          <div className="h-10 w-10 overflow-hidden rounded-[6px] border border-[#EFD8C7] flex-shrink-0 bg-[#EFE2D6]">
+                            <img
+                              src={item.image || 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=200'}
+                              alt={item.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-[#361F17] truncate">{item.name}</p>
+                            <p className="text-muted-foreground mt-0.5">
+                              {item.type === 'workshop' ? `${item.date} · ${item.time} · ${item.tickets} vé` : `${item.price.toLocaleString('vi-VN')}đ · SL: ${item.quantity}`}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {cancelModalOpen && selectedRecordToCancel && (
+        <CancelConfirmationModal
+          record={selectedRecordToCancel}
+          onClose={() => {
+            setCancelModalOpen(false);
+            setSelectedRecordToCancel(null);
+          }}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
+    </div>
   );
 }

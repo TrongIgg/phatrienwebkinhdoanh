@@ -268,6 +268,18 @@ export function CheckoutPage({
               { stage: 'delivering', label: 'Đang giao', state: 'waiting' },
               { stage: 'received', label: 'Đã nhận', state: 'waiting' },
             ],
+        items: checkoutItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          type: item.type,
+          quantity: item.quantity,
+          tickets: item.tickets,
+          date: item.date,
+          time: item.time,
+          image: item.image,
+        })),
+        createdAt: new Date().toISOString(),
       },
     ];
 
@@ -419,17 +431,15 @@ export function CheckoutPage({
                   <div>
                     <label className="mb-2 block font-bold">Địa chỉ giao hàng <span className="text-red-600">*</span></label>
                     <div className="grid gap-3 md:grid-cols-[0.85fr_0.85fr_0.85fr_1.35fr]">
-                      <Field bare placeholder="Tỉnh/TP" list="tho-cities" value={formData.city} error={errors.city} onChange={(value) => updateField('city', value)} />
-                      <Field bare placeholder="Quận/Huyện" list="tho-districts" value={formData.district} error={errors.district} onChange={(value) => updateField('district', value)} />
-                      <Field bare placeholder="Phường/Xã" list="tho-wards" value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
+                      <Field bare placeholder="Tỉnh/TP" options={addressCatalog.cities} value={formData.city} error={errors.city} onChange={(value) => updateField('city', value)} />
+                      <Field bare placeholder="Quận/Huyện" options={addressCatalog.districts} value={formData.district} error={errors.district} onChange={(value) => updateField('district', value)} />
+                      <Field bare placeholder="Phường/Xã" options={addressCatalog.wards} value={formData.ward} error={errors.ward} onChange={(value) => updateField('ward', value)} />
                       <Field bare placeholder="Số nhà, tên đường..." value={formData.address} error={errors.address} onChange={(value) => updateField('address', value)} />
                     </div>
-                    <datalist id="tho-cities">{addressCatalog.cities.map((item) => <option key={item} value={item} />)}</datalist>
-                    <datalist id="tho-districts">{addressCatalog.districts.map((item) => <option key={item} value={item} />)}</datalist>
-                    <datalist id="tho-wards">{addressCatalog.wards.map((item) => <option key={item} value={item} />)}</datalist>
                   </div>
                   <div className="rounded-[16px] border border-[#EFD8C7] bg-[#FFF8F2] p-5 text-[#6E4E3F]">
-                    <p className="font-bold text-[#2B211D]">Vận chuyển tiêu chuẩn: 35.000đ</p>
+                    {formData.city && <p className="mb-2 font-bold text-[#C96B37]">Giao hàng đến: {formData.city}</p>}
+                    <p className="font-bold text-[#2B211D]">Vận chuyển tiêu chuẩn: 35.000đ (Dự kiến nhận hàng trong 2-3 ngày)</p>
                     <p className="mt-2">Đơn gốm sau workshop được gửi đi sau 3 ngày. Nội thành dự kiến nhận trong khoảng 2 tuần. Hàng vỡ do vận chuyển được xử lý theo chính sách bảo hiểm nếu khách quay video mở hàng.</p>
                   </div>
                 </>
@@ -532,7 +542,7 @@ function Field({
   bare = false,
   placeholder,
   error,
-  list,
+  options,
   readOnly = false,
 }: {
   label?: string;
@@ -543,21 +553,35 @@ function Field({
   bare?: boolean;
   placeholder?: string;
   error?: string;
-  list?: string;
+  options?: string[];
   readOnly?: boolean;
 }) {
+  const selectOrInput = options ? (
+    <select
+      value={value}
+      disabled={readOnly}
+      onChange={(event) => onChange(event.target.value)}
+      className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`}
+      required={required}
+    >
+      <option value="" disabled>{placeholder}</option>
+      {options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
+  ) : (
+    <input
+      type={type}
+      value={value}
+      readOnly={readOnly}
+      onChange={(event) => onChange(event.target.value)}
+      className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`}
+      placeholder={placeholder}
+      required={required}
+    />
+  );
+
   const input = (
     <div>
-      <input
-        type={type}
-        value={value}
-        list={list}
-        readOnly={readOnly}
-        onChange={(event) => onChange(event.target.value)}
-        className={`h-[49px] w-full border px-4 outline-none focus:ring-2 focus:ring-[#716942]/30 ${readOnly ? 'bg-[#F7F1EC] text-[#6E4E3F]' : 'bg-white'} ${error ? 'input-error border-[#A33A2F]' : 'border-[#949494]'}`}
-        placeholder={placeholder}
-        required={required}
-      />
+      {selectOrInput}
       {error && <p className="field-error"><AlertCircle className="h-3.5 w-3.5" />{error}</p>}
     </div>
   );
@@ -579,11 +603,22 @@ function SummaryLine({ label, value, strong = false }: { label: string; value: n
   );
 }
 
+const momoLogo = new URL('../../../image/logo/momo.png', import.meta.url).href;
+const vnpayLogo = new URL('../../../image/logo/vnpay.jpg', import.meta.url).href;
+
 function PaymentChoice({ method, active, onClick }: { method: 'momo' | 'vnpay'; active: boolean; onClick: () => void }) {
+  const isMomo = method === 'momo';
+  const logoSrc = isMomo ? momoLogo : vnpayLogo;
   return (
-    <button type="button" onClick={onClick} className={`flex min-h-[150px] flex-col items-center justify-center rounded-[10px] border text-center transition hover:shadow-md ${active ? 'border-2 border-[#716942]' : 'border-[#D4D4D4]'}`}>
-      <CreditCard className="mb-4 h-12 w-12 text-[#716942]" />
-      <span className="text-lg italic text-[#727272]">{method === 'momo' ? 'Ví MoMo' : 'QR VNPay'}</span>
+    <button type="button" onClick={onClick} className={`flex min-h-[150px] flex-col items-center justify-center rounded-[10px] border text-center transition hover:shadow-md ${active ? 'border-2 border-[#716942] bg-[#F7F1EC]' : 'border-[#D4D4D4] bg-white'}`}>
+      <div className="mb-4 flex h-[68px] w-[140px] items-center justify-center overflow-hidden rounded-[18px] bg-white p-1 border border-[#E2CDBD] shadow-sm">
+        <img
+          src={logoSrc}
+          alt={isMomo ? 'MoMo' : 'VNPAY'}
+          className="h-full w-full object-contain"
+        />
+      </div>
+      <span className="text-base font-semibold text-[#361F17]">{method === 'momo' ? 'Ví điện tử MoMo' : 'Thanh toán qua VNPAY'}</span>
     </button>
   );
 }
@@ -609,6 +644,7 @@ function PaymentModal({
 }) {
   const [secondsLeft, setSecondsLeft] = useState(() => Math.max(1, initialSeconds));
   const isMomo = method === 'momo';
+  const logoSrc = isMomo ? momoLogo : vnpayLogo;
 
   useEffect(() => {
     const timer = window.setInterval(() => setSecondsLeft((value) => Math.max(0, value - 1)), 1000);
@@ -626,11 +662,16 @@ function PaymentModal({
     <div className="fixed inset-0 z-[999] grid place-items-center overflow-y-auto bg-black/55 px-6 py-10">
       <div className={`my-auto w-full max-w-[1020px] rounded-[14px] bg-[#F7F1EC] shadow-2xl ${isMomo ? 'border-4 border-[#DC1A8D]' : 'border-4 border-[#0088C9]'}`}>
         <div className="flex items-center justify-between border-b border-[#E2E2E2] bg-white p-6">
-          <div>
-            <h2 className="text-3xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
-            <p className="mt-2 text-[#727272]">
-              QR thanh toán hết hạn sau {minutes}:{seconds}. {isWorkshopCheckout ? 'Hủy thanh toán vé workshop sẽ trả slot ngay.' : 'Hủy thanh toán sẽ đưa bạn về trang chưa hoàn tất.'}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-20 items-center justify-center overflow-hidden rounded-lg border border-[#E2CDBD] bg-white p-1">
+              <img src={logoSrc} alt={isMomo ? 'MoMo' : 'VNPAY'} className="h-full w-full object-contain" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{isMomo ? 'Cổng thanh toán MoMo' : 'Cổng thanh toán VNPAY'}</h2>
+              <p className="mt-1 text-xs text-[#727272]">
+                QR thanh toán hết hạn sau {minutes}:{seconds}. {isWorkshopCheckout ? 'Hủy thanh toán vé workshop sẽ trả slot ngay.' : 'Hủy thanh toán sẽ đưa bạn về trang chưa hoàn tất.'}
+              </p>
+            </div>
           </div>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-[#EFE2D6]" aria-label="Đóng thanh toán" type="button">
             <X className="h-6 w-6" />

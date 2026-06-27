@@ -305,6 +305,10 @@ export function TrackingPage({
   const selectedType = trackingTypes.find((type) => type.id === trackingType) ?? trackingTypes[0];
   const resultType = (result?.tracking_type as TrackingType | undefined) ?? trackingType;
 
+  // Cancellation state
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedRecordToCancel, setSelectedRecordToCancel] = useState<ApiTracking | null>(null);
+
   const lookupCode = async (rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
     if (!code) return;
@@ -351,9 +355,43 @@ export function TrackingPage({
     }
   }, [codeFromUrl]);
 
+  // Synchronize tracking storage updates
+  useEffect(() => {
+    const handleSync = () => {
+      setRecentRecords(readLocalTrackingRecords());
+      if (result) {
+        const fresh = findLocalTrackingRecord(result.code);
+        if (fresh) setResult(fresh);
+      }
+    };
+    window.addEventListener('tho-tracking-records-changed', handleSync);
+    return () => window.removeEventListener('tho-tracking-records-changed', handleSync);
+  }, [result]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await lookupCode(trackingCode);
+  };
+
+  const handleCancelClick = (record: ApiTracking) => {
+    setSelectedRecordToCancel(record);
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (!selectedRecordToCancel) return;
+    const updated = cancelLocalTrackingRecord(selectedRecordToCancel.code);
+    if (updated) {
+      toast.success(`Đã hủy thành công ${updated.tracking_type === 'order' ? 'đơn hàng' : 'đặt chỗ'} ${updated.code}!`);
+      if (result && result.code.toUpperCase() === updated.code.toUpperCase()) {
+        setResult(updated);
+      }
+      setRecentRecords(readLocalTrackingRecords());
+    } else {
+      toast.error('Không thể thực hiện hủy đơn hàng lúc này.');
+    }
+    setCancelModalOpen(false);
+    setSelectedRecordToCancel(null);
   };
 
   return (
@@ -390,25 +428,57 @@ export function TrackingPage({
               <p className="mt-3 text-xs leading-5 text-muted-foreground">
                 Gợi ý: `ORD-` cho đơn sản phẩm, `WS-` cho vé workshop, `CER/THO-` cho hành trình thành phẩm gốm.
               </p>
+
               {recentRecords.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {recentRecords.slice(0, 5).map((record) => (
-                    <button
-                      key={record.code}
-                      type="button"
-                      onClick={() => {
-                        setTrackingCode(record.code);
-                        setResult(record);
-                        setTrackingType(record.tracking_type);
-                        setSubmitted(true);
-                        setLoading(false);
-                        setError('');
-                      }}
-                      className="rounded-full border border-primary/30 px-3 py-1 text-xs text-primary transition hover:bg-primary hover:text-primary-foreground"
-                    >
-                      {record.code}
-                    </button>
-                  ))}
+                <div className="mt-6 border-t border-border pt-4">
+                  <p className="text-sm font-bold text-foreground mb-3">Lịch sử tra cứu của bạn</p>
+                  <div className="grid gap-3 max-h-[220px] overflow-y-auto pr-1">
+                    {recentRecords.map((record) => {
+                      const isRecordCancelled = record.status === 'cancelled';
+                      return (
+                        <div key={record.code} className="flex items-center justify-between bg-background p-2.5 rounded-lg border border-border">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-sm font-bold text-foreground">{record.code}</span>
+                              <span className={`text-[10px] rounded-full px-2 py-0.5 font-semibold ${
+                                isRecordCancelled 
+                                  ? 'bg-red-100 text-red-700' 
+                                  : 'bg-green-100 text-green-700'
+                              }`}>
+                                {isRecordCancelled ? 'Đã hủy' : 'Hoạt động'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">{record.title}</p>
+                          </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTrackingCode(record.code);
+                                setResult(record);
+                                setTrackingType(record.tracking_type);
+                                setSubmitted(true);
+                                setLoading(false);
+                                setError('');
+                              }}
+                              className="text-xs bg-[#716942]/10 text-[#716942] hover:bg-[#716942]/20 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                              Xem
+                            </button>
+                            {!isRecordCancelled && (
+                              <button
+                                type="button"
+                                onClick={() => handleCancelClick(record)}
+                                className="text-xs bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                              >
+                                Hủy
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </form>
@@ -435,9 +505,27 @@ export function TrackingPage({
           {submitted && !loading && error && <div className="motion-section rounded-lg border border-border bg-card p-8 text-center text-destructive">{error}</div>}
           {submitted && !loading && !error && result && resultType === 'custom' && <CustomTrackingResult result={result} onProceedToCheckout={onCustomCheckout} />}
           {submitted && !loading && !error && result && resultType === 'ceramic' && <CeramicTrackingExperience code={trackingCode} result={result} />}
-          {submitted && !loading && !error && result && resultType !== 'ceramic' && resultType !== 'custom' && <SimpleTrackingResult type={resultType} code={trackingCode} result={result} />}
+          {submitted && !loading && !error && result && resultType !== 'ceramic' && resultType !== 'custom' && (
+            <SimpleTrackingResult
+              type={resultType as 'order' | 'workshop'}
+              code={trackingCode}
+              result={result}
+              onCancelClick={handleCancelClick}
+            />
+          )}
         </div>
       </section>
+
+      {cancelModalOpen && selectedRecordToCancel && (
+        <CancelConfirmationModal
+          record={selectedRecordToCancel}
+          onClose={() => {
+            setCancelModalOpen(false);
+            setSelectedRecordToCancel(null);
+          }}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 }
@@ -677,13 +765,174 @@ function ReadyActions({ readyActive }: { readyActive: boolean }) {
   );
 }
 
-function SimpleTrackingResult({ type, code, result }: { type: 'order' | 'workshop'; code: string; result: ApiTracking | null }) {
+export function getCancellationRefundDetails(record: ApiTracking): {
+  canCancel: boolean;
+  refundPercent: number;
+  timeDiffHours: number;
+  policyMessage: string;
+  targetDateStr: string;
+} {
+  if (record.status === 'cancelled') {
+    return { canCancel: false, refundPercent: 0, timeDiffHours: 0, policyMessage: 'Đơn hàng đã được hủy trước đó.', targetDateStr: '' };
+  }
+
+  const isOrder = record.tracking_type === 'order' || record.tracking_type === 'custom';
+
+  if (isOrder) {
+    const isShipped = record.status === 'delivering' || record.status === 'received';
+    return {
+      canCancel: !isShipped,
+      refundPercent: isShipped ? 0 : 100,
+      timeDiffHours: 48,
+      policyMessage: isShipped 
+        ? 'Đơn hàng vật lý đã được gửi đi và bàn giao cho đơn vị vận chuyển. Không thể hủy vào lúc này.' 
+        : 'Đơn hàng chưa giao cho đơn vị vận chuyển, được phép hủy hoàn tiền 100%.',
+      targetDateStr: 'Trước khi giao hàng'
+    };
+  }
+
+  // Workshop ticket policy
+  const wsItem = record.items?.find((item) => item.type === 'workshop');
+  if (!wsItem || !wsItem.date) {
+    return {
+      canCancel: true,
+      refundPercent: 100,
+      timeDiffHours: 72,
+      policyMessage: 'Hủy trước 48h: hoàn tiền 100%. Hủy trước 24h: hoàn tiền 50%.',
+      targetDateStr: 'Chưa rõ thời gian'
+    };
+  }
+
+  const dateMatch = wsItem.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!dateMatch) {
+    return {
+      canCancel: true,
+      refundPercent: 100,
+      timeDiffHours: 72,
+      policyMessage: 'Hủy trước 48h: hoàn tiền 100%. Hủy trước 24h: hoàn tiền 50%.',
+      targetDateStr: wsItem.date
+    };
+  }
+
+  const [_, dayStr, monthStr, yearStr] = dateMatch;
+  let hour = 9;
+  let minute = 0;
+  if (wsItem.time) {
+    const timeMatch = wsItem.time.match(/(\d{2}):(\d{2})/);
+    if (timeMatch) {
+      hour = parseInt(timeMatch[1], 10);
+      minute = parseInt(timeMatch[2], 10);
+    }
+  }
+
+  const targetDate = new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, parseInt(dayStr, 10), hour, minute);
+  const now = new Date();
+  const timeDiffMs = targetDate.getTime() - now.getTime();
+  const timeDiffHours = timeDiffMs / (1000 * 60 * 60);
+
+  let refundPercent = 0;
+  let policyMessage = '';
+
+  if (timeDiffHours >= 48) {
+    refundPercent = 100;
+    policyMessage = `Thời gian từ hiện tại đến giờ diễn ra workshop còn ${Math.floor(timeDiffHours)} giờ (trên 48 giờ). Quý khách đủ điều kiện hủy đặt lịch và nhận hoàn tiền 100%.`;
+  } else if (timeDiffHours >= 24) {
+    refundPercent = 50;
+    policyMessage = `Thời gian từ hiện tại đến giờ diễn ra workshop còn ${Math.floor(timeDiffHours)} giờ (từ 24 đến 48 giờ). Quý khách đủ điều kiện hủy đặt lịch và nhận hoàn tiền 50%.`;
+  } else {
+    refundPercent = 0;
+    policyMessage = `Thời gian từ hiện tại đến giờ diễn ra workshop còn ${Math.max(0, Math.floor(timeDiffHours))} giờ (dưới 24 giờ). Theo chính sách của THỔ, không hỗ trợ hoàn tiền cho trường hợp này.`;
+  }
+
+  return {
+    canCancel: timeDiffHours > 0,
+    refundPercent,
+    timeDiffHours,
+    policyMessage,
+    targetDateStr: `${wsItem.date} lúc ${wsItem.time || '9:00'}`
+  };
+}
+
+export function CancelConfirmationModal({
+  record,
+  onClose,
+  onConfirm,
+}: {
+  record: ApiTracking;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const { refundPercent, policyMessage, targetDateStr } = getCancellationRefundDetails(record);
+  const isOrder = record.tracking_type === 'order' || record.tracking_type === 'custom';
+
+  return (
+    <div className="fixed inset-0 z-[1000] grid place-items-center bg-black/60 px-4">
+      <div className="w-full max-w-[500px] rounded-2xl bg-[#FFF8F2] border border-[#E2CDBD] p-6 shadow-2xl">
+        <h3 className="text-2xl font-bold text-[#361F17] flex items-center gap-2">
+          ⚠️ Xác nhận hủy {isOrder ? 'đơn hàng' : 'đặt chỗ'}
+        </h3>
+        
+        <div className="mt-4 rounded-xl bg-white p-4 border border-[#EFD8C7] space-y-3">
+          <div className="flex justify-between text-sm text-[#361F17]">
+            <span className="text-muted-foreground">Mã đơn/vé:</span>
+            <span className="font-bold font-mono">{record.code}</span>
+          </div>
+          <div className="flex justify-between text-sm text-[#361F17]">
+            <span className="text-muted-foreground">Thời điểm diễn ra:</span>
+            <span className="font-bold">{targetDateStr}</span>
+          </div>
+          <div className="border-t border-[#EFD8C7] pt-3">
+            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wide">Chính sách hoàn tiền</p>
+            <p className="text-sm mt-1 text-[#6E4E3F] leading-relaxed">{policyMessage}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-xl bg-[#FFF1E8] border border-[#EFD8C7] p-4 text-center">
+          <p className="text-sm text-muted-foreground">Tỷ lệ hoàn tiền dự kiến:</p>
+          <p className="text-3xl font-black text-[#C96B37] mt-1">{refundPercent}%</p>
+          <p className="text-xs text-[#716942] mt-1">Số tiền hoàn sẽ được chuyển lại qua tài khoản thanh toán ban đầu của quý khách.</p>
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 h-12 rounded-lg border border-[#716942] text-[#716942] font-semibold hover:bg-[#EFE2D6] transition-colors"
+          >
+            Đóng
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 h-12 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors"
+          >
+            Xác nhận hủy
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SimpleTrackingResult({
+  type,
+  code,
+  result,
+  onCancelClick,
+}: {
+  type: 'order' | 'workshop';
+  code: string;
+  result: ApiTracking | null;
+  onCancelClick?: (record: ApiTracking) => void;
+}) {
   const isOrder = type === 'order';
   const timelineText = result?.timeline?.length
     ? result.timeline.map((step) => step.label).join(' → ')
     : isOrder
       ? 'Đã thanh toán → Chờ đóng gói → Đợi ĐVVC → Đang giao → Đã nhận'
       : 'Đã thanh toán → Đã gửi QR check-in → Chờ check-in tại studio';
+
+  const isCancelled = result?.status === 'cancelled';
 
   return (
     <div className="motion-section rounded-lg border border-border bg-card p-6">
@@ -698,7 +947,22 @@ function SimpleTrackingResult({ type, code, result }: { type: 'order' | 'worksho
               <p className="text-sm text-muted-foreground">Mã tra cứu: {result?.code || code}</p>
               {result?.manager_name && <p className="mt-1 text-sm text-primary">Nhân viên phụ trách: {result.manager_name}</p>}
             </div>
-            <span className="w-fit rounded-full bg-secondary/20 px-3 py-1 text-sm text-secondary">{result?.status || (isOrder ? 'Đã thanh toán' : 'Đã xác nhận')}</span>
+            <div className="flex flex-col items-end gap-2">
+              <span className={`w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+                isCancelled ? 'bg-red-100 text-red-700' : 'bg-secondary/20 text-secondary'
+              }`}>
+                {isCancelled ? 'Đã hủy đơn' : result?.status || (isOrder ? 'Đã thanh toán' : 'Đã xác nhận')}
+              </span>
+              {!isCancelled && result && onCancelClick && (
+                <button
+                  type="button"
+                  onClick={() => onCancelClick(result)}
+                  className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-4 py-1.5 transition-colors"
+                >
+                  {isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
+                </button>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {isOrder ? (
@@ -715,6 +979,24 @@ function SimpleTrackingResult({ type, code, result }: { type: 'order' | 'worksho
               </>
             )}
           </div>
+          {result?.items && result.items.length > 0 && (
+            <div className="mt-4 border-t border-border pt-4">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Chi tiết sản phẩm & vé</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {result.items.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 bg-background p-2.5 rounded-lg border border-border">
+                    <img src={item.image || (item.type === 'workshop' ? workshopImages.handsWarm : productImages.tealVase)} alt={item.name} className="h-12 w-12 rounded-lg object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.type === 'workshop' ? `${item.date} · ${item.time} · ${item.tickets} vé` : `${item.price.toLocaleString('vi-VN')}đ · SL: ${item.quantity}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="mt-4 rounded-lg border border-border bg-background p-4">
             <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Clock3 className="h-4 w-4 text-primary" />

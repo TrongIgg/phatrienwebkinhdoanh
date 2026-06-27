@@ -182,9 +182,9 @@ Refactor flow quà tặng & workshop, giảm thiểu font diversity, làm rõ pr
 | 8 | Bold quantity display + bar | P3 | 1h | - | ⬜ |
 | 9 | Update product showcase images | P3 | 1.5h | - | ⬜ |
 | 10 | Add DB connection visualization | P3 | 2h | - | ✅ |
-| 11 | Add cancel button to tracking page with refund modal | P1 | 3h | - | ⬜ |
-| 12 | Show cancel action on saved/recent tracking items list | P1 | 2h | - | ⬜ |
-| 13 | Mock Login & User Profile Order History with cancel action | P1 | 3.5h | - | ⬜ |
+| 11 | Add cancel button to tracking page with refund modal | P1 | 3h | - | ✅ |
+| 12 | Show cancel action on saved/recent tracking items list | P1 | 2h | - | ✅ |
+| 13 | Mock Login & User Profile Order History with cancel action | P1 | 3.5h | - | ✅ |
 
 **Total Estimated**: ~26 hours
 
@@ -258,9 +258,9 @@ WHERE workshop_id = ?
 - [x] Payment icons (Momo/VN Pay) are clear & proportionate
 - [ ] Quantity display has visual progress indicator
 - [x] Location selector shows smart defaults + search
-- [ ] Cancel button displays on tracking details with modal showing time-based refund policy (100%/50%/0%)
-- [ ] Users can cancel items directly from their saved/entered tracking list
-- [ ] User profile / orders dashboard lists all user orders with current status and inline cancel buttons
+- [x] Cancel button displays on tracking details with modal showing time-based refund policy (100%/50%/0%)
+- [x] Users can cancel items directly from their saved/entered tracking list
+- [x] User profile / orders dashboard lists all user orders with current status and inline cancel buttons
 
 ---
 

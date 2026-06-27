@@ -1,34 +1,22 @@
 import type { ApiTracking } from './api';
 
-const TRACKING_STORAGE_KEY = 'tho-tracking-records';
-const TRACKING_SESSION_MS = 30 * 60 * 1000;
+const PERSISTENT_TRACKING_KEY = 'tho-persistent-tracking-records';
 
 type StoredTrackingRecords = {
   savedAt: number;
   records: ApiTracking[];
 };
 
-function clearLegacyTrackingRecords() {
-  try {
-    window.localStorage.removeItem(TRACKING_STORAGE_KEY);
-  } catch {
-    // Ignore blocked storage; tracking can still fall back to API lookup.
-  }
-}
-
 export function readLocalTrackingRecords(): ApiTracking[] {
   if (typeof window === 'undefined') return [];
   try {
-    clearLegacyTrackingRecords();
-    const stored = window.sessionStorage.getItem(TRACKING_STORAGE_KEY);
+    const stored = window.localStorage.getItem(PERSISTENT_TRACKING_KEY);
     if (!stored) return [];
 
     const parsed = JSON.parse(stored) as StoredTrackingRecords | ApiTracking[];
-    const savedAt = Array.isArray(parsed) ? Date.now() : parsed.savedAt;
     const records = Array.isArray(parsed) ? parsed : parsed.records;
 
-    if (!Array.isArray(records) || Date.now() - savedAt > TRACKING_SESSION_MS) {
-      window.sessionStorage.removeItem(TRACKING_STORAGE_KEY);
+    if (!Array.isArray(records)) {
       return [];
     }
 
@@ -40,12 +28,54 @@ export function readLocalTrackingRecords(): ApiTracking[] {
 
 export function saveLocalTrackingRecords(records: ApiTracking[]) {
   if (typeof window === 'undefined') return;
-  const existing = readLocalTrackingRecords();
-  const next = [...records, ...existing.filter((item) => !records.some((record) => record.code === item.code))].slice(0, 12);
-  window.sessionStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify({ savedAt: Date.now(), records: next }));
+  try {
+    const existing = readLocalTrackingRecords();
+    const next = [...records, ...existing.filter((item) => !records.some((record) => record.code === item.code))].slice(0, 100);
+    window.localStorage.setItem(PERSISTENT_TRACKING_KEY, JSON.stringify({ savedAt: Date.now(), records: next }));
+    // Dispatch custom event to notify components
+    window.dispatchEvent(new Event('tho-tracking-records-changed'));
+  } catch (err) {
+    console.error('Failed to save tracking records locally:', err);
+  }
 }
 
 export function findLocalTrackingRecord(code: string) {
   const normalized = code.trim().toUpperCase();
   return readLocalTrackingRecords().find((record) => record.code.toUpperCase() === normalized) ?? null;
+}
+
+export function cancelLocalTrackingRecord(code: string): ApiTracking | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const records = readLocalTrackingRecords();
+    const index = records.findIndex((r) => r.code.toUpperCase() === code.trim().toUpperCase());
+    if (index === -1) return null;
+
+    const target = records[index];
+    const updated: ApiTracking = {
+      ...target,
+      status: 'cancelled',
+      message: 'Đơn hàng/Vé đã được hủy bởi khách hàng. Số tiền hoàn đang được xử lý theo chính sách.',
+      timeline: target.timeline.map((step) => {
+        if (step.stage === 'paid' || step.stage === 'booking_paid') {
+          return { ...step, state: 'done' };
+        }
+        return { ...step, state: 'waiting' };
+      }),
+    };
+
+    const hasCancelledStep = updated.timeline.some((s) => s.stage === 'cancelled');
+    if (!hasCancelledStep) {
+      updated.timeline.push({ stage: 'cancelled', label: 'Đã hủy đơn', state: 'done' });
+    } else {
+      updated.timeline = updated.timeline.map((s) => s.stage === 'cancelled' ? { ...s, state: 'done' } : s);
+    }
+
+    records[index] = updated;
+    window.localStorage.setItem(PERSISTENT_TRACKING_KEY, JSON.stringify({ savedAt: Date.now(), records }));
+    window.dispatchEvent(new Event('tho-tracking-records-changed'));
+    return updated;
+  } catch {
+    return null;
+  }
 }
