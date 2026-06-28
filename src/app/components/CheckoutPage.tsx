@@ -7,7 +7,7 @@ import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
 import { type ApiTracking } from '../lib/api';
 import { readCustomerSession } from '../lib/customerExperience';
-import { VietnamAddressPicker } from './VietnamAddressPicker';
+import { formatAddressLine, VietnamAddressPicker } from './VietnamAddressPicker';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -288,9 +288,8 @@ export function CheckoutPage({
     }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) nextErrors.email = 'Email chưa đúng định dạng.';
     if (hasProducts) {
-      if (!formData.city.trim()) nextErrors.city = 'Vui lòng nhập Tỉnh/TP.';
-      if (!formData.district.trim()) nextErrors.district = 'Vui lòng nhập Quận/Huyện.';
-      if (!formData.ward.trim()) nextErrors.ward = 'Vui lòng nhập Phường/Xã.';
+      if (!formData.city.trim()) nextErrors.city = 'Vui lòng chọn Tỉnh/TP.';
+      if (!formData.ward.trim()) nextErrors.ward = 'Vui lòng chọn Phường/Xã.';
       if (!formData.address.trim()) nextErrors.address = 'Vui lòng nhập địa chỉ chi tiết.';
     }
     setErrors(nextErrors);
@@ -458,7 +457,7 @@ export function CheckoutPage({
                   {savedAddressSuggestions.map((address, index) => (
                     <button key={`${address.address}-${index}`} type="button" onClick={() => setFormData(address)} className="rounded-[14px] border border-[#E5CDBA] bg-white p-4 text-left text-sm leading-6 hover:border-[#716942]">
                       <span className="block font-bold">{address.note || `Địa chỉ ${index + 1}`}</span>
-                      {address.address}, {address.ward}, {address.district}, {address.city}
+                      {formatAddressLine(address)}
                     </button>
                   ))}
                 </div>
@@ -534,7 +533,6 @@ export function CheckoutPage({
                       }}
                       errors={{
                         city: errors.city,
-                        district: errors.district,
                         ward: errors.ward,
                         address: errors.address,
                       }}

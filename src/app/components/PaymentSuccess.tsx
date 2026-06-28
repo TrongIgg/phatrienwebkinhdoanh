@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { CheckCircle, Download, Mail, QrCode, Search } from 'lucide-react';
 import { useProductCart, type OrderData } from '../contexts/ProductCartContext';
 import { AssetImage, CheckoutShell, products, workshopImages } from './DesignPrimitives';
+import { formatAddressLine } from './VietnamAddressPicker';
 
 const fallbackOrder: OrderData = {
   orderCode: 'THO-826491',
@@ -213,7 +214,7 @@ export function PaymentSuccess() {
                 <h2 className="text-lg font-bold text-black">Thông tin giao hàng</h2>
                 <p className="mt-2 text-sm leading-6 text-[#6A4A3D]">
                   {order.customer.name} · {order.customer.phone}<br />
-                  {order.customer.address}, {order.customer.ward}, {order.customer.district}, {order.customer.city}
+                  {formatAddressLine(order.customer)}
                 </p>
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   {productItems.map((item) => (
