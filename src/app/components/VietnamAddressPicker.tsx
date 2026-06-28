@@ -105,13 +105,16 @@ export function VietnamAddressPicker({
     );
   }
 
+  const fieldLabelClass =
+    'mb-1.5 block min-h-[2.75rem] text-sm font-semibold leading-snug text-[#2B211D]';
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-4 md:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-4">
       {/* 1. Tỉnh / Thành phố */}
       <div className="flex flex-col">
-        <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
-          Tỉnh / Thành phố <span className="text-red-600">*</span>
+        <label className={fieldLabelClass}>
+          Tỉnh / Thành phố<span className="whitespace-nowrap text-red-600"> *</span>
         </label>
         <div className="relative">
           <select
@@ -153,8 +156,8 @@ export function VietnamAddressPicker({
 
       {/* 2. Quận / Huyện */}
       <div className="flex flex-col">
-        <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
-          Quận / Huyện <span className="text-red-600">*</span>
+        <label className={fieldLabelClass}>
+          Quận / Huyện<span className="whitespace-nowrap text-red-600"> *</span>
         </label>
         <input
           type="text"
@@ -175,8 +178,8 @@ export function VietnamAddressPicker({
 
       {/* 3. Phường / Xã */}
       <div className="flex flex-col">
-        <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
-          Phường / Xã <span className="text-red-600">*</span>
+        <label className={fieldLabelClass}>
+          Phường / Xã<span className="whitespace-nowrap text-red-600"> *</span>
         </label>
         <div className="relative">
           <select
@@ -210,8 +213,8 @@ export function VietnamAddressPicker({
 
       {/* 4. Số nhà, tên đường */}
       <div className="flex flex-col">
-        <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
-          Số nhà, tên đường <span className="text-red-600">*</span>
+        <label className={fieldLabelClass}>
+          Số nhà, tên đường<span className="whitespace-nowrap text-red-600"> *</span>
         </label>
         <input
           type="text"
