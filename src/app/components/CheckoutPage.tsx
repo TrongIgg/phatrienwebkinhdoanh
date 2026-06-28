@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useSearchParams } from 'react-router';
-import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, TimerReset, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, Tag, TimerReset, X } from 'lucide-react';
 import { useProductCart, type CheckoutAddress } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
@@ -161,6 +161,9 @@ export function CheckoutPage({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [now, setNow] = useState(Date.now());
+  const [voucherInput, setVoucherInput] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountPercent: number } | null>(null);
+  const [voucherError, setVoucherError] = useState('');
 
   const [formData, setFormData] = useState<CheckoutAddress>(() => {
     const customer = readCustomerSession();
@@ -291,7 +294,9 @@ export function CheckoutPage({
   const checkoutSubtotal = (hasWorkshopCheckout ? checkoutWorkshopTotal : 0) + (hasProducts ? checkoutProductTotal : 0);
   const giftFee = checkoutProductItems.filter((item) => item.gift).reduce((sum, item) => sum + 50000 * (item.quantity || 1), 0);
   const shippingFee = hasProducts ? 35000 : 0;
-  const payableTotal = checkoutSubtotal + giftFee + shippingFee;
+  const preDiscountTotal = checkoutSubtotal + giftFee + shippingFee;
+  const discountAmount = appliedVoucher ? Math.round(preDiscountTotal * appliedVoucher.discountPercent / 100) : 0;
+  const payableTotal = preDiscountTotal - discountAmount;
 
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
   const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
@@ -519,6 +524,28 @@ export function CheckoutPage({
               </div>
             )}
 
+            {/* Demo voucher suggestion */}
+            <div className="mb-7 rounded-[16px] border border-dashed border-[#716942]/40 bg-[#F9F3ED] p-4">
+              <p className="mb-2 text-sm font-bold text-[#361F17]">🎟️ Mã giảm giá dành cho bạn</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setVoucherInput('THO10');
+                  setAppliedVoucher({ code: 'THO10', discountPercent: 10 });
+                  setVoucherError('');
+                }}
+                className={`w-full rounded-[10px] border px-4 py-3 text-left text-sm transition-colors ${
+                  appliedVoucher?.code === 'THO10'
+                    ? 'border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]'
+                    : 'border-[#E5CDBA] bg-white text-[#361F17] hover:border-[#716942]'
+                }`}
+              >
+                <span className="block font-bold">THO10</span>
+                <span className="text-xs text-[#6E4E3F]">Giảm 10% toàn bộ hoá đơn — Nhấn để áp dụng</span>
+                {appliedVoucher?.code === 'THO10' && <span className="mt-1 block text-xs font-bold text-[#16a34a]">✓ Đã áp dụng</span>}
+              </button>
+            </div>
+
             {checkoutHasCustomProducts && (
               <div className="mb-7 rounded-[16px] border border-[#C96B37]/35 bg-[#FFF8F2] p-5 text-[#6E4E3F]">
                 <p className="font-bold text-[#2B211D]">Đơn custom cần nghệ nhân xác nhận</p>
@@ -599,6 +626,12 @@ export function CheckoutPage({
                 <SummaryLine label="Tạm tính" value={checkoutSubtotal} />
                 {giftFee > 0 && <SummaryLine label="Phí quà tặng" value={giftFee} highlight />}
                 <SummaryLine label="Phí vận chuyển" value={shippingFee} />
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-lg">
+                    <span className="text-[#16a34a] font-semibold">Giảm giá ({appliedVoucher?.code})</span>
+                    <span className="text-[#16a34a] font-semibold">-{discountAmount.toLocaleString('vi-VN')}đ</span>
+                  </div>
+                )}
                 <SummaryLine label="Tổng" value={payableTotal} strong />
               </div>
               <div className="mt-8 space-y-4 border-t border-[#E2E2E2] pt-6">
@@ -642,6 +675,55 @@ export function CheckoutPage({
                 <PaymentChoice method="momo" active={paymentMethod === 'momo'} onClick={() => setPaymentMethod('momo')} />
                 <PaymentChoice method="vnpay" active={paymentMethod === 'vnpay'} onClick={() => setPaymentMethod('vnpay')} />
               </div>
+            </section>
+
+            {/* Voucher input */}
+            <section className="rounded-[14px] border border-black/10 bg-white p-8 shadow-sm">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Tag className="h-5 w-5 text-[#716942]" />
+                Mã voucher
+              </h2>
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  value={voucherInput}
+                  onChange={(e) => { setVoucherInput(e.target.value.toUpperCase()); setVoucherError(''); }}
+                  placeholder="Nhập mã giảm giá"
+                  className="h-11 flex-1 rounded-lg border border-[#949494] px-4 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#716942]/30"
+                />
+                {appliedVoucher ? (
+                  <button
+                    type="button"
+                    onClick={() => { setAppliedVoucher(null); setVoucherInput(''); setVoucherError(''); }}
+                    className="rounded-lg bg-[#DC2626] px-5 text-sm font-bold text-white hover:bg-[#B91C1C] transition-colors"
+                  >
+                    Huỷ
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = voucherInput.trim();
+                      if (!code) { setVoucherError('Vui lòng nhập mã voucher.'); return; }
+                      if (code === 'THO10') {
+                        setAppliedVoucher({ code: 'THO10', discountPercent: 10 });
+                        setVoucherError('');
+                      } else {
+                        setVoucherError('Mã voucher không hợp lệ hoặc đã hết hạn.');
+                      }
+                    }}
+                    className="rounded-lg bg-[#716942] px-5 text-sm font-bold text-white hover:bg-[#5d5635] transition-colors"
+                  >
+                    Áp dụng
+                  </button>
+                )}
+              </div>
+              {voucherError && <p className="mt-2 text-sm text-[#DC2626]">{voucherError}</p>}
+              {appliedVoucher && (
+                <p className="mt-3 flex items-center gap-2 rounded-lg bg-[#f0fdf4] px-4 py-2.5 text-sm font-semibold text-[#16a34a]">
+                  ✓ Mã <span className="font-bold">{appliedVoucher.code}</span> — Giảm {appliedVoucher.discountPercent}% (-{discountAmount.toLocaleString('vi-VN')}đ)
+                </p>
+              )}
             </section>
           </aside>
         </form>
