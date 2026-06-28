@@ -107,9 +107,9 @@ export function VietnamAddressPicker({
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-4 md:grid-cols-4">
       {/* 1. Tỉnh / Thành phố */}
-      <div>
+      <div className="flex flex-col">
         <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
           Tỉnh / Thành phố <span className="text-red-600">*</span>
         </label>
@@ -152,7 +152,7 @@ export function VietnamAddressPicker({
       </div>
 
       {/* 2. Quận / Huyện */}
-      <div>
+      <div className="flex flex-col">
         <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
           Quận / Huyện <span className="text-red-600">*</span>
         </label>
@@ -174,7 +174,7 @@ export function VietnamAddressPicker({
       </div>
 
       {/* 3. Phường / Xã */}
-      <div>
+      <div className="flex flex-col">
         <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
           Phường / Xã <span className="text-red-600">*</span>
         </label>
@@ -209,7 +209,7 @@ export function VietnamAddressPicker({
       </div>
 
       {/* 4. Số nhà, tên đường */}
-      <div>
+      <div className="flex flex-col">
         <label className="mb-1.5 block text-sm font-semibold text-[#2B211D]">
           Số nhà, tên đường <span className="text-red-600">*</span>
         </label>
