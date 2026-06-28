@@ -37,7 +37,7 @@ type CheckoutItem = {
   date?: string;
   time?: string;
   image?: string;
-  gift?: { occasion: string; includeWrapping: boolean; giftNote: string };
+  gift?: { occasion: string; includeWrapping: boolean; giftNote: string; personalNote: string };
   custom?: {
     shape: string;
     glaze: string;
@@ -289,8 +289,9 @@ export function CheckoutPage({
   const hasWorkshopCheckout = includesWorkshops && checkoutWorkshopItems.length > 0;
   const hasProducts = includesProducts && checkoutProductItems.length > 0;
   const checkoutSubtotal = (hasWorkshopCheckout ? checkoutWorkshopTotal : 0) + (hasProducts ? checkoutProductTotal : 0);
+  const giftFee = checkoutProductItems.filter((item) => item.gift).reduce((sum, item) => sum + 50000 * (item.quantity || 1), 0);
   const shippingFee = hasProducts ? 35000 : 0;
-  const payableTotal = checkoutSubtotal + shippingFee;
+  const payableTotal = checkoutSubtotal + giftFee + shippingFee;
 
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
   const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
@@ -596,6 +597,7 @@ export function CheckoutPage({
               <h2 className="text-2xl font-bold uppercase text-[#252323]">Thông tin đơn hàng</h2>
               <div className="mt-8 space-y-4">
                 <SummaryLine label="Tạm tính" value={checkoutSubtotal} />
+                {giftFee > 0 && <SummaryLine label="Phí quà tặng" value={giftFee} highlight />}
                 <SummaryLine label="Phí vận chuyển" value={shippingFee} />
                 <SummaryLine label="Tổng" value={payableTotal} strong />
               </div>
@@ -610,9 +612,17 @@ export function CheckoutPage({
                           {item.type === 'workshop' ? `${item.date} · ${item.time}` : `Số lượng: ${item.quantity}`}
                         </p>
                         {item.type === 'product' && item.gift && (
-                          <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
-                            Quà tặng · {item.gift.occasion} · {item.gift.includeWrapping ? 'Có giấy gói' : 'Không gói quà'}
-                          </p>
+                          <div className="mt-2 space-y-1">
+                            <p className="rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
+                              🎁 Quà tặng · {item.gift.occasion} · {item.gift.includeWrapping ? 'Có giấy gói' : 'Không gói quà'} · <span className="font-bold text-[#DC2626]">+50.000đ</span>
+                            </p>
+                            {item.gift.giftNote && (
+                              <p className="px-3 text-xs text-[#8B765D]">💌 "{item.gift.giftNote}"</p>
+                            )}
+                            {item.gift.personalNote && (
+                              <p className="px-3 text-xs text-[#8B765D]">📝 Thêm: {item.gift.personalNote}</p>
+                            )}
+                          </div>
                         )}
                         {item.type === 'product' && item.custom && (
                           <p className="mt-2 rounded-md bg-[#FFF1E8] px-3 py-2 text-xs leading-5 text-[#6E4E3F]">
@@ -720,11 +730,11 @@ function Field({
   );
 }
 
-function SummaryLine({ label, value, strong = false }: { label: string; value: number; strong?: boolean }) {
+function SummaryLine({ label, value, strong = false, highlight = false }: { label: string; value: number; strong?: boolean; highlight?: boolean }) {
   return (
     <div className={`flex justify-between ${strong ? 'text-2xl font-bold' : 'text-lg'}`}>
       <span>{label}</span>
-      <span>{value.toLocaleString('vi-VN')}đ</span>
+      <span className={highlight ? 'text-[#DC2626] font-semibold' : ''}>{value.toLocaleString('vi-VN')}đ</span>
     </div>
   );
 }

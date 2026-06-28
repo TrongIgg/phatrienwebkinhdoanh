@@ -21,13 +21,17 @@ type GiftDraft = {
   occasion: string;
   includeWrapping: boolean;
   giftNote: string;
+  personalNote: string;
 };
 
 const defaultGiftDraft: GiftDraft = {
   occasion: 'Sinh nhật',
   includeWrapping: true,
   giftNote: '',
+  personalNote: '',
 };
+
+const GIFT_WRAPPING_FEE = 50000;
 
 export function ProductDetailPage({
   onNavigateToCart,
@@ -148,6 +152,7 @@ export function ProductDetailPage({
         occasion: giftDraft.occasion,
         includeWrapping: giftDraft.includeWrapping,
         giftNote: giftDraft.giftNote.trim().slice(0, 100),
+        personalNote: giftDraft.personalNote.trim().slice(0, 200),
       },
     });
 
@@ -219,53 +224,89 @@ export function ProductDetailPage({
                 </div>
                 <span className="text-sm text-[#7A6A58]">Còn {product.stockQty} sản phẩm</span>
               </div>
-              <div className="mt-8 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-5">
-                <label className="flex items-center gap-3 font-bold text-[#361F17]">
+              <div className={`mt-8 rounded-xl border-2 transition-all duration-300 ${
+                isGift
+                  ? 'border-[#DC2626]/30 bg-gradient-to-br from-[#FFF5F5] to-[#FFF8F2] shadow-[0_2px_12px_rgba(220,38,38,0.08)]'
+                  : 'border-[#EFD8C7] bg-[#FFF8F2]'
+              } p-5`}>
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isGift}
                     onChange={(event) => setIsGift(event.target.checked)}
-                    className="h-5 w-5 accent-[#716942]"
+                    className="h-5 w-5 accent-[#DC2626]"
                   />
-                  <span>Đây là quà tặng</span>
+                  <Gift className={`h-5 w-5 transition-colors ${isGift ? 'text-[#DC2626]' : 'text-[#716942]'}`} />
+                  <span className={`font-bold transition-colors ${isGift ? 'text-[#DC2626]' : 'text-[#361F17]'}`}>Đây là quà tặng</span>
+                  {isGift && (
+                    <span className="ml-auto rounded-full bg-[#DC2626]/10 px-3 py-1 text-xs font-bold text-[#DC2626]">+50.000đ phí gói quà</span>
+                  )}
                 </label>
                 {isGift && (
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div className="mt-5 space-y-4">
+                    {/* Row 1: Occasion + Wrapping */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="block">
+                        <span className="mb-2 block text-sm font-bold text-[#361F17]">🎉 Dịp tặng</span>
+                        <select
+                          value={giftDraft.occasion}
+                          onChange={(event) => setGiftDraft({ ...giftDraft, occasion: event.target.value })}
+                          className="h-11 w-full rounded-lg border border-[#E5CDBA] bg-white px-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#DC2626]/30"
+                        >
+                          <option>Sinh nhật</option>
+                          <option>Tân gia</option>
+                          <option>Kỷ niệm</option>
+                          <option>Lễ tốt nghiệp</option>
+                          <option>Quà cảm ơn</option>
+                          <option>Valentine</option>
+                          <option>Giáng sinh</option>
+                          <option>Khác</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-3 self-end rounded-lg border border-[#E5CDBA] bg-white px-4 py-3 text-sm font-bold cursor-pointer hover:bg-[#FFF8F2] transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={giftDraft.includeWrapping}
+                          onChange={(event) => setGiftDraft({ ...giftDraft, includeWrapping: event.target.checked })}
+                          className="h-4 w-4 accent-[#DC2626]"
+                        />
+                        <span>🎀 Thêm giấy gói quà</span>
+                      </label>
+                    </div>
+
+                    {/* Separator */}
+                    <div className="border-t border-dashed border-[#E5CDBA]" />
+
+                    {/* Gift note for recipient */}
                     <label className="block">
-                      <span className="mb-2 block text-sm font-bold">Dịp tặng</span>
-                      <select
-                        value={giftDraft.occasion}
-                        onChange={(event) => setGiftDraft({ ...giftDraft, occasion: event.target.value })}
-                        className="h-11 w-full rounded-lg border border-[#C0AC8B] bg-white px-4"
-                      >
-                        <option>Sinh nhật</option>
-                        <option>Tân gia</option>
-                        <option>Kỷ niệm</option>
-                        <option>Lễ tốt nghiệp</option>
-                        <option>Quà cảm ơn</option>
-                      </select>
-                    </label>
-                    <label className="flex items-center gap-3 self-end rounded-lg border border-[#E5CDBA] bg-white px-4 py-3 text-sm font-bold">
-                      <input
-                        type="checkbox"
-                        checked={giftDraft.includeWrapping}
-                        onChange={(event) => setGiftDraft({ ...giftDraft, includeWrapping: event.target.checked })}
-                        className="h-4 w-4 accent-[#716942]"
-                      />
-                      <span>Thêm giấy gói quà</span>
-                    </label>
-                    <label className="block md:col-span-2">
-                      <span className="mb-2 block text-sm font-bold">Ghi chú cho người nhận (tùy chọn, tối đa 100 ký tự)</span>
+                      <span className="mb-2 block text-sm font-bold text-[#361F17]">💌 Lời nhắn gửi người nhận <span className="font-normal text-[#8B765D]">(tối đa 100 ký tự)</span></span>
                       <textarea
                         value={giftDraft.giftNote}
                         maxLength={100}
                         onChange={(event) => setGiftDraft({ ...giftDraft, giftNote: event.target.value })}
-                        className="min-h-[86px] w-full rounded-lg border border-[#C0AC8B] bg-white px-4 py-3"
+                        className="min-h-[80px] w-full rounded-lg border border-[#E5CDBA] bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#DC2626]/30"
                         placeholder="Ví dụ: Chúc mừng sinh nhật, mong bạn thích món gốm nhỏ này."
                       />
+                      <span className="mt-1 block text-right text-xs text-[#8B765D]">{giftDraft.giftNote.length}/100</span>
                     </label>
-                    <p className="md:col-span-2 text-sm leading-6 text-[#6A5D52]">
-                      Địa chỉ giao hàng sẽ được nhập một lần ở checkout. THỔ không tách địa chỉ người nhận riêng trong bản demo này.
+
+                    {/* Personal note - what to add to the gift */}
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-bold text-[#361F17]">📝 Bạn muốn thêm gì cho phần quà? <span className="font-normal text-[#8B765D]">(tùy chọn)</span></span>
+                      <textarea
+                        value={giftDraft.personalNote}
+                        maxLength={200}
+                        onChange={(event) => setGiftDraft({ ...giftDraft, personalNote: event.target.value })}
+                        className="min-h-[80px] w-full rounded-lg border border-[#E5CDBA] bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#DC2626]/30"
+                        placeholder="Ví dụ: Thêm thiệp viết tay, hoa khô, ruy-băng đỏ, hộp gỗ..."
+                      />
+                      <span className="mt-1 block text-right text-xs text-[#8B765D]">{giftDraft.personalNote.length}/200</span>
+                    </label>
+
+                    {/* Info note */}
+                    <p className="flex items-start gap-2 rounded-lg bg-[#DC2626]/5 px-4 py-3 text-xs leading-5 text-[#6A5D52]">
+                      <Gift className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#DC2626]" />
+                      Phí quà tặng 50.000đ bao gồm đóng gói đặc biệt và thiệp tặng. Địa chỉ giao hàng sẽ nhập ở bước thanh toán.
                     </p>
                   </div>
                 )}

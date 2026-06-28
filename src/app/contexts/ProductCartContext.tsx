@@ -13,6 +13,7 @@ export type ProductItem = {
     occasion: string;
     includeWrapping: boolean;
     giftNote: string;
+    personalNote: string;
   };
   custom?: {
     shape: string;
