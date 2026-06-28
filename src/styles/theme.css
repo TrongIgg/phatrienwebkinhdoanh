@@ -23,7 +23,8 @@
   --input: transparent;
   --input-background: #ffffff;
   --switch-background: #C0AC8B;
-  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-weight-medium: 600;
   --font-weight-normal: 400;
   --ring: #716942;
   --chart-1: #716942;
@@ -69,7 +70,8 @@ h3 {
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
   --ring: oklch(0.439 0 0);
-  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-weight-medium: 600;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -152,43 +154,51 @@ h3 {
   }
 
   h1 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 32px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1.4;
   }
 
   h2 {
-    font-size: var(--text-xl);
+    font-size: 24px;
     font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
   h3 {
-    font-size: var(--text-lg);
+    font-size: 18px;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
-  h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
+  p {
+    font-size: 16px;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.6;
+  }
+
+  small {
+    font-size: 14px;
+    font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
 
-  label {
-    font-size: var(--text-base);
+  label, .standard-label {
+    font-size: 12px;
     font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
     line-height: 1.5;
   }
 
   button {
-    font-size: var(--text-base);
+    font-size: 16px;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   input {
-    font-size: var(--text-base);
+    font-size: 16px;
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
