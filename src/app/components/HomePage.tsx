@@ -91,14 +91,14 @@ export function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#26140E]/62 via-transparent to-[#26140E]/18" />
 
           <div className="relative z-10 flex min-h-[460px] max-w-[760px] flex-col justify-center">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#FBEEE5]/12 px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] text-[#F3D4BE]">
+            <span className="standard-label inline-flex w-fit items-center gap-2 rounded-full bg-[#FBEEE5]/12 px-4 py-2 text-[#F3D4BE]">
               <Sparkles className="h-4 w-4" />
               Trải nghiệm gốm thủ công
             </span>
-            <h1 className="mt-6 text-[clamp(2.8rem,6vw,5.4rem)] font-semibold leading-[0.98] tracking-normal">
+            <h1 className="mt-6 text-5xl font-bold leading-tight tracking-normal md:text-7xl">
               THỔ Studio
             </h1>
-            <p className="mt-5 max-w-[700px] text-[clamp(1.35rem,2.5vw,2.6rem)] font-light leading-tight text-[#F8E5D4]">
+            <p className="mt-5 max-w-[700px] text-xl leading-relaxed text-[#F8E5D4] md:text-2xl">
               Một lát cắt chậm của đất, nước, bàn tay và ký ức.
             </p>
             <p className="mt-6 max-w-[560px] text-base leading-7 text-[#FBEEE5]/82 lg:text-lg">
@@ -116,7 +116,7 @@ export function HomePage() {
 
       <section className="mx-auto grid max-w-[1440px] gap-12 px-6 py-24 lg:grid-cols-[520px_1fr] lg:px-20">
         <div>
-          <h2 className="text-[64px] font-bold leading-none text-[#3F3F35]">Workshop tại THỔ</h2>
+          <h2 className="text-4xl font-bold leading-tight text-[#3F3F35] md:text-5xl">Workshop tại THỔ</h2>
           <div className="mt-14 grid grid-cols-2 gap-5">
             <AssetImage src={workshopImages.hero} alt="Bàn xoay gốm thủ công" className="h-[190px] rounded-[18px]" />
             <AssetImage src={workshopImages.wheelBw} alt="Tạo hình gốm trên bàn xoay" className="h-[249px] rounded-[18px]" />
@@ -125,7 +125,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="pt-12 text-right lg:pt-32">
-          <p className="text-xl font-light leading-9 lg:text-2xl lg:leading-[39px]">
+          <p className="text-lg leading-relaxed md:text-xl">
             THỔ là không gian để bạn chạm vào đất sét, thử tạo hình và trang trí món đồ gốm mang dấu ấn cá nhân. Dù là lần đầu,
             bạn vẫn được nghệ nhân hướng dẫn từng bước và có thể theo dõi thành phẩm sau buổi học.
           </p>
@@ -140,8 +140,8 @@ export function HomePage() {
               ['Theo dõi thành phẩm', 'Xem tiến độ qua từng giai đoạn phơi khô, nung, tráng men và sẵn sàng nhận sản phẩm.'],
             ].map(([title, text]) => (
               <div key={title} className="text-left">
-                <h3 className="mb-6 text-[26px] font-semibold">{title}</h3>
-                <p className="text-2xl font-light leading-7">{text}</p>
+                <h3 className="mb-4 text-2xl font-semibold">{title}</h3>
+                <p className="text-base leading-relaxed">{text}</p>
               </div>
             ))}
           </div>
@@ -149,7 +149,7 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-5 py-16">
-        <h2 className="mb-12 text-center text-[52px] font-semibold leading-none text-[#361F17]">Hành trình tại THỔ</h2>
+        <h2 className="mb-12 text-center text-4xl font-bold leading-tight text-[#361F17] md:text-5xl">Hành trình tại THỔ</h2>
         <div className="rounded-[20px] bg-[#716942] px-8 py-20 shadow-md">
           <div className="grid gap-10 md:grid-cols-5">
             {journey.map(([type, label], index) => (
@@ -160,7 +160,7 @@ export function HomePage() {
                 <div className="relative z-10 flex h-[106px] w-[106px] items-center justify-center rounded-full bg-[#FBEEE5]">
                   <JourneyIcon type={type} />
                 </div>
-                <h3 className="mt-8 text-[26px] font-semibold text-[#C0AC8B]">{label}</h3>
+                <h3 className="mt-8 text-xl font-semibold text-[#C0AC8B]">{label}</h3>
               </div>
             ))}
           </div>
@@ -170,10 +170,10 @@ export function HomePage() {
       <section className="mt-20 bg-[#C0AC8B] py-20">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 lg:grid-cols-[540px_1fr] lg:px-14">
           <div>
-            <h2 className="text-[64px] font-bold leading-none text-[#361F17]">About THỔ</h2>
-            <h3 className="mt-16 text-[50px] font-medium leading-none text-[#361F17]">THỔ - Nơi đất trở thành ký ức</h3>
+            <h2 className="text-4xl font-bold leading-tight text-[#361F17] md:text-5xl">About THỔ</h2>
+            <h3 className="mt-12 text-3xl font-semibold leading-tight text-[#361F17] md:text-4xl">THỔ - Nơi đất trở thành ký ức</h3>
             <ProgressRule light className="mt-6 max-w-[642px] opacity-20" />
-            <p className="mt-10 text-2xl font-light leading-[39px] text-white">
+            <p className="mt-10 text-lg leading-relaxed text-white">
               THỔ được tạo nên từ mong muốn mang gốm thủ công đến gần hơn với đời sống hiện đại.
               Giữa nhịp sống vội vã, THỔ mở ra một không gian để mỗi người chậm lại, chạm vào đất
               và tự tay tạo nên món gốm mang dấu ấn riêng.
@@ -188,14 +188,14 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-6 py-24 lg:px-16">
-        <h2 className="mb-9 text-[52px] font-semibold leading-none">Vì sao nên chọn THỔ</h2>
+        <h2 className="mb-9 text-4xl font-bold leading-tight md:text-5xl">Vì sao nên chọn THỔ</h2>
         <div className="grid gap-5 md:grid-cols-4">
           {whyChoose.map((item) => {
             const Icon = item.icon;
             return (
               <div key={item.label} className="flex h-[159px] flex-col items-center justify-center bg-[#361F17] text-[#FBEEE5]">
                 <Icon className="mb-5 h-12 w-12" />
-                <h3 className="text-center text-[26px] font-semibold leading-7">{item.label}</h3>
+                <h3 className="text-center text-xl font-semibold leading-tight">{item.label}</h3>
               </div>
             );
           })}
@@ -208,7 +208,7 @@ export function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-6 py-20 lg:px-16">
         <div className="mb-16 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-[64px] font-bold leading-none text-[#643A2A]">Lựa chọn trải nghiệm của bạn</h2>
+          <h2 className="text-4xl font-bold leading-tight text-[#643A2A] md:text-5xl">Lựa chọn trải nghiệm của bạn</h2>
           <Link to="/workshop"><PillButton variant="outline">Xem tất cả</PillButton></Link>
         </div>
         <div className="grid gap-7 md:grid-cols-3">
@@ -216,7 +216,7 @@ export function HomePage() {
             <article key={workshop.id} className="workshop-card overflow-hidden rounded-[19px] bg-white shadow-[0_19px_47px_rgba(119,115,170,0.1)]">
               <div className="relative">
                 <AssetImage src={workshop.image} alt={workshop.name} className="h-[157px] rounded-t-[19px]" />
-                <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#C96B37] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white">
+                <span className="standard-label absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#C96B37] px-3 py-1 text-white">
                   <Flame className="h-3.5 w-3.5" />
                   {workshopBadges[workshop.id] ?? 'Gợi ý từ studio'}
                 </span>
@@ -224,7 +224,7 @@ export function HomePage() {
               <div className="grid grid-cols-[52px_1fr] gap-4 p-5">
                   <div className="text-center">
                   <p className="text-xs font-bold text-[#3D37F1]">{workshop.day}</p>
-                  <p className="text-[28px] font-bold leading-8 text-black">{workshop.date}</p>
+                  <p className="text-3xl font-bold leading-8 text-black">{workshop.date}</p>
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-black">{workshop.name}</h3>
@@ -242,7 +242,7 @@ export function HomePage() {
 
       <section className="mx-auto grid max-w-[1440px] gap-8 px-6 py-14 lg:grid-cols-[520px_1fr] lg:px-10">
         <div>
-          <h2 className="mb-6 text-[42px] font-bold leading-none text-[#361F17]">Khoảnh khắc tại THỔ</h2>
+          <h2 className="mb-6 text-3xl font-bold leading-tight text-[#361F17] md:text-4xl">Khoảnh khắc tại THỔ</h2>
           <div className="grid grid-cols-[1.05fr_0.95fr] gap-4">
             <AssetImage src={workshopImages.detailBw} alt="Khoảnh khắc tỉ mỉ tại THỔ" className="h-[300px] rounded-[18px]" />
             <div className="grid gap-4">
@@ -252,20 +252,20 @@ export function HomePage() {
           </div>
         </div>
         <div>
-          <h2 className="mb-6 text-right text-[42px] font-bold leading-none text-[#361F17]">Khách hàng nói gì?</h2>
+          <h2 className="mb-6 text-right text-3xl font-bold leading-tight text-[#361F17] md:text-4xl">Khách hàng nói gì?</h2>
           <ReviewStrip limit={3} />
         </div>
       </section>
 
       <section className="bg-[#3F3F35] py-16 text-[#FBEEE5]">
         <div className="mx-auto max-w-[1440px] px-6">
-          <h2 className="mb-12 text-center text-[64px] font-bold leading-none">Một số sản phẩm</h2>
+          <h2 className="mb-12 text-center text-4xl font-bold leading-tight md:text-5xl">Một số sản phẩm</h2>
           <div className="grid gap-6 md:grid-cols-4">
             {products.map((product) => (
               <article key={product.id} className="product-card overflow-hidden rounded-[19px] bg-white text-black">
                 <div className="relative">
                   <AssetImage src={product.image} alt={product.name} className="h-[157px] rounded-t-[19px] overflow-hidden" />
-                  <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#FBEEE5] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#361F17] shadow-sm">
+                  <span className="standard-label absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#FBEEE5] px-3 py-1 text-[#361F17] shadow-sm">
                     <Flame className="h-3.5 w-3.5 text-[#C96B37]" />
                     {productBadges[product.id] ?? 'Hot'}
                   </span>
@@ -306,10 +306,10 @@ export function HomePage() {
           <AssetImage src={productImages.tealVase} alt="Sản phẩm gốm thủ công" className="absolute inset-y-0 right-0 hidden h-full w-[48%] rounded-[30px] opacity-95 lg:block" imgClassName="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#EFE2D6] via-[#EFE2D6]/92 to-[#EFE2D6]/18" />
           <div className="relative z-10 max-w-[880px]">
-            <h2 className="max-w-[1101px] text-[50px] font-semibold leading-[1.08] text-[#3F3F35] md:text-[68px] xl:text-[74px]">
+            <h2 className="max-w-[1101px] text-4xl font-bold leading-tight text-[#3F3F35] md:text-5xl lg:text-6xl">
               Sẵn sàng bắt đầu hành trình làm gốm cùng THỔ?
             </h2>
-            <p className="mt-10 max-w-[795px] text-2xl leading-[39px] text-[#3F3F35]">
+            <p className="mt-10 max-w-[795px] text-xl leading-relaxed text-[#3F3F35]">
               Lựa chọn trải nghiệm workshop và đặt lịch ngay để cùng THỔ tự tay làm ra những món đồ gốm mang dấu ấn của bạn!
             </p>
             <div className="mt-14 flex flex-wrap gap-10">

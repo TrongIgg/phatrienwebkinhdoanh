@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Hinh 4.14 - Component Library tong hop cua THO Studio</title>
+  <desc id="desc">Anh tong hop cac thanh phan UI gom buttons, cards, input fields, timeline steps va info tiles.</desc>
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#361F17" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .bg { fill: #FBEEE5; }
+      .surface { fill: #FFF9F3; stroke: #E5D3C2; stroke-width: 2; }
+      .surface2 { fill: #F5F1ED; stroke: #E2D4C8; stroke-width: 2; }
+      .title { font: 700 42px Arial, sans-serif; fill: #361F17; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #8B765D; }
+      .section { font: 700 24px Arial, sans-serif; fill: #361F17; }
+      .label { font: 700 18px Arial, sans-serif; fill: #361F17; }
+      .body { font: 400 16px Arial, sans-serif; fill: #6E5A4C; }
+      .small { font: 400 14px Arial, sans-serif; fill: #8B765D; }
+      .buttonText { font: 700 17px Arial, sans-serif; fill: #FFFFFF; }
+      .buttonTextDark { font: 700 17px Arial, sans-serif; fill: #361F17; }
+      .mono { font: 700 15px Arial, sans-serif; fill: #716942; letter-spacing: 0.5px; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1100" class="bg"/>
+  <circle cx="1390" cy="140" r="120" fill="#EFE2D6" opacity="0.75"/>
+  <circle cx="120" cy="1010" r="150" fill="#F5F1ED" opacity="0.9"/>
+
+  <text x="90" y="95" class="title">THỔ Studio Component Library</text>
+  <text x="90" y="132" class="subtitle">Buttons · Cards · Input fields · Timeline steps · Info tiles</text>
+
+  <g transform="translate(90 180)" filter="url(#softShadow)">
+    <rect width="1420" height="830" rx="28" fill="#FFF8F0" stroke="#E0CAB8" stroke-width="2"/>
+  </g>
+
+  <!-- Buttons -->
+  <g transform="translate(130 230)">
+    <text x="0" y="0" class="section">Buttons</text>
+    <rect x="0" y="32" width="220" height="56" rx="14" fill="#643A2A"/>
+    <text x="44" y="68" class="buttonText">Đặt workshop</text>
+    <rect x="240" y="32" width="185" height="56" rx="14" fill="#716942"/>
+    <text x="282" y="68" class="buttonText">Mua ngay</text>
+    <rect x="445" y="32" width="190" height="56" rx="14" fill="#FBEEE5" stroke="#643A2A" stroke-width="2"/>
+    <text x="488" y="68" class="buttonTextDark">Xem chi tiết</text>
+
+    <rect x="0" y="115" width="56" height="56" rx="14" fill="#361F17"/>
+    <text x="19" y="151" class="buttonText">+</text>
+    <rect x="72" y="115" width="56" height="56" rx="14" fill="#C96B37"/>
+    <text x="90" y="151" class="buttonText">!</text>
+    <rect x="144" y="115" width="56" height="56" rx="14" fill="#F5F1ED" stroke="#D8C6B7" stroke-width="2"/>
+    <text x="163" y="151" class="buttonTextDark">↗</text>
+    <text x="230" y="148" class="small">Icon buttons dùng cho thao tác nhanh trong dashboard và tracker.</text>
+  </g>
+
+  <!-- Cards -->
+  <g transform="translate(130 450)">
+    <text x="0" y="0" class="section">Cards</text>
+    <g transform="translate(0 34)">
+      <rect width="300" height="250" rx="18" class="surface"/>
+      <rect x="20" y="20" width="260" height="120" rx="14" fill="#E8D4C2"/>
+      <circle cx="72" cy="80" r="34" fill="#C96B37" opacity="0.85"/>
+      <path d="M125 112 C165 64, 216 60, 260 118 L260 140 L20 140 L20 122 C52 92, 84 92, 125 112Z" fill="#716942" opacity="0.65"/>
+      <text x="20" y="172" class="label">Workshop Tạc Gốm</text>
+      <text x="20" y="200" class="body">2 giờ · Còn 3/10 slot</text>
+      <rect x="20" y="216" width="112" height="28" rx="14" fill="#FFE7DA"/>
+      <text x="38" y="236" class="small" fill="#C96B37">Sắp đầy</text>
+    </g>
+    <g transform="translate(330 34)">
+      <rect width="300" height="250" rx="18" class="surface"/>
+      <rect x="20" y="20" width="260" height="120" rx="14" fill="#EFE2D6"/>
+      <ellipse cx="150" cy="85" rx="70" ry="42" fill="#8B765D" opacity="0.55"/>
+      <ellipse cx="150" cy="76" rx="48" ry="22" fill="#FBEEE5"/>
+      <text x="20" y="172" class="label">Ly men Celadon</text>
+      <text x="20" y="200" class="body">280.000đ · Còn hàng</text>
+      <rect x="20" y="216" width="122" height="28" rx="14" fill="#E8ECD8"/>
+      <text x="38" y="236" class="small" fill="#716942">Bán chạy</text>
+    </g>
+  </g>
+
+  <!-- Inputs -->
+  <g transform="translate(820 230)">
+    <text x="0" y="0" class="section">Input fields</text>
+    <rect x="0" y="32" width="520" height="70" rx="16" class="surface"/>
+    <text x="24" y="62" class="small">Họ tên khách hàng</text>
+    <text x="24" y="88" class="body">Minh Anh</text>
+
+    <rect x="0" y="126" width="250" height="70" rx="16" class="surface"/>
+    <text x="24" y="156" class="small">Số điện thoại</text>
+    <text x="24" y="182" class="body">0901 234 567</text>
+
+    <rect x="270" y="126" width="250" height="70" rx="16" class="surface"/>
+    <text x="294" y="156" class="small">Số vé</text>
+    <text x="294" y="182" class="body">02 người</text>
+
+    <rect x="0" y="220" width="520" height="88" rx="16" class="surface2"/>
+    <text x="24" y="250" class="small">Ghi chú ý tưởng</text>
+    <text x="24" y="278" class="body">Làm cốc đôi màu be, có họa tiết mèo nhỏ.</text>
+  </g>
+
+  <!-- Timeline -->
+  <g transform="translate(820 595)">
+    <text x="0" y="0" class="section">Timeline steps</text>
+    <line x1="26" y1="58" x2="26" y2="295" stroke="#D8C6B7" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="26" cy="58" r="18" fill="#716942"/>
+    <path d="M17 58 L23 66 L37 48" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="64" y="64" class="label">Đã tạo hình</text>
+    <text x="64" y="91" class="small">Khách hoàn thành phôi gốm tại workshop</text>
+
+    <circle cx="26" cy="140" r="20" fill="#FFF8F0" stroke="#716942" stroke-width="5"/>
+    <circle cx="26" cy="140" r="8" fill="#716942"/>
+    <text x="64" y="146" class="label">Đang phơi khô</text>
+    <text x="64" y="173" class="small">Staff cập nhật ảnh thực tế từ xưởng</text>
+
+    <circle cx="26" cy="222" r="17" fill="#FFF8F0" stroke="#CDBBAE" stroke-width="4" stroke-dasharray="6 6"/>
+    <text x="64" y="228" class="label">Chờ nung sơ</text>
+    <text x="64" y="255" class="small">Được gom vào mẻ nung phù hợp</text>
+
+    <circle cx="26" cy="304" r="17" fill="#FFF8F0" stroke="#CDBBAE" stroke-width="4" stroke-dasharray="6 6"/>
+    <text x="64" y="310" class="label">Sẵn sàng nhận</text>
+    <text x="64" y="337" class="small">Khách chọn nhận tại xưởng hoặc giao tận nhà</text>
+  </g>
+
+  <!-- Info Tiles -->
+  <g transform="translate(130 790)">
+    <text x="0" y="0" class="section">Info tiles</text>
+    <g transform="translate(0 32)">
+      <rect width="255" height="120" rx="18" fill="#F5F1ED" stroke="#E0CAB8" stroke-width="2"/>
+      <text x="24" y="42" class="mono">BOOKING</text>
+      <text x="24" y="76" class="label">12 ca hôm nay</text>
+      <text x="24" y="102" class="small">3 ca cần xác nhận</text>
+    </g>
+    <g transform="translate(280 32)">
+      <rect width="255" height="120" rx="18" fill="#F2E9DC" stroke="#E0CAB8" stroke-width="2"/>
+      <text x="24" y="42" class="mono">TRACKER</text>
+      <text x="24" y="76" class="label">48 sản phẩm</text>
+      <text x="24" y="102" class="small">9 món đang nung</text>
+    </g>
+    <g transform="translate(560 32)">
+      <rect width="255" height="120" rx="18" fill="#FFE7DA" stroke="#E9C2AA" stroke-width="2"/>
+      <text x="24" y="42" class="mono" fill="#C96B37">QC ALERT</text>
+      <text x="24" y="76" class="label">2 lỗi men</text>
+      <text x="24" y="102" class="small">Cần phản hồi khách</text>
+    </g>
+    <g transform="translate(840 32)">
+      <rect width="255" height="120" rx="18" fill="#E8ECD8" stroke="#CDD5AA" stroke-width="2"/>
+      <text x="24" y="42" class="mono">REVIEW</text>
+      <text x="24" y="76" class="label">4.8/5 sao</text>
+      <text x="24" y="102" class="small">86 đánh giá tháng này</text>
+    </g>
+  </g>
+
+  <text x="130" y="1045" class="subtitle">Hình 4.14 - Component Library tổng hợp: minh họa tính nhất quán và khả năng tái sử dụng của hệ thống thiết kế.</text>
+</svg>

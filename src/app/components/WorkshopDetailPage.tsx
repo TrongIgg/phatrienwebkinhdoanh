@@ -7,12 +7,13 @@ import {
   Clock,
   CreditCard,
   ShieldCheck,
+  Sparkles,
   UserRound,
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
-import { AssetImage, workshopImages } from './DesignPrimitives';
+import { AssetImage, DatabaseConnectionViz, workshopImages } from './DesignPrimitives';
 import { fallbackWorkshops, mapWorkshop, type WorkshopView } from './WorkshopPage';
 
 export type WorkshopBookingPayload = {
@@ -138,6 +139,9 @@ export function WorkshopDetailPage({
               ⚡ Chỉ còn {workshop.slots.available} chỗ — đặt ngay để không mất slot!
             </p>
           )}
+
+          {/* ── Why this package? Advisory script ──────────── */}
+          <WhyThisPackage workshopType={workshop.workshopType} audience={workshop.audience} />
 
           {/* ── Inline Booking Form ──────────────────────────── */}
           <form
@@ -302,6 +306,9 @@ export function WorkshopDetailPage({
             </div>
           ))}
         </div>
+        <div className="mt-16">
+          <DatabaseConnectionViz />
+        </div>
       </section>
     </div>
   );
@@ -328,3 +335,95 @@ function Info({
     </div>
   );
 }
+
+/* ── Advisory scripts per workshop type ─────────────────────────── */
+
+const packageScripts: Record<string, { title: string; paragraphs: string[]; bestFor: string }> = {
+  basic: {
+    title: 'Bước đầu tiên trên hành trình gốm',
+    paragraphs: [
+      'Gói cơ bản là lựa chọn lý tưởng nếu bạn lần đầu chạm đất sét. Bạn sẽ được hướng dẫn từng bước: từ cách nhào đất, tạo dáng bằng tay, đến vuốt mép và để lại dấu vân tay riêng trên sản phẩm.',
+      'Không cần kinh nghiệm, không sợ "làm hỏng" — vì mỗi vết nứt, mỗi nét xiên đều là một phần của câu chuyện. Nghệ nhân sẽ đi cùng bạn cả buổi.',
+    ],
+    bestFor: 'Người mới bắt đầu, muốn thử cảm giác nặn gốm thủ công lần đầu.',
+  },
+  painting: {
+    title: 'Cho những ai yêu màu sắc',
+    paragraphs: [
+      'Nếu bạn thích vẽ, thích pha màu, thích sự bất ngờ khi men chảy trong lò nung — gói trang trí men màu dành cho bạn.',
+      'Bạn sẽ nhận phôi gốm đã nung mộc sẵn, chọn bảng men yêu thích, rồi thoải mái vẽ hoa văn, chữ viết hoặc hình tự do. Sau khi nung men, màu sắc sẽ "sống dậy" hoàn toàn khác — và đó chính là điều kỳ diệu của gốm.',
+    ],
+    bestFor: 'Người yêu nghệ thuật, thích trang trí, hoặc muốn tạo món quà cá nhân hóa.',
+  },
+  combo: {
+    title: 'Hai người, hai tác phẩm, một kỷ niệm',
+    paragraphs: [
+      'Gói combo dành cho hai người đi cùng — bạn thân, người yêu hoặc đồng nghiệp thân thiết. Mỗi người làm một sản phẩm riêng, nhưng cùng ngồi một bàn, cùng chia sẻ khoảng thời gian chậm lại giữa nhịp sống vội.',
+      'Workshop không chỉ là làm gốm — mà còn là lý do để hai bạn ngồi xuống, tập trung vào hiện tại, và tạo ra thứ gì đó bằng chính đôi tay mình.',
+    ],
+    bestFor: 'Cặp đôi, bạn thân, hoặc hai người muốn có trải nghiệm chung đáng nhớ.',
+  },
+  family: {
+    title: 'Khoảng lặng gia đình giữa thành phố',
+    paragraphs: [
+      'Workshop gia đình được thiết kế chậm hơn, có trợ giảng kèm trẻ nhỏ, và góc chụp ảnh thành phẩm cuối buổi. Bố mẹ và con cùng nhau nặn đất, cùng bẩn tay, cùng cười.',
+      'Thay vì một chủ nhật quanh quẩn với màn hình, hãy tặng gia đình một buổi chạm vào thứ gì đó thật — bằng đất, bằng nước, và bằng những đôi tay nhỏ xíu đang háo hức.',
+    ],
+    bestFor: 'Gia đình có trẻ em từ 5 tuổi, muốn hoạt động gắn kết thực tế.',
+  },
+  premium: {
+    title: 'Dành cho người muốn đi sâu hơn',
+    paragraphs: [
+      'Gói premium không chỉ là "làm gốm nâng cao". Bạn sẽ có bàn xoay riêng, thời lượng dài hơn, và nghệ nhân đi sát từng chi tiết: cách đặt tay, lực ấn, góc nghiêng khi vuốt dáng trên bàn xoay.',
+      'Đây là gói phù hợp nếu bạn đã thử qua gốm cơ bản và muốn thử thách bản thân, hoặc đơn giản là bạn thích sự tập trung cao độ, thích "flow state" khi đôi tay hoàn toàn chìm vào đất.',
+    ],
+    bestFor: 'Người đã có trải nghiệm gốm, hoặc muốn trải nghiệm bàn xoay chuyên nghiệp.',
+  },
+  tea: {
+    title: 'Nghệ thuật trong một chén trà nhỏ',
+    paragraphs: [
+      'Gói chén trà là sự kết hợp giữa thủ công và thiền: bạn nặn một chiếc chén vừa tay, học cách nhìn men sữa chảy tự nhiên, và hiểu vì sao mỗi chiếc chén trà thủ công không bao giờ giống nhau.',
+      'Sau buổi workshop, bạn sẽ không chỉ mang về một chiếc chén — mà còn mang về cách nhìn mới: bắt đầu cảm nhận đồ vật bằng tay trước khi bằng mắt.',
+    ],
+    bestFor: 'Người yêu trà, thích sự tối giản, hoặc muốn trải nghiệm mindfulness qua gốm.',
+  },
+  sculpture: {
+    title: 'Tạo hình tự do, không giới hạn',
+    paragraphs: [
+      'Gói tượng gốm mini dành cho những ai thích sáng tạo không theo khuôn mẫu. Bạn có thể nặn con vật nhỏ, mô hình nhà, đám mây, hoặc bất cứ ký hiệu nào có ý nghĩa riêng với bạn.',
+      'Nghệ nhân sẽ hướng dẫn kỹ thuật nặn chi tiết, cách tạo kết cấu bề mặt, và cách giữ tỷ lệ. Nhưng ý tưởng? Hoàn toàn thuộc về bạn.',
+    ],
+    bestFor: 'Người thích sáng tạo tự do, trẻ em lớn, hoặc muốn tạo vật phẩm kỷ niệm riêng.',
+  },
+};
+
+function WhyThisPackage({ workshopType, audience }: { workshopType: string; audience: string }) {
+  const script = packageScripts[workshopType] ?? packageScripts.basic;
+
+  return (
+    <div className="mt-6 rounded-xl border border-[#E5CDBA] bg-gradient-to-br from-[#FFF8F2] to-[#FBF0E4] p-6">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#716942]/10">
+          <Sparkles className="h-4 w-4 text-[#716942]" />
+        </span>
+        <h3 className="text-lg font-bold text-[#3B2118]">Tại sao nên chọn gói này?</h3>
+      </div>
+
+      <h4 className="mb-3 text-base font-bold text-[#643A2A]">{script.title}</h4>
+
+      <div className="space-y-3">
+        {script.paragraphs.map((p, i) => (
+          <p key={i} className="text-sm leading-7 text-[#6A5D52]">{p}</p>
+        ))}
+      </div>
+
+      <div className="mt-5 flex items-start gap-2 rounded-lg bg-[#716942]/8 px-4 py-3">
+        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#716942]" />
+        <p className="text-sm font-semibold text-[#361F17]">
+          <span className="text-[#716942]">Phù hợp nhất với:</span> {script.bestFor}
+        </p>
+      </div>
+    </div>
+  );
+}
+

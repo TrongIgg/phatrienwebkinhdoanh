@@ -271,20 +271,17 @@ export function ProductDetailPage({
                 )}
               </div>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8">
                 <button
                   onClick={() => isGift ? addGiftToCart() : addToCart(false)}
-                  className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-7 py-4 font-bold transition-colors ${
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 font-bold text-lg transition-all duration-300 ${
                     isGift
-                      ? 'bg-[#DC2626] text-white hover:bg-[#B91C1C]'
-                      : 'border border-[#716942] text-[#716942] hover:bg-[#716942] hover:text-white'
+                      ? 'bg-[#DC2626] text-white hover:bg-[#B91C1C] shadow-[0_4px_20px_rgba(220,38,38,0.35)]'
+                      : 'bg-[#716942] text-white hover:bg-[#5a5434] shadow-[0_4px_20px_rgba(113,105,66,0.3)]'
                   }`}
                 >
                   {isGift ? <Gift className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
-                  {isGift ? 'Thêm vào giỏ quà tặng' : 'Thêm vào giỏ'}
-                </button>
-                <button onClick={() => addToCart(true)} className="flex-1 rounded-full bg-[#716942] px-7 py-4 font-bold text-white hover:opacity-90">
-                  Mua ngay
+                  {isGift ? 'Giỏ hàng quà tặng' : 'Thêm vào giỏ hàng'}
                 </button>
               </div>
             </>
