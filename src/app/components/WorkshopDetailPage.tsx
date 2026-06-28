@@ -100,7 +100,7 @@ export function WorkshopDetailPage({
     <div className="min-h-screen bg-[#FBEEE5] text-[#361F17]">
       {/* ── Hero Detail ─────────────────────────────────────── */}
       <section className="mx-auto grid max-w-[1440px] gap-10 px-6 py-14 lg:grid-cols-[0.95fr_1fr] lg:px-20">
-        {/* Left – Image */}
+        {/* Left – Image + Advisory */}
         <div>
           <button
             onClick={() => navigate('/workshop')}
@@ -109,7 +109,10 @@ export function WorkshopDetailPage({
             <ArrowLeft className="h-4 w-4" />
             Workshop
           </button>
-          <AssetImage src={workshop.image} alt={workshop.name} className="aspect-[4/4.4] rounded-lg" loading="eager" />
+          <AssetImage src={workshop.image} alt={workshop.name} className="aspect-[4/3.8] rounded-lg" loading="eager" />
+
+          {/* ── Why this package? Advisory script ──────────── */}
+          <WhyThisPackage workshopType={workshop.workshopType} audience={workshop.audience} />
         </div>
 
         {/* Right – Info + inline booking form */}
@@ -140,8 +143,7 @@ export function WorkshopDetailPage({
             </p>
           )}
 
-          {/* ── Why this package? Advisory script ──────────── */}
-          <WhyThisPackage workshopType={workshop.workshopType} audience={workshop.audience} />
+
 
           {/* ── Inline Booking Form ──────────────────────────── */}
           <form
