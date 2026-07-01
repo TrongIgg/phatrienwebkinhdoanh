@@ -240,7 +240,7 @@ export function CheckoutPage({
   const payableTotal = preDiscountTotal - discountAmount;
 
   const savedAddressSuggestions = useMemo(() => (typeof window === 'undefined' ? [] : readSavedAddresses()), []);
-  const contactReadonly = isWorkshopCheckout && !hasProducts && checkoutWorkshopItems.length > 0;
+  const contactReadonly = false;
 
   const workshopHoldExpiresAt = checkoutWorkshopItems.reduce<number | null>((nearest, item) => {
     if (!nearest) return item.reservedUntil;
@@ -501,7 +501,7 @@ export function CheckoutPage({
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="font-bold text-[#2B211D]">Xác nhận thông tin đặt chỗ</p>
-                      <p className="mt-1 text-sm">Kiểm tra lại thông tin bên dưới. Nếu cần chỉnh sửa, bấm nút quay lại.</p>
+                      <p className="mt-1 text-sm">Kiểm tra lại thông tin bên dưới (có thể sửa trực tiếp). Nếu cần thay đổi số lượng vé, bấm nút quay lại.</p>
                     </div>
                     {workshopHoldExpiresAt && (
                       <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#716942]">
