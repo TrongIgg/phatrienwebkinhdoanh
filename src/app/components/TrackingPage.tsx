@@ -483,31 +483,33 @@ export function TrackingPage({
                             </div>
                             <p className="text-xs text-muted-foreground truncate mt-0.5">{record.title}</p>
                           </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setTrackingCode(record.code);
-                                setResult(record);
-                                setTrackingType(record.tracking_type);
-                                setSubmitted(true);
-                                setLoading(false);
-                                setError('');
-                              }}
-                              className="text-xs bg-[#716942]/10 text-[#716942] hover:bg-[#716942]/20 font-bold px-3 py-1.5 rounded-lg transition-colors"
-                            >
-                              Xem
-                            </button>
-                            {!isRecordCancelled && (
+                          {customer && (
+                            <div className="flex items-center gap-2 ml-4">
                               <button
                                 type="button"
-                                onClick={() => handleCancelClick(record)}
-                                className="text-xs bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                                onClick={() => {
+                                  setTrackingCode(record.code);
+                                  setResult(record);
+                                  setTrackingType(record.tracking_type);
+                                  setSubmitted(true);
+                                  setLoading(false);
+                                  setError('');
+                                }}
+                                className="text-xs bg-[#716942]/10 text-[#716942] hover:bg-[#716942]/20 font-bold px-3 py-1.5 rounded-lg transition-colors"
                               >
-                                Hủy
+                                Xem
                               </button>
-                            )}
-                          </div>
+                              {!isRecordCancelled && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCancelClick(record)}
+                                  className="text-xs bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  Hủy
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -1081,19 +1083,32 @@ function SimpleTrackingResult({
                       {isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
                     </button>
                   )}
-                  {((isOrder && (result.status === 'delivered' || result.timeline?.some(step => step.stage === 'delivered' && step.state === 'done'))) ||
-                    (!isOrder && (result.checkin_status === 'checked_in' || result.status === 'completed'))) && (
-                    <Link
-                      to={`/review?targetType=${isOrder ? 'product' : 'workshop'}&code=${result.code}`}
-                      className="text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-4 py-1.5 transition-colors text-center inline-flex items-center gap-1 shadow-sm"
-                    >
-                      ✍️ Đánh giá trải nghiệm
-                    </Link>
-                  )}
                 </div>
               )}
             </div>
           </div>
+
+          {/* Prominent banner if order is delivered or workshop is completed */}
+          {!isCancelled && result && ((isOrder && (result.status === 'delivered' || result.timeline?.some(step => step.stage === 'delivered' && step.state === 'done'))) ||
+            (!isOrder && (result.checkin_status === 'checked_in' || result.status === 'completed'))) && (
+            <div className="mb-6 rounded-lg bg-[#EFE2D6] p-4 border border-[#C0AC8B]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
+              <div>
+                <p className="font-bold text-sm text-[#361F17]">
+                  {isOrder ? '✨ Đơn hàng đã giao thành công!' : '✨ Bạn đã hoàn thành workshop!'}
+                </p>
+                <p className="text-xs text-[#716942] mt-0.5">
+                  {isOrder ? 'Hãy để lại nhận xét đánh giá về sản phẩm gốm mộc của THỔ nhé.' : 'Hãy để lại nhận xét đánh giá về buổi học nặn gốm tại THỔ nhé.'}
+                </p>
+              </div>
+              <Link
+                to={`/review?targetType=${isOrder ? 'product' : 'workshop'}&code=${result.code}`}
+                className="shrink-0 text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-5 py-2.5 transition-colors inline-flex items-center gap-1.5 shadow-sm justify-center"
+              >
+                ✍️ Đánh giá ngay
+              </Link>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {isOrder ? (
               <>
