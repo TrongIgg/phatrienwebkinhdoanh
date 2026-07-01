@@ -91,6 +91,58 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
       { stage: 'ready', label: 'Sẵn sàng nhận', state: 'done' }
     ],
     items: []
+  },
+  'WS-67157855': {
+    code: 'WS-67157855',
+    tracking_type: 'workshop',
+    status: 'completed',
+    title: 'Vé Workshop Xoay Gốm Trải Nghiệm',
+    message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 28/06/2026. Cảm ơn bạn đã ghé thăm THỔ Studio!',
+    manager_name: 'Anh Quân',
+    participant_count: 1,
+    checkin_status: 'checked_in',
+    timeline: [
+      { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+      { stage: 'qr_sent', label: 'Đã gửi mã check-in', state: 'done' },
+      { stage: 'checked_in', label: 'Đã check-in & hoàn thành', state: 'done' }
+    ],
+    items: [
+      { id: 'item-ws1', name: 'Vé Workshop Xoay Gốm Trải Nghiệm', type: 'workshop', date: '28/06/2026', time: '09:00', tickets: 1, price: 450000, image: '' }
+    ]
+  },
+  'ORD-66470040': {
+    code: 'ORD-66470040',
+    tracking_type: 'order',
+    status: 'delivered',
+    title: 'Đơn hàng Ly gốm mộc & Đĩa lót gốm',
+    message: 'Đơn hàng đã giao thành công vào ngày 27/06/2026.',
+    manager_name: 'Chị Linh',
+    timeline: [
+      { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+      { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+      { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+      { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+    ],
+    items: [
+      { id: 'item-p1', name: 'Ly gốm mộc THỔ', type: 'product', price: 180000, quantity: 1, image: '' }
+    ]
+  },
+  'ORD-42710995': {
+    code: 'ORD-42710995',
+    tracking_type: 'order',
+    status: 'delivered',
+    title: 'Đơn hàng Chậu cây cảnh mini',
+    message: 'Đơn hàng đã giao thành công vào ngày 26/06/2026.',
+    manager_name: 'Chị Linh',
+    timeline: [
+      { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+      { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+      { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+      { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+    ],
+    items: [
+      { id: 'item-p2', name: 'Chậu cây cảnh mini gốm nung', type: 'product', price: 120000, quantity: 1, image: '' }
+    ]
   }
 };
 
