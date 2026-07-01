@@ -610,25 +610,19 @@ function CeramicTrackingExperience({ code, result }: { code: string; result: Api
             <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>{trackingCode}</span>
               <span className="rounded-full bg-[#e8d5a6] px-2 py-1 text-[#7a6520]">{result?.status || 'bisque_firing'}</span>
+              {isCeramicReady && (
+                <Link
+                  to={`/review?targetType=workshop&code=${trackingCode}`}
+                  className="text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-3 py-1 transition-colors text-center inline-flex items-center gap-1 shadow-sm animate-fade-in"
+                >
+                  ✍️ Đánh giá trải nghiệm
+                </Link>
+              )}
               {media.some((item) => item.is_new) && <span className="rounded-full bg-[#F4E4D8] px-2 py-1 text-[#643A2A]">Staff vừa cập nhật ảnh mới</span>}
             </div>
             <h2 className="text-2xl text-foreground">{result?.title || 'Sản phẩm gốm của bạn'}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{result?.message || 'Studio đang cập nhật hành trình thành phẩm.'}</p>
             {result?.manager_name && <p className="mt-2 text-sm text-primary">Nhân viên phụ trách: {result.manager_name}</p>}
-            {isCeramicReady && (
-              <div className="mt-4 rounded-lg bg-[#EFE2D6] p-4 border border-[#C0AC8B]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
-                <div>
-                  <p className="font-bold text-sm text-[#361F17]">✨ Thành phẩm gốm đã sẵn sàng nhận!</p>
-                  <p className="text-xs text-[#716942] mt-0.5">Hãy để lại nhận xét đánh giá về trải nghiệm làm gốm và thành phẩm nhé.</p>
-                </div>
-                <Link
-                  to={`/review?targetType=workshop&code=${trackingCode}`}
-                  className="shrink-0 text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-4 py-2 transition-colors inline-flex items-center gap-1.5 shadow-sm justify-center"
-                >
-                  ✍️ Nhận xét ngay
-                </Link>
-              </div>
-            )}
           </div>
 
           <div className="rounded-lg border border-border bg-card p-6">
@@ -1097,26 +1091,7 @@ function SimpleTrackingResult({
             </div>
           </div>
 
-          {/* Prominent banner if order is delivered or workshop is completed */}
-          {!isCancelled && result && ((isOrder && (result.status === 'delivered' || result.timeline?.some(step => step.stage === 'delivered' && step.state === 'done'))) ||
-            (!isOrder && (result.checkin_status === 'checked_in' || result.status === 'completed'))) && (
-            <div className="mb-6 rounded-lg bg-[#EFE2D6] p-4 border border-[#C0AC8B]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
-              <div>
-                <p className="font-bold text-sm text-[#361F17]">
-                  {isOrder ? '✨ Đơn hàng đã giao thành công!' : '✨ Bạn đã hoàn thành workshop!'}
-                </p>
-                <p className="text-xs text-[#716942] mt-0.5">
-                  {isOrder ? 'Hãy để lại nhận xét đánh giá về sản phẩm gốm mộc của THỔ nhé.' : 'Hãy để lại nhận xét đánh giá về buổi học nặn gốm tại THỔ nhé.'}
-                </p>
-              </div>
-              <Link
-                to={`/review?targetType=${isOrder ? 'product' : 'workshop'}&code=${result.code}`}
-                className="shrink-0 text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-5 py-2.5 transition-colors inline-flex items-center gap-1.5 shadow-sm justify-center"
-              >
-                ✍️ Đánh giá ngay
-              </Link>
-            </div>
-          )}
+
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {isOrder ? (
