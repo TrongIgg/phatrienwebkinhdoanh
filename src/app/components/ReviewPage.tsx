@@ -1,63 +1,45 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { MessageSquare, Star, ThumbsUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { api, type ApiReview } from '../lib/api';
-import { reviews as seedReviews } from './DesignPrimitives';
+import { useSearchParams } from 'react-router';
+import {
+  readLocalReviews,
+  saveLocalReviews,
+  addLocalReview,
+  addReviewReply,
+  type ViewReview,
+  type ReviewReply,
+} from '../lib/reviewStorage';
 import {
   CUSTOMER_SESSION_EVENT,
   readCustomerSession,
-  saveReviewNotification,
+  type CustomerSession,
 } from '../lib/customerExperience';
 
 type ReviewTarget = 'product' | 'workshop';
 
-type ViewReview = {
-  id: string;
-  targetType: ReviewTarget;
-  name: string;
-  title?: string;
-  comment: string;
-  rating: number;
-  date: string;
-  helpful: number;
-  studioReply?: string;
-};
-
-const fallbackReviews: ViewReview[] = seedReviews.map((review, index) => ({
-  id: `seed-${index}`,
-  targetType: index === 1 ? 'workshop' : 'product',
-  name: review.name,
-  title: review.title,
-  comment: review.comment,
-  rating: review.rating,
-  date: review.date,
-  helpful: 12 + index * 3,
-  studioReply: index % 2 === 0
-    ? 'Cảm ơn bạn đã ghé THỔ. Studio đã ghi nhận cảm nhận này để nghệ nhân chuẩn bị lớp và đóng gói tốt hơn trong các đơn sau.'
-    : undefined,
-}));
-
-function mapReview(review: ApiReview): ViewReview {
-  return {
-    id: String(review.review_id),
-    targetType: review.target_type,
-    name: review.name,
-    title: review.title,
-    comment: review.comment,
-    rating: review.rating,
-    date: review.created_at ? new Date(review.created_at).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
-    helpful: 0,
-  };
-}
-
 export function ReviewPage() {
-  const [reviews, setReviews] = useState<ViewReview[]>(fallbackReviews);
+  const [searchParams] = useSearchParams();
+  const urlTargetType = searchParams.get('targetType') as 'product' | 'workshop' | null;
+  const urlCode = searchParams.get('code')?.trim() ?? '';
+
+  const [reviews, setReviews] = useState<ViewReview[]>(() => readLocalReviews());
+  const [customer, setCustomer] = useState<CustomerSession | null>(() => readCustomerSession());
   const [draft, setDraft] = useState(() => {
-    const customer = readCustomerSession();
-    return { name: customer?.display_name ?? '', title: '', comment: '', rating: 5, targetType: 'product' as ReviewTarget };
+    const cust = readCustomerSession();
+    return {
+      name: cust?.display_name ?? '',
+      title: urlCode ? `Đánh giá cho mã ${urlCode}` : '',
+      comment: '',
+      rating: 5,
+      targetType: urlTargetType ?? ('product' as const),
+    };
   });
+  
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyName, setReplyName] = useState(() => customer?.display_name ?? '');
   const [replyText, setReplyText] = useState('');
+  
   const [helpedReviewIds, setHelpedReviewIds] = useState<string[]>(() => {
     try {
       return JSON.parse(window.localStorage.getItem('tho-helpful-review-ids') ?? '[]') as string[];
@@ -66,21 +48,28 @@ export function ReviewPage() {
     }
   });
 
+  // Sync reviews from storage changes (e.g. from staff page replies)
   useEffect(() => {
-    api.reviews()
-      .then((rows) => setReviews(rows.map(mapReview)))
-      .catch(() => setReviews(fallbackReviews));
+    const syncReviews = () => setReviews(readLocalReviews());
+    window.addEventListener('tho-reviews-changed', syncReviews);
+    return () => window.removeEventListener('tho-reviews-changed', syncReviews);
   }, []);
 
+  // Sync customer session
   useEffect(() => {
-    const syncCustomerName = () => {
-      const customer = readCustomerSession();
-      if (customer) {
-        setDraft((current) => ({ ...current, name: current.name.trim() ? current.name : customer.display_name }));
+    const syncCustomer = () => {
+      const cust = readCustomerSession();
+      setCustomer(cust);
+      if (cust) {
+        setDraft((current) => ({
+          ...current,
+          name: current.name.trim() ? current.name : cust.display_name,
+        }));
+        setReplyName(cust.display_name);
       }
     };
-    window.addEventListener(CUSTOMER_SESSION_EVENT, syncCustomerName);
-    return () => window.removeEventListener(CUSTOMER_SESSION_EVENT, syncCustomerName);
+    window.addEventListener(CUSTOMER_SESSION_EVENT, syncCustomer);
+    return () => window.removeEventListener(CUSTOMER_SESSION_EVENT, syncCustomer);
   }, []);
 
   const submitReview = async (event: FormEvent) => {
@@ -91,55 +80,41 @@ export function ReviewPage() {
     }
     const commentTitle = draft.title.trim() || draft.comment.trim().slice(0, 46);
 
-    const optimistic: ViewReview = {
-      id: `local-${Date.now()}`,
+    addLocalReview({
       targetType: draft.targetType,
       name: draft.name,
       title: commentTitle,
       comment: draft.comment,
       rating: draft.rating,
-      date: new Date().toLocaleDateString('vi-VN'),
-      helpful: 0,
-    };
-
-    setReviews((current) => [optimistic, ...current]);
-    setDraft({ name: '', title: '', comment: '', rating: 5, targetType: 'product' });
-    saveReviewNotification({
-      id: `review-${Date.now()}`,
-      customer: optimistic.name,
-      title: optimistic.title || 'Cảm nhận mới',
-      rating: optimistic.rating,
-      targetType: optimistic.targetType,
-      createdAt: new Date().toISOString(),
-      status: optimistic.rating <= 3 ? 'low_rating' : 'new',
     });
+
+    setDraft({ name: customer?.display_name ?? '', title: '', comment: '', rating: 5, targetType: 'product' });
     toast.success('Đã gửi cảm nhận của bạn.');
     window.setTimeout(() => document.getElementById('review-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-
-    try {
-      await api.createReview({
-        name: optimistic.name,
-        title: optimistic.title || '',
-        comment: optimistic.comment,
-        rating: optimistic.rating,
-      });
-    } catch {
-      // Prototype keeps the local review visible when the backend is offline.
-    }
   };
 
-  const addStudioReply = (reviewId: string) => {
-    const trimmed = replyText.trim();
-    if (!trimmed) {
-      toast.error('Vui lòng nhập phản hồi.');
+  const submitReply = (reviewId: string) => {
+    const name = replyName.trim() || (customer ? customer.display_name : 'Khách ẩn danh');
+    const comment = replyText.trim();
+    if (!comment) {
+      toast.error('Vui lòng nhập nội dung phản hồi.');
       return;
     }
-    setReviews((current) => current.map((review) => (
-      review.id === reviewId ? { ...review, studioReply: trimmed } : review
-    )));
-    setReplyText('');
-    setReplyingTo(null);
-    toast.success('Đã thêm phản hồi từ THỔ Studio.');
+    
+    const updated = addReviewReply(reviewId, {
+      name,
+      comment,
+      avatarUrl: customer?.avatar_url,
+    });
+
+    if (updated) {
+      setReviews(readLocalReviews());
+      setReplyText('');
+      setReplyingTo(null);
+      toast.success('Đã gửi câu trả lời của bạn.');
+    } else {
+      toast.error('Không tìm thấy nhận xét để trả lời.');
+    }
   };
 
   const markHelpful = (reviewId: string) => {
@@ -150,9 +125,15 @@ export function ReviewPage() {
     const nextHelped = [...helpedReviewIds, reviewId];
     setHelpedReviewIds(nextHelped);
     window.localStorage.setItem('tho-helpful-review-ids', JSON.stringify(nextHelped));
-    setReviews((current) => current.map((review) => (
-      review.id === reviewId ? { ...review, helpful: review.helpful + 1 } : review
-    )));
+    
+    const updatedReviews = reviews.map((review) => {
+      if (review.id === reviewId) {
+        return { ...review, helpful: review.helpful + 1 };
+      }
+      return review;
+    });
+    setReviews(updatedReviews);
+    saveLocalReviews(updatedReviews);
   };
 
   return (
@@ -185,27 +166,88 @@ export function ReviewPage() {
               <p className="mt-6 font-bold">{review.name}</p>
               <p className="text-sm text-[#8B765D]">{review.date}</p>
 
-              {review.studioReply && (
-                <div className="mt-5 rounded-lg border border-[#C0AC8B]/55 bg-white/70 p-4">
-                  <div className="mb-2 flex items-center gap-2 font-bold text-[#716942]">
-                    <MessageSquare className="h-4 w-4" />
-                    Phản hồi từ THỔ Studio
-                  </div>
-                  <p className="text-sm leading-6 text-[#5F5045]">{review.studioReply}</p>
+              {/* Threaded replies */}
+              {review.replies && review.replies.length > 0 && (
+                <div className="mt-5 space-y-3 border-l-2 border-[#C0AC8B]/40 pl-4">
+                  {review.replies.map((reply) => (
+                    <div 
+                      key={reply.id} 
+                      className={`rounded-xl p-3 text-sm leading-relaxed ${
+                        reply.isStaff 
+                          ? 'border border-[#C0CCB5] bg-[#F4F6F0] shadow-sm' 
+                          : 'border border-[#EFD8C7]/50 bg-white/60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5">
+                          {reply.avatarUrl ? (
+                            <img src={reply.avatarUrl} alt={reply.name} className="h-5 w-5 rounded-full object-cover" />
+                          ) : (
+                            <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${reply.isStaff ? 'bg-[#59612E]' : 'bg-[#716942]'}`}>
+                              {reply.name[0]?.toUpperCase()}
+                            </div>
+                          )}
+                          <span className={`font-bold text-xs ${reply.isStaff ? 'text-[#59612E]' : 'text-[#361F17]'}`}>
+                            {reply.name}
+                          </span>
+                          {reply.isStaff && (
+                            <span className="rounded-full bg-[#E8EAD8] text-[#59612E] text-[9px] font-black px-1.5 py-0.5 uppercase tracking-wide">
+                              THỔ Studio
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[9px] text-muted-foreground">{reply.date}</span>
+                      </div>
+                      <p className="text-xs text-[#5F5045] whitespace-pre-line">{reply.comment}</p>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {replyingTo === review.id ? (
-                <div className="mt-5 rounded-lg border border-[#C0AC8B] bg-white p-3">
+                <div className="mt-5 rounded-lg border border-[#C0AC8B] bg-white p-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    {customer ? (
+                      <>
+                        <img src={customer.avatar_url} alt={customer.display_name} className="h-5 w-5 rounded-full object-cover" />
+                        <span className="text-xs text-[#716942]">Trả lời dưới tên <strong>{customer.display_name}</strong></span>
+                      </>
+                    ) : (
+                      <div className="w-full">
+                        <label className="block text-[10px] font-bold text-[#716942] mb-1">Tên của bạn *</label>
+                        <input
+                          type="text"
+                          required
+                          value={replyName}
+                          onChange={(e) => setReplyName(e.target.value)}
+                          placeholder="Ví dụ: Minh Tuấn"
+                          className="h-8 w-full max-w-[180px] rounded border border-[#EFD8C7] bg-[#FFF8F2] px-2 text-xs outline-none focus:ring-1 focus:ring-[#716942]"
+                        />
+                      </div>
+                    )}
+                  </div>
                   <textarea
+                    required
                     value={replyText}
                     onChange={(event) => setReplyText(event.target.value)}
-                    className="min-h-[86px] w-full rounded-md border border-[#EFD8C7] p-3 outline-none focus:ring-2 focus:ring-[#716942]/25"
-                    placeholder="Nhập phản hồi của studio..."
+                    className="min-h-[86px] w-full rounded-md border border-[#EFD8C7] p-3 text-xs outline-none focus:ring-2 focus:ring-[#716942]/25"
+                    placeholder="Nhập câu trả lời của bạn tại đây..."
                   />
-                  <div className="mt-3 flex gap-3">
-                    <button type="button" onClick={() => addStudioReply(review.id)} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white">Gửi phản hồi</button>
-                    <button type="button" onClick={() => { setReplyingTo(null); setReplyText(''); }} className="rounded-full border border-[#716942] px-5 py-2 text-sm font-bold text-[#716942]">Hủy</button>
+                  <div className="flex gap-2 justify-end">
+                    <button 
+                      type="button" 
+                      onClick={() => { setReplyingTo(null); setReplyText(''); }} 
+                      className="rounded-full border border-[#716942] px-4 py-1 text-xs font-bold text-[#716942] hover:bg-[#EFE2D6]"
+                    >
+                      Hủy
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => submitReply(review.id)} 
+                      className="rounded-full bg-[#716942] px-4 py-1 text-xs font-bold text-white hover:bg-[#595232]"
+                    >
+                      Gửi phản hồi
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -214,7 +256,14 @@ export function ReviewPage() {
                     <ThumbsUp className="h-4 w-4" />
                     {helpedReviewIds.includes(review.id) ? 'Đã hữu ích' : 'Hữu ích'} ({review.helpful})
                   </button>
-                  <button type="button" onClick={() => setReplyingTo(review.id)} className="inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setReplyingTo(review.id);
+                      setReplyName(customer?.display_name ?? '');
+                    }} 
+                    className="inline-flex items-center gap-2 rounded-full border border-[#C0AC8B] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]"
+                  >
                     <MessageSquare className="h-4 w-4" />
                     Trả lời
                   </button>
@@ -226,6 +275,23 @@ export function ReviewPage() {
 
         <form id="review-form" onSubmit={submitReview} className="sticky top-32 scroll-mt-32 rounded-lg border-2 border-[#EFD8C7] bg-[#FFF1E8] p-7">
           <h2 className="text-[30px] font-bold text-[#2B211D]">Viết đánh giá</h2>
+          {urlCode && (
+            <div className="my-3 rounded-lg bg-[#EFE2D6] px-3.5 py-2.5 border border-[#C0AC8B] text-xs text-[#716942] flex items-center justify-between shadow-sm animate-fade-in">
+              <span>Đang viết đánh giá cho mã tra cứu <strong>{urlCode}</strong></span>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setDraft(d => ({ ...d, title: '' }));
+                  const newParams = new URLSearchParams(window.location.search);
+                  newParams.delete('code');
+                  window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+                }}
+                className="underline font-bold text-[#361F17] hover:text-black ml-2 text-[10px]"
+              >
+                Hủy liên kết
+              </button>
+            </div>
+          )}
           <p className="mt-2 text-[#6A5D52]">
             Bạn có thể gửi cảm nhận nhanh, không cần tạo tài khoản. Với đơn đã mua, mã tracking giúp studio đối chiếu khi cần chăm sóc sâu hơn.
           </p>

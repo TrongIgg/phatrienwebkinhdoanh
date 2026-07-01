@@ -1,5 +1,6 @@
-﻿import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
-import { Link, NavLink, Navigate, useLocation, useNavigate } from 'react-router';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { Link, NavLink, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { readLocalReviews, addReviewReply, isComplaint } from '../lib/reviewStorage';
 import {
   AlertTriangle,
   Bell,
@@ -25,6 +26,8 @@ import {
   Search,
   Send,
   ShieldCheck,
+  Star,
+  MessageSquare,
   TrendingUp,
   UploadCloud,
   UserCheck,
@@ -43,7 +46,7 @@ import {
 } from '../lib/customerExperience';
 import { productImages, ProgressRule, workshopImages } from './DesignPrimitives';
 
-type StaffPage = 'dashboard' | 'booking' | 'product' | 'tracking';
+type StaffPage = 'dashboard' | 'booking' | 'product' | 'tracking' | 'reviews';
 type StaffRole = 'staff' | 'admin';
 type BookingStatus = ApiStaffBooking['status'];
 type PaymentStatus = ApiStaffBooking['payment'];
@@ -182,10 +185,11 @@ export function StaffAdminPage() {
       <StaffHeader activePage={page} session={session} base={session.role === 'admin' ? '/admin' : '/staff'} onLogout={() => setSession(null)} />
       <main className="mx-auto max-w-[1440px] px-5 py-9 lg:px-11">
         <StaffDataBanner loading={staffData.loading} error={staffData.error} onRetry={staffData.reload} />
-        {page === 'dashboard' && <DashboardPage bookings={bookings} productJobs={productJobs} dashboard={staffData.dashboard} />}
+        {page === 'dashboard' && <DashboardPage bookings={bookings} productJobs={productJobs} dashboard={staffData.dashboard} base={base} />}
         {page === 'booking' && <BookingPage bookings={bookings} dashboard={staffData.dashboard} />}
         {page === 'product' && <ProductManagementPage role={session.role} productJobs={productJobs} />}
         {page === 'tracking' && <TrackingManagementPage role={session.role} bookings={bookings} trackers={trackers} dashboard={staffData.dashboard} />}
+        {page === 'reviews' && <StaffReviewsPage role={session.role} />}
       </main>
     </div>
   );
@@ -221,6 +225,7 @@ function getStaffPage(pathname: string): StaffPage {
   if (pathname.includes('/booking')) return 'booking';
   if (pathname.includes('/product')) return 'product';
   if (pathname.includes('/tracking')) return 'tracking';
+  if (pathname.includes('/reviews')) return 'reviews';
   return 'dashboard';
 }
 
@@ -312,8 +317,12 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
         { label: 'Booking', to: `${base}/booking`, page: 'booking' as StaffPage },
         { label: 'Sản phẩm', to: `${base}/product`, page: 'product' as StaffPage },
         { label: 'Tracker', to: `${base}/tracking`, page: 'tracking' as StaffPage },
+        { label: 'Review & CSKH', to: `${base}/reviews`, page: 'reviews' as StaffPage },
       ]
-    : [{ label: 'Tracker', to: `${base}/tracking`, page: 'tracking' as StaffPage }];
+    : [
+        { label: 'Tracker', to: `${base}/tracking`, page: 'tracking' as StaffPage },
+        { label: 'Review & CSKH', to: `${base}/reviews`, page: 'reviews' as StaffPage },
+      ];
 
   const logout = () => {
     window.localStorage.removeItem(SESSION_KEY);
@@ -362,7 +371,7 @@ function StaffHeader({ activePage, session, base, onLogout }: { activePage: Staf
   );
 }
 
-function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking[]; productJobs: ProductJob[]; dashboard: ApiStaffDashboard | null }) {
+function DashboardPage({ bookings, productJobs, dashboard, base }: { bookings: Booking[]; productJobs: ProductJob[]; dashboard: ApiStaffDashboard | null; base: string }) {
   const reviewNotifications = readReviewNotifications();
   const selectedBooking = bookings[0];
   const showInDevelopment = () => toast.info('Tính năng đang phát triển.');
@@ -410,7 +419,7 @@ function DashboardPage({ bookings, productJobs, dashboard }: { bookings: Booking
         onCreateTracking={showInDevelopment}
         onExportCsv={exportBookingsCsv}
       />
-      <StaffNotificationPanel notifications={reviewNotifications} />
+      <StaffNotificationPanel notifications={reviewNotifications} base={base} />
       <AnalyticsDashboard bookings={bookings} productJobs={productJobs} dashboard={dashboard} />
       <section className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)]">
         <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -510,16 +519,16 @@ function AdminInteractionPanel({
   );
 }
 
-function StaffNotificationPanel({ notifications }: { notifications: ReturnType<typeof readReviewNotifications> }) {
+function StaffNotificationPanel({ notifications, base }: { notifications: ReturnType<typeof readReviewNotifications>; base: string }) {
   const fallbackNotifications = notifications.length
     ? notifications
     : [
         {
-          id: 'demo-low-rating',
-          customer: 'Khách demo',
-          title: 'Cần phản hồi về lớp men',
+          id: 'notif-seed-0',
+          customer: 'Lê Phương Anh',
+          title: 'Cần phản hồi về đóng gói sản phẩm',
           rating: 3,
-          targetType: 'workshop' as const,
+          targetType: 'product' as const,
           createdAt: new Date().toISOString(),
           status: 'low_rating' as const,
         },
@@ -527,35 +536,48 @@ function StaffNotificationPanel({ notifications }: { notifications: ReturnType<t
   const lowRatings = fallbackNotifications.filter((item) => item.rating <= 3).length;
 
   return (
-    <section className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)]">
+    <section className="rounded-lg bg-white p-6 shadow-[0_12px_30px_rgba(54,31,23,0.06)] animate-fade-in">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="flex items-center gap-3 text-3xl font-bold">
             <Bell className="h-7 w-7 text-[#C96B37]" />
-            Thông báo CSKH
+            Thông báo CSKH & Cảnh báo Nhận xét
           </h2>
           <p className="mt-1 text-[#3F3F35]/75">
-            {fallbackNotifications.length} review cần theo dõi, {lowRatings} review rating thấp.
+            {fallbackNotifications.length} review cần theo dõi, {lowRatings} review cần xử lý gấp.
           </p>
         </div>
-        <Link to="/review#review-list" className="inline-flex h-11 items-center justify-center rounded-lg bg-[#361F17] px-5 font-bold text-white">
-          Trả lời review ngay
+        <Link to={`${base}/reviews`} className="inline-flex h-11 items-center justify-center rounded-lg bg-[#361F17] px-5 font-bold text-white hover:bg-[#5c4238] transition-colors">
+          Quản lý toàn bộ review
         </Link>
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
-        {fallbackNotifications.slice(0, 3).map((item) => (
-          <article key={item.id} className="rounded-lg border border-[#3F3F35]/10 bg-[#F5F1ED] p-4">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <Badge className={item.rating <= 3 ? 'bg-[#FFE3E1] text-[#A33A2F]' : 'bg-[#EFF4D8] text-[#59612E]'}>
-                {item.rating <= 3 ? 'Rating thấp' : 'Review mới'}
-              </Badge>
-              <span className="text-sm font-bold text-[#716942]">{item.rating}/5 sao</span>
-            </div>
-            <p className="font-bold text-[#361F17]">{item.title}</p>
-            <p className="mt-1 text-sm text-[#3F3F35]/75">{item.customer} · {item.targetType === 'product' ? 'Sản phẩm' : 'Workshop'}</p>
-            <p className="mt-3 text-sm text-[#716942]">Chưa có phản hồi từ studio.</p>
-          </article>
-        ))}
+        {fallbackNotifications.slice(0, 3).map((item) => {
+          const reviewId = item.id.replace('notif-', '').replace('review-', '');
+          return (
+            <article key={item.id} className="rounded-lg border border-[#3F3F35]/10 bg-[#F5F1ED] p-4 flex flex-col justify-between">
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <Badge className={item.rating <= 3 ? 'bg-[#FFE3E1] text-[#A33A2F]' : 'bg-[#EFF4D8] text-[#59612E]'}>
+                    {item.rating <= 3 ? '⚠️ Rating thấp / Phàn nàn' : 'Review mới'}
+                  </Badge>
+                  <span className="text-sm font-bold text-[#716942]">{item.rating}/5 sao</span>
+                </div>
+                <p className="font-bold text-[#361F17]">{item.title}</p>
+                <p className="mt-1 text-xs text-[#3F3F35]/75">{item.customer} · {item.targetType === 'product' ? 'Sản phẩm' : 'Workshop'}</p>
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t border-[#3F3F35]/5 pt-3">
+                <span className="text-[10px] text-[#716942] italic">CSKH chưa phản hồi</span>
+                <Link
+                  to={`${base}/reviews?replyTo=${reviewId}`}
+                  className="text-xs bg-[#361F17] text-white hover:bg-[#716942] px-3.5 py-1.5 rounded-lg font-bold transition-all text-center"
+                >
+                  Phản hồi ngay
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -1292,5 +1314,271 @@ function ActionButton({ icon, label, className }: { icon: ReactNode; label: stri
       <span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span>
       {label}
     </button>
+  );
+}
+
+export function StaffReviewsPage({ role }: { role: StaffRole }) {
+  const [searchParams] = useSearchParams();
+  const [reviews, setReviews] = useState(() => readLocalReviews());
+  const [filter, setFilter] = useState<'all' | 'unanswered' | 'complaints'>('all');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [focusedReviewId, setFocusedReviewId] = useState<string | null>(null);
+
+  // Synchronize reviews from localStorage changes
+  useEffect(() => {
+    const handleSync = () => setReviews(readLocalReviews());
+    window.addEventListener('tho-reviews-changed', handleSync);
+    return () => window.removeEventListener('tho-reviews-changed', handleSync);
+  }, []);
+
+  // Handle URL query parameters for direct reply linking
+  useEffect(() => {
+    const replyToParam = searchParams.get('replyTo');
+    if (replyToParam) {
+      setFocusedReviewId(replyToParam);
+      setReplyingTo(replyToParam);
+      
+      const target = readLocalReviews().find((r) => r.id === replyToParam);
+      if (target) {
+        if (target.rating <= 3 || isComplaint(target.comment, target.rating)) {
+          setFilter('complaints');
+        } else if (!target.replies?.some((rep) => rep.isStaff)) {
+          setFilter('unanswered');
+        } else {
+          setFilter('all');
+        }
+      }
+
+      // Smooth scroll to card
+      setTimeout(() => {
+        const element = document.getElementById(`review-card-${replyToParam}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+  }, [searchParams]);
+
+  const handleSendReply = (reviewId: string) => {
+    const text = replyText.trim();
+    if (!text) {
+      toast.error('Vui lòng nhập nội dung phản hồi.');
+      return;
+    }
+
+    const updated = addReviewReply(reviewId, {
+      name: 'THỔ Studio',
+      comment: text,
+      isStaff: true,
+    });
+
+    if (updated) {
+      setReviews(readLocalReviews());
+      setReplyText('');
+      setReplyingTo(null);
+      setFocusedReviewId(null);
+      toast.success('Đã gửi phản hồi chính thức từ THỔ Studio!');
+    } else {
+      toast.error('Gửi phản hồi thất bại.');
+    }
+  };
+
+  // Filter logic
+  const filteredReviews = useMemo(() => {
+    return reviews.filter((review) => {
+      const isLowOrComplaint = review.rating <= 3 || isComplaint(review.comment, review.rating);
+      const isUnanswered = !review.replies?.some((reply) => reply.isStaff);
+      
+      if (filter === 'complaints') return isLowOrComplaint;
+      if (filter === 'unanswered') return isUnanswered;
+      return true;
+    });
+  }, [reviews, filter]);
+
+  return (
+    <div className="space-y-7 animate-fade-in">
+      <PageTitle 
+        title="QUẢN LÝ REVIEW & CSKH" 
+        subtitle="Phản hồi đánh giá của khách hàng chính thức với vai trò THỔ Studio. Theo dõi phàn nàn và xử lý khủng hoảng rating." 
+      />
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 bg-white p-4 rounded-xl border border-[#3F3F35]/15 shadow-sm">
+        <button
+          onClick={() => setFilter('all')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${
+            filter === 'all' ? 'bg-[#361F17] text-white' : 'bg-[#F5F1ED] text-[#361F17] hover:bg-[#EFE2D6]'
+          }`}
+        >
+          Tất cả review ({reviews.length})
+        </button>
+        <button
+          onClick={() => setFilter('unanswered')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${
+            filter === 'unanswered' ? 'bg-[#361F17] text-white' : 'bg-[#F5F1ED] text-[#361F17] hover:bg-[#EFE2D6]'
+          }`}
+        >
+          Chưa trả lời ({reviews.filter(r => !r.replies?.some(rep => rep.isStaff)).length})
+        </button>
+        <button
+          onClick={() => setFilter('complaints')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-1.5 ${
+            filter === 'complaints' ? 'bg-red-600 text-white shadow-md' : 'bg-[#FFE3E1] text-[#A33A2F] hover:bg-red-100'
+          }`}
+        >
+          <span>⚠️ Rating thấp & Phàn nàn ({reviews.filter(r => r.rating <= 3 || isComplaint(r.comment, r.rating)).length})</span>
+        </button>
+      </div>
+
+      {/* Review cards */}
+      <div className="grid gap-6">
+        {filteredReviews.length === 0 ? (
+          <div className="rounded-xl border border-[#3F3F35]/15 bg-white p-12 text-center text-[#716942]">
+            <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-[#59612E]" />
+            <h3 className="text-lg font-bold text-[#361F17]">Tuyệt vời! Không có review nào trong danh sách lọc</h3>
+            <p className="mt-1 text-xs">Mọi thứ đã được CSKH phản hồi hoặc không có phàn nàn mới.</p>
+          </div>
+        ) : (
+          filteredReviews.map((review) => {
+            const isReviewComplaint = review.rating <= 3 || isComplaint(review.comment, review.rating);
+            const isFocused = review.id === focusedReviewId;
+            const hasStaffReply = review.replies?.some(r => r.isStaff);
+
+            return (
+              <article 
+                key={review.id} 
+                id={`review-card-${review.id}`}
+                className={`rounded-xl border bg-white p-6 shadow-sm transition-all duration-300 ${
+                  isFocused 
+                    ? 'border-2 border-[#C96B37] ring-4 ring-[#C96B37]/15 shadow-xl scale-[1.01]' 
+                    : isReviewComplaint 
+                      ? 'border border-red-200 hover:border-red-300' 
+                      : 'border-[#3F3F35]/15 hover:border-[#3F3F35]/30'
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-bold text-lg text-[#361F17]">{review.name}</h3>
+                      <span className={`text-[10px] rounded-full px-2.5 py-0.5 font-bold uppercase tracking-wide ${
+                        review.targetType === 'product' ? 'bg-[#EFE2D6] text-[#643A2A]' : 'bg-[#E8EAD8] text-[#59612E]'
+                      }`}>
+                        {review.targetType === 'product' ? 'Sản phẩm' : 'Workshop'}
+                      </span>
+                      {isReviewComplaint && (
+                        <span className="text-[10px] rounded-full bg-red-100 text-red-600 px-2.5 py-0.5 font-bold flex items-center gap-1 animate-pulse">
+                          ⚠️ Cần phản hồi khẩn cấp
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Star 
+                            key={index} 
+                            className={`h-4 w-4 ${index < review.rating ? 'fill-[#C96B37] text-[#C96B37]' : 'text-gray-300'}`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{review.date}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-[#716942]">Số lượt hữu ích: <strong>{review.helpful}</strong></span>
+                    {hasStaffReply ? (
+                      <span className="rounded-full bg-green-100 text-green-700 font-bold px-3 py-1 flex items-center gap-1">
+                        ✓ Đã phản hồi chính thức
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-amber-100 text-amber-700 font-bold px-3 py-1 flex items-center gap-1 animate-pulse">
+                        ⌛ Chờ BQT phản hồi
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 bg-[#F5F1ED]/40 rounded-lg p-4 border border-[#3F3F35]/5">
+                  {review.title && <h4 className="font-bold text-sm text-[#361F17] mb-1">{review.title}</h4>}
+                  <p className="text-sm text-[#5F5045] italic">“{review.comment}”</p>
+                </div>
+
+                {/* replies thread list */}
+                {review.replies && review.replies.length > 0 && (
+                  <div className="mt-5 border-t border-[#3F3F35]/5 pt-4 space-y-3">
+                    <p className="text-xs font-bold text-[#716942] uppercase tracking-wider">Hội thoại phản hồi ({review.replies.length}):</p>
+                    <div className="space-y-2.5 pl-4 border-l border-gray-200">
+                      {review.replies.map((rep) => (
+                        <div 
+                          key={rep.id} 
+                          className={`rounded-lg p-3 text-xs ${
+                            rep.isStaff 
+                              ? 'bg-[#F4F6F0] border border-[#C0CCB5]' 
+                              : 'bg-gray-50 border border-gray-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className={`font-bold ${rep.isStaff ? 'text-[#59612E]' : 'text-[#361F17]'}`}>
+                              {rep.isStaff ? 'THỔ Studio (BQT)' : rep.name}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">{rep.date}</span>
+                          </div>
+                          <p className="text-xs text-[#5F5045] whitespace-pre-line">{rep.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Reply section */}
+                {replyingTo === review.id ? (
+                  <div className="mt-5 border-t border-[#3F3F35]/5 pt-4 space-y-3">
+                    <label className="block text-xs font-bold text-[#361F17]">
+                      Phản hồi chính thức dưới danh nghĩa THỔ Studio:
+                    </label>
+                    <textarea
+                      required
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Nhập nội dung phản hồi đại diện cho BQT THỔ Studio..."
+                      className="min-h-[100px] w-full rounded-lg border border-[#3F3F35]/15 bg-white p-3 text-xs outline-none focus:ring-2 focus:ring-[#361F17]/35"
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => { setReplyingTo(null); setReplyText(''); setFocusedReviewId(null); }}
+                        className="rounded-lg border border-[#3F3F35] bg-white px-4 py-2 text-xs font-bold text-[#3F3F35] hover:bg-[#F5F1ED] transition-colors"
+                      >
+                        Hủy
+                      </button>
+                      <button
+                        onClick={() => handleSendReply(review.id)}
+                        className="rounded-lg bg-[#361F17] hover:bg-[#5c4238] px-4 py-2 text-xs font-bold text-white transition-colors flex items-center gap-1.5 shadow-sm"
+                      >
+                        <Send className="h-3 w-3" />
+                        Gửi phản hồi chính thức
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => {
+                        setReplyingTo(review.id);
+                        setFocusedReviewId(review.id);
+                      }}
+                      className="text-xs bg-[#361F17]/10 text-[#361F17] hover:bg-[#361F17]/20 px-4 py-2 rounded-lg font-bold transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      {hasStaffReply ? 'Phản hồi thêm' : 'Viết phản hồi chính thức'}
+                    </button>
+                  </div>
+                )}
+              </article>
+            );
+          })
+        )}
+      </div>
+    </div>
   );
 }

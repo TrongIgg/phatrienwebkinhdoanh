@@ -4,506 +4,257 @@
   <img src="image/banner.png" alt="THỔ Studio Banner" width="100%" />
 </p>
 
-> **THỔ Studio** là website demo cho một studio gốm thủ công, kết hợp thương mại điện tử sản phẩm gốm, hệ thống đặt lịch workshop, chatbot tư vấn AI, ceramic tracker theo giai đoạn và dashboard quản lý nội bộ dành cho nhân viên.
+> **THỔ Studio** là một giải pháp website toàn diện dành cho studio gốm thủ công nghệ thuật. Nền tảng kết hợp hài hòa giữa thương mại điện tử sản phẩm gốm mộc độc bản, hệ thống đặt lịch workshop trải nghiệm thực tế, trợ lý AI tư vấn cá nhân hóa và hệ thống quản trị vận hành nội bộ dành cho nhân viên (Staff/Admin).
 
 ---
 
-## Mục lục
+## 1. Giới thiệu
 
-- [Giới thiệu dự án](#giới-thiệu-dự-án)
-- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
-- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-- [Bắt đầu nhanh](#bắt-đầu-nhanh)
-  - [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-  - [Chạy Frontend](#chạy-frontend)
-  - [Chạy Backend](#chạy-backend)
-  - [Cấu hình môi trường](#cấu-hình-môi-trường)
-- [Tính năng chính](#tính-năng-chính)
-  - [Giao diện khách hàng](#giao-diện-khách-hàng)
-  - [Dashboard Staff / Admin](#dashboard-staff--admin)
-  - [Backend API](#backend-api)
-  - [Cơ sở dữ liệu](#cơ-sở-dữ-liệu)
-- [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
-- [Kiểm thử](#kiểm-thử)
-- [Deploy](#deploy)
-- [Hướng phát triển tiếp theo](#hướng-phát-triển-tiếp-theo)
-- [Tài liệu dự án](#tài-liệu-dự-án)
+**THỔ Studio** được phát triển nhằm mục đích số hóa và nâng cao trải nghiệm dịch vụ của một studio gốm thủ công. Tên gọi **"THỔ"** đại diện cho chất đất mộc mạc — khởi nguồn của mọi tác phẩm gốm nghệ thuật.
+
+Hệ thống được thiết kế tỉ mỉ từ hệ thống nhận diện thương hiệu, Figma Design Tokens cho đến các tính năng tương tác thực tế như:
+* 🛍️ **Cửa hàng trực tuyến** mua sắm sản phẩm gốm mộc, lọc theo bộ sưu tập và thanh toán QR tiện lợi.
+* 🎨 **Hệ thống đặt lịch Workshop** trải nghiệm tự tay tạo hình, tráng men.
+* 🤖 **AI Chatbot** hỏi về nhu cầu, phong cách và kinh nghiệm để đề xuất workshop phù hợp.
+* 📦 **Ceramic Tracker** đột phá giúp khách hàng tra cứu trạng thái hoàn thiện sản phẩm của mình qua 7 giai đoạn sản xuất tại xưởng.
 
 ---
 
-## Giới thiệu dự án
+## 2. Phạm vi, mục tiêu
 
-**THỔ Studio** là nền tảng web toàn diện cho studio gốm thủ công, bao gồm:
+### 🎯 Mục tiêu dự án
+* **Đối với Khách hàng**: Mang lại trải nghiệm đặt lịch và mua sắm mượt mà, trực quan. Giúp khách hàng dễ dàng theo dõi sản phẩm gốm tự làm của mình sau buổi học mà không cần liên hệ trực tiếp.
+* **Đối với Studio**: Số hóa quy trình quản lý booking, check-in khách hàng, quản lý đơn hàng vật lý và cập nhật tiến độ sản xuất gốm sau workshop. Giảm thiểu sai sót do quản lý thủ công (Excel/sổ tay).
+* **Định hướng Dữ liệu**: Khai thác dữ liệu phi cấu trúc thông qua hành vi tương tác và hội thoại chatbot để tự động hóa đề xuất (recommendation) sản phẩm/workshop phù hợp nhất.
 
-- 🛍️ **Thương mại điện tử** — Mua sắm sản phẩm gốm, lọc theo bộ sưu tập, biến thể, giỏ hàng, thanh toán QR
-- 🏺 **Booking Workshop** — Đặt lịch workshop cá nhân hóa, chọn phong cách, kỹ thuật, màu men
-- 🤖 **Chatbot tư vấn** — AI chatbot hỏi phong cách & kinh nghiệm → gợi ý workshop phù hợp, lưu session
-- 📦 **Ceramic Tracker** — Theo dõi sản phẩm gốm của khách qua 7 giai đoạn sản xuất nội bộ
-- 👨‍💼 **Dashboard Staff/Admin** — Quản lý booking, tracking, đơn hàng, ceramic jobs
-
----
-
-## Công nghệ sử dụng
-
-| Lớp | Công nghệ | Phiên bản |
-|---|---|---|
-| **Frontend** | React + TypeScript + Vite | React 18.3, Vite 6.3 |
-| **Styling** | Tailwind CSS v4 + Custom CSS | 4.1.12 |
-| **UI Components** | shadcn/ui, Radix UI, MUI | — |
-| **Animation** | Motion (Framer Motion v12), IntersectionObserver | 12.x |
-| **Routing** | React Router v7 | 7.13 |
-| **Charts** | Recharts | 2.15 |
-| **Icons** | Lucide React, MUI Icons | — |
-| **Backend** | FastAPI (Python) | 0.1.0 |
-| **Cơ sở dữ liệu** | SQLite (local), tương thích PostgreSQL | — |
-| **Deploy** | Vercel (frontend) | — |
-| **Container** | Docker + Docker Compose (backend) | — |
+### 🗺️ Phạm vi chức năng
+* **Phân hệ Storefront (Khách hàng)**:
+  * Trang chủ giới thiệu thương hiệu và quy trình gốm.
+  * Danh sách & Chi tiết Sản phẩm (chọn biến thể, giỏ hàng).
+  * Danh sách & Chi tiết Workshop (chọn ngày, giờ, kiểm tra số slot trống theo thời gian thực).
+  * Trình cá nhân hóa Workshop (Workshop Customizer) cho phép chọn phôi gốm, màu men và kỹ thuật trước khi đến lớp.
+  * Giỏ hàng lai (Hybrid Cart) tách biệt: Giỏ sản phẩm vật lý & Giỏ booking workshop.
+  * Tra cứu tiến độ (Tracking Page) bằng mã đơn hàng, vé workshop, hoặc mã sản phẩm gốm (`THO-xxxx`).
+  * AI Chatbot tư vấn workshop và ghi nhận thông tin khách hàng vào cơ sở dữ liệu.
+* **Phân hệ Quản trị (Staff / Admin Dashboard)**:
+  * Trang tổng quan hiển thị doanh thu, tổng số booking hôm nay, số sản phẩm cần kiểm tra chất lượng (QC) hoặc đang kẹt ở lò nung.
+  * Quản lý Booking: Xác nhận, hủy hoặc check-in khách đến lớp.
+  * Quản lý Ceramic Tracker: Cập nhật giai đoạn của sản phẩm (7 bước), tự động cập nhật timeline đồng bộ sang trang tra cứu của khách.
+  * Quản lý Đơn hàng sản phẩm vật lý.
 
 ---
 
-## Cấu trúc thư mục
+## 3. Công cụ & Công nghệ sử dụng
 
+Dự án được xây dựng trên một ngăn xếp công nghệ hiện đại, đảm bảo tốc độ phản hồi nhanh và khả năng mở rộng tốt:
+
+| Lớp | Công nghệ / Thư viện | Phiên bản | Mô tả |
+|---|---|---|---|
+| **Frontend** | React + TypeScript + Vite | 18.3 / 6.3 | Entry point & HMR cực nhanh |
+| **Styling** | Tailwind CSS v4 + Custom CSS | 4.1.12 | Tối ưu hóa UI/UX, hỗ trợ biến token |
+| **UI Components** | shadcn/ui, Radix UI, MUI | — | Bộ components chuẩn hóa, dễ tùy biến |
+| **Animation** | Motion (Framer Motion v12) | 12.x | Hiệu ứng mượt mà, scroll reveal |
+| **Routing** | React Router v7 | 7.13 | Điều hướng trang mượt mà không load lại |
+| **Charts** | Recharts | 2.15 | Trực quan hóa dữ liệu trên Dashboard |
+| **Backend** | FastAPI (Python) | 0.1.0 | RESTful API, tốc độ xử lý cao, auto-docs |
+| **Cơ sở dữ liệu** | SQLite (local) | — | Thích hợp chạy local, tương thích PostgreSQL |
+| **Container** | Docker + Docker Compose | — | Đóng gói môi trường chạy backend nhanh chóng |
+| **Thiết kế** | Figma | — | Thiết kế chi tiết UI/UX, Wireframes & Prototypes |
+
+---
+
+## 4. Các nghiệp vụ chính ngắn gọn
+
+### 🛒 Giỏ hàng lai & Thanh toán
+Hệ thống xử lý thông minh bằng cách tách biệt **Giỏ hàng Sản phẩm** và **Giỏ hàng Workshop** tại trang checkout. Sản phẩm vật lý đi kèm quy trình giao hàng, trong khi vé workshop đi kèm quy trình đặt lịch giữ chỗ và check-in tại studio. Thanh toán được mô phỏng qua mã QR động kèm hiệu ứng confetti ăn mừng khi thành công.
+
+### 🏺 Workshop Customizer
+Khách hàng có thể cá nhân hóa trải nghiệm của mình trước khi lớp học bắt đầu bằng cách chọn loại đất sét, kỹ thuật tạo hình (bàn xoay hay nặn tay), màu men mong muốn và mô tả ý tưởng sản phẩm.
+
+### 🤖 AI Chatbot tư vấn chuyên sâu
+Chatbot nằm ở góc phải màn hình sẽ dẫn dắt người dùng qua các câu hỏi: phong cách yêu thích ➔ mức độ kinh nghiệm ➔ mục đích tham gia. Từ đó đề xuất workshop phù hợp và lưu ghi chú thiết kế trực tiếp vào thông tin booking để nghệ nhân đứng lớp chuẩn bị sẵn phôi gốm và nguyên liệu.
+
+### 🔄 Ceramic Tracker (7 giai đoạn sản xuất)
+Quy trình đặc thù của gốm sau khi tạo hình cần thời gian phơi, nung và tráng men. Hệ thống cung cấp timeline trực quan 7 bước để khách hàng tự tra cứu tiến độ sản phẩm của mình:
+1. **Đã tạo hình** (Shaped)
+2. **Đang phơi khô** (Drying)
+3. **Nung sơ lần 1** (Bisque Firing)
+4. **Tráng men** (Glazing)
+5. **Nung hoàn thiện lần 2** (Glaze Firing)
+6. **Kiểm tra chất lượng QC** (Quality Control)
+7. **Sẵn sàng nhận / Giao hàng** (Ready / Shipping)
+
+---
+
+## 5. Cách xây dựng, Bảng màu, Site map
+
+### 📁 Cấu trúc thư mục dự án
 ```
 phatrienwebkinhdoanh/
-│
-├── src/                          # Mã nguồn Frontend (React + TypeScript)
+├── src/                          # Mã nguồn Frontend (React + TS)
 │   ├── main.tsx                  # Entry point React
 │   ├── app/
-│   │   ├── App.tsx               # Root component, Router, Providers
-│   │   ├── components/           # Các page component chính
-│   │   │   ├── HomePage.tsx          # Trang chủ
-│   │   │   ├── ProductPage.tsx        # Danh sách sản phẩm
-│   │   │   ├── ProductDetailPage.tsx  # Chi tiết sản phẩm
-│   │   │   ├── WorkshopPage.tsx       # Danh sách workshop
-│   │   │   ├── WorkshopDetailPage.tsx # Chi tiết workshop
-│   │   │   ├── BookingForm.tsx         # Form đặt lịch workshop
-│   │   │   ├── WorkshopCustomizer.tsx # Cá nhân hóa workshop
-│   │   │   ├── CartPage.tsx           # Giỏ hàng (2 giỏ tách biệt)
-│   │   │   ├── CheckoutPage.tsx       # Thanh toán + QR
-│   │   │   ├── PaymentSuccess.tsx     # Thành công (confetti)
-│   │   │   ├── PaymentFailure.tsx     # Thất bại
-│   │   │   ├── TrackingPage.tsx       # Tra cứu đơn / vé / ceramic
-│   │   │   ├── ReviewPage.tsx         # Đánh giá sản phẩm & workshop
-│   │   │   ├── AboutPage.tsx          # Giới thiệu studio
-│   │   │   ├── PolicyPage.tsx         # Chính sách vận chuyển, đổi trả
-│   │   │   ├── StaffAdminPage.tsx     # Dashboard staff / admin
-│   │   │   ├── FloatingWorkshopChatbot.tsx  # Chatbot nổi góc phải
-│   │   │   ├── WorkshopChatbot.tsx    # Chatbot workshop nội tuyến
-│   │   │   ├── Header.tsx             # Thanh điều hướng chính
-│   │   │   ├── Footer.tsx             # Footer
-│   │   │   ├── DesignPrimitives.tsx   # Token màu, typography Figma
-│   │   │   ├── FigmaExportPage.tsx    # Trang xuất Figma tokens
-│   │   │   ├── ui/                    # shadcn/ui components tái sử dụng
-│   │   │   └── figma/                 # Components import từ Figma
-│   │   ├── contexts/             # React Context (State toàn cục)
-│   │   │   ├── ProductCartContext.tsx  # Giỏ hàng sản phẩm vật lý
-│   │   │   └── WorkshopCartContext.tsx # Giỏ hàng booking workshop
-│   │   ├── hooks/                # Custom React Hooks
-│   │   │   └── useStaffData.ts        # Hook fetch dữ liệu staff dashboard
-│   │   ├── lib/                  # Utilities, helpers
-│   │   └── pages/                # (Dự phòng mở rộng)
-│   ├── assets/                   # Ảnh, SVG, tài nguyên tĩnh
-│   └── styles/                   # CSS toàn cục
-│       ├── globals.css           # Reset, animations, utility classes
-│       ├── theme.css             # CSS custom properties (design tokens)
-│       ├── index.css             # Entry CSS
-│       ├── tailwind.css          # Tailwind directives
-│       ├── fonts.css             # Google Fonts import
-│       └── figma-export.css      # Styles trang Figma export
-│
+│   │   ├── App.tsx               # Root Component, Router, Providers
+│   │   ├── components/           # Các page & UI component cốt lõi
+│   │   ├── contexts/             # React Context (State giỏ hàng)
+│   │   └── lib/                  # Helpers & API client
+│   └── styles/                   # CSS toàn cục & design tokens
 ├── backend/                      # Mã nguồn Backend (FastAPI + Python)
-│   ├── app/
-│   │   ├── main.py               # FastAPI app, CORS, router mount
-│   │   ├── api/
-│   │   │   ├── router.py         # Tổng hợp tất cả routes
-│   │   │   └── routes/           # Từng nhóm endpoint
-│   │   │       ├── health.py         # GET /health
-│   │   │       ├── auth.py           # POST /auth/login
-│   │   │       ├── products.py       # GET /products, /products/{id}
-│   │   │       ├── workshops.py      # GET /workshops, /workshops/{id}
-│   │   │       ├── bookings.py       # POST/GET /bookings
-│   │   │       ├── cart.py           # GET/POST/DELETE /cart
-│   │   │       ├── orders.py         # POST /orders
-│   │   │       ├── tracking.py       # GET/POST /tracking
-│   │   │       ├── reviews.py        # GET/POST /reviews
-│   │   │       ├── addresses.py      # GET/POST /user/addresses
-│   │   │       ├── search.py         # GET /search
-│   │   │       ├── chatbot.py        # POST/PATCH /chatbot/session, GET /recommend
-│   │   │       └── staff.py          # GET /staff/dashboard, bookings, trackers…
-│   │   ├── core/
-│   │   │   ├── config.py         # Pydantic settings (đọc .env)
-│   │   │   └── logging_config.py # Cấu hình logging
-│   │   ├── db/                   # Kết nối và khởi tạo database
-│   │   ├── models/
-│   │   │   └── schemas.py        # Pydantic request/response schemas
-│   │   └── services/             # Business logic (tách khỏi routes)
-│   ├── tests/                    # Pytest smoke tests
-│   ├── .env.example              # Mẫu cấu hình môi trường
-│   ├── requirements.txt          # Python dependencies
-│   ├── Dockerfile                # Docker image backend
-│   └── docker-compose.yml        # Compose: backend + (tuỳ chọn) DB
-│
-├── db/                           # SQL schema và seed data
-│   ├── 01_schema.sql             # Schema gốc
-│   ├── 02_seed_phase2.sql        # Dữ liệu mẫu giai đoạn 2
-│   ├── 03_sqlite_schema.sql      # Schema SQLite đầy đủ (auto-init)
-│   └── tho_demo.sqlite           # File database SQLite local
-│
-├── doc/                          # Tài liệu đồ án (báo cáo, sitemap, use case)
-├── docs/                         # Tài liệu kỹ thuật bổ sung
-├── figma-captures/               # Ảnh chụp Figma design
-├── figma-captures-sliced/        # Ảnh Figma đã cắt theo component
-├── figma-html-imports/           # HTML export từ Figma
-├── guidelines/                   # Quy tắc code, design guidelines
-├── image/                        # Ảnh tĩnh dùng trong UI
-├── scripts/                      # Build/utility scripts (Node.js)
-│   ├── capture-figma-pages.mjs   # Script chụp màn Figma tự động
-│   └── make-figma-html-imports.mjs # Script tạo HTML import từ Figma
-├── test/                         # Test files khác (ngoài pytest)
-│
-├── index.html                    # HTML entry point (Vite)
-├── vite.config.ts                # Cấu hình Vite + plugins
-├── postcss.config.mjs            # PostCSS config
-├── package.json                  # Dependencies & scripts npm/pnpm
-├── pnpm-workspace.yaml           # pnpm workspace config
-├── vercel.json                   # Cấu hình deploy Vercel
-├── default_shadcn_theme.css      # Theme mặc định shadcn/ui
-├── ATTRIBUTIONS.md               # Ghi công thư viện bên thứ ba
-└── README.md                     # Tài liệu này
+│   ├── app/                      # Routes, models, schemas, services
+│   ├── tests/                    # Pytest test cases
+│   └── requirements.txt          # Danh sách dependencies Python
+├── db/                           # SQL schema và database SQLite local
+└── doc/                          # Tài liệu thuyết minh & thiết kế UI/UX
 ```
 
----
+### 🛠️ Cách xây dựng & Khởi chạy dự án
 
-## Bắt đầu nhanh
-
-### Yêu cầu hệ thống
-
-| Công cụ | Phiên bản tối thiểu |
-|---|---|
-| Node.js | 18+ |
-| npm / pnpm | npm 9+ hoặc pnpm 8+ |
-| Python | 3.10+ |
-| pip | 23+ |
-| (Tuỳ chọn) Docker | 24+ |
-
----
-
-### Chạy Frontend
-
+#### Chạy Frontend:
 ```bash
-# 1. Cài dependencies
+# 1. Cài đặt các thư viện phụ thuộc
 npm install
-# hoặc: pnpm install
 
-# 2. Khởi động dev server (http://localhost:5173)
+# 2. Khởi chạy môi trường phát triển (http://localhost:5173)
 npm run dev
 ```
 
-> **Lưu ý:** Frontend kết nối với backend ở `http://localhost:8000`. Nếu backend chưa chạy, các tính năng gọi API sẽ báo lỗi CORS/network — điều này bình thường khi dev riêng.
-
-#### Scripts npm có sẵn
-
-| Script | Mô tả |
-|---|---|
-| `npm run dev` | Khởi động Vite dev server với HMR |
-| `npm run build` | Build production bundle ra `dist/` |
-| `npm run capture:figma` | Chụp ảnh tự động từ Figma |
-| `npm run figma:html-imports` | Tạo HTML import từ Figma captures |
-
----
-
-### Chạy Backend
-
-#### Cách 1 — Chạy trực tiếp (Python)
-
+#### Chạy Backend:
 ```bash
-# 1. Vào thư mục backend
 cd backend
 
-# 2. (Khuyến nghị) Tạo virtual environment
+# 1. Tạo và kích hoạt môi trường ảo Python
 python -m venv .venv
-.venv\Scripts\activate       # Windows
-# source .venv/bin/activate  # macOS / Linux
+.venv\Scripts\activate  # Trên Windows
+# source .venv/bin/activate  # Trên macOS/Linux
 
-# 3. Cài dependencies
+# 2. Cài đặt các gói phụ thuộc
 pip install -r requirements.txt
 
-# 4. Cấu hình môi trường
+# 3. Tạo file cấu hình môi trường
 copy .env.example .env
-# Mở .env và sửa các biến nếu cần (xem mục Cấu hình môi trường)
 
-# 5. Khởi động server (http://localhost:8000)
+# 4. Chạy backend API server (http://localhost:8000)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-#### Cách 2 — Docker Compose
-
-```bash
-cd backend
-docker compose up --build
-```
-
-> Backend tự động khởi tạo schema SQLite và seed data khi khởi động lần đầu.  
-> Tài liệu API tương tác có sẵn tại: `http://localhost:8000/docs`
+*(Bạn cũng có thể chạy backend thông qua Docker bằng cách gõ lệnh `docker compose up --build` trong thư mục `backend`)*
 
 ---
 
-### Cấu hình môi trường
+### 🎨 Bảng màu chủ đạo (Color Palette)
 
-Sao chép file mẫu và chỉnh sửa theo nhu cầu:
+Bảng màu của THỔ Studio được lấy cảm hứng từ chất liệu tự nhiên tại xưởng gốm: đất sét mộc, đất nung, men celadon và tro củi nung.
 
-```bash
-cd backend
-copy .env.example .env
-```
-
-| Biến | Giá trị mặc định | Mô tả |
-|---|---|---|
-| `APP_NAME` | `Tho Platform Backend` | Tên app FastAPI |
-| `APP_ENV` | `development` | Môi trường (`development` / `production`) |
-| `APP_DEBUG` | `true` | Bật debug mode |
-| `APP_HOST` | `0.0.0.0` | Host bind |
-| `APP_PORT` | `8000` | Port bind |
-| `API_PREFIX` | `/api/v1` | Prefix tất cả API endpoint |
-| `DATABASE_URL` | `sqlite:///db/tho_demo.sqlite` | URL kết nối DB (SQLite hoặc PostgreSQL) |
-| `JWT_SECRET` | `replace-me` | **Bắt buộc đổi** khi production |
-| `JWT_EXPIRE_MINUTES` | `120` | Thời gian hết hạn JWT (phút) |
-| `IMAGE_API_PROVIDER` | `mock` | Provider ảnh (`mock` hoặc API thật) |
-| `REDIS_URL` | `redis://localhost:6379/0` | Redis (dự phòng cache/queue) |
-
-> ⚠️ **Không commit file `.env` lên Git.** File này đã được thêm vào `.gitignore`.
+* 🟤 **Màu Nền Chính (Background)**: `#FBEEE5` (Tone màu be đất sét mềm ấm, mang lại cảm giác mộc mạc, thư thái, bảo vệ mắt).
+* 🟫 **Màu Chữ Chính (Text Primary)**: `#361F17` (Nâu đất nung đậm, thay thế màu đen tuyền để giảm độ chói lóa trên nền kem).
+* 🟢 **Màu Thương Hiệu Chủ Đạo (Primary)**: `#716942` (Màu vàng đất olive chín nung, dùng cho các nút CTA chính, tiêu đề phụ và trạng thái hoàn thành).
+* 🟠 **Màu Nhấn Mạnh (Accent)**: `#C96B37` (Màu cam đất nung rực lửa, dùng cho các tag nổi bật như "Bán chạy", "Hot", hoặc các cảnh báo quan trọng).
+* 🔘 **Màu Phụ Trợ (Muted)**: `#8B765D` / `#EFE2D6` (Dùng cho các đường kẻ border, nền khung phụ, chữ ghi chú).
 
 ---
 
-## Tính năng chính
+### 🗺️ Sơ đồ phân cấp trang (Site Map)
 
-### Giao diện khách hàng
+Dưới đây là sơ đồ phân cấp thông tin và luồng di chuyển chính trên hệ thống THỔ Studio:
 
-| Trang | Route | Mô tả |
-|---|---|---|
-| Trang chủ | `/` | Hero section, bộ sưu tập nổi bật, workshop gợi ý, CTA |
-| Danh sách sản phẩm | `/product` | Lọc theo bộ sưu tập, loại, giá; badge hết hàng |
-| Chi tiết sản phẩm | `/product/:id` | Ảnh, biến thể, thêm giỏ, kiểm tra tồn kho |
-| Danh sách workshop | `/workshop` | Lọc audience, type, khoảng ngày, khoảng giá (slider) |
-| Chi tiết workshop | `/workshop/:id` | Thông tin đầy đủ, slot còn lại, đặt ngay |
-| Booking form | `/booking/:id` | Chọn ngày giờ, số người, thông tin khách |
-| Workshop Customizer | `/workshop-customizer` | Chọn phong cách, kỹ thuật, màu men cá nhân hóa |
-| Giỏ hàng | `/cart` | Hai giỏ tách biệt: sản phẩm vật lý + workshop booking |
-| Checkout | `/checkout` | Form thông tin, chọn vận chuyển, thanh toán QR |
-| Thanh toán thành công | `/success` | Hiệu ứng confetti, mã booking, hướng dẫn tiếp theo |
-| Thanh toán thất bại | `/payment-failed` | Thông báo lỗi, nút thử lại |
-| Tracking | `/tracking` | Tra cứu `ORD…` (đơn hàng), `WS…` (vé workshop), `THO…`/`CER…` (ceramic) |
-| Đánh giá | `/review` | Xem và gửi review, lọc rating, studio reply |
-| Giới thiệu | `/about` | Studio, đội ngũ, quy trình gốm |
-| Chính sách | `/policy` | Vận chuyển, đổi trả, bảo hành |
+```mermaid
+graph TD
+    %% Styling
+    classDef client fill:#FBEEE5,stroke:#716942,stroke-width:2px,color:#361F17;
+    classDef admin fill:#3F3F35,stroke:#C0AC8B,stroke-width:2px,color:#FFF8F2;
+    classDef process fill:#C96B37,stroke:#361F17,stroke-width:1px,color:#FFF;
+    
+    %% Storefront Pages
+    Home["🏠 Trang Chủ (/)"]:::client
+    Workshop["🎨 Danh Sách Workshop (/workshop)"]:::client
+    WorkshopDetail["🔍 Chi Tiết Workshop (/workshop/:id)"]:::client
+    WorkshopCustomizer["🏺 Tạo Mẫu Gốm Thử (/workshop-customizer)"]:::client
+    Product["🛍️ Cửa Hàng Sản Phẩm (/product)"]:::client
+    ProductDetail["🏺 Chi Tiết Sản Phẩm (/product/:id)"]:::client
+    About["📜 Về THỔ (/about)"]:::client
+    Policy["⚖️ Điều Khoản & Chính Sách (/policy)"]:::client
+    Review["💬 Đánh Giá Khách Hàng (/review)"]:::client
+    
+    %% Cart & Checkout Process
+    Cart["🛒 Giỏ Hàng Lai (/cart)"]:::client
+    BookingHold["⏳ Form Đăng Ký Giữ Slot (/booking/:id)"]:::client
+    CheckoutProduct["🚚 Thanh Toán Sản Phẩm (/checkout?mode=product)"]:::client
+    CheckoutWorkshop["💳 Thanh Toán Vé Workshop (/checkout?autopay=workshop)"]:::client
+    Success["✅ Thanh Toán Thành Công (/success)"]:::client
+    Failure["❌ Thanh Toán Thất Bại (/payment-failed)"]:::client
+    
+    %% Progress Tracking
+    Tracking["📦 Tra Cứu Tiến Độ (/tracking)"]:::client
+    TrackOrder["Status: Đơn Hàng (ORD)"]:::process
+    TrackWS["Status: Vé Workshop (WS)"]:::process
+    TrackCeramic["Status: Quy Trình Gốm (CER)"]:::process
+    TrackCustom["Status: Brief Thiết Kế (CUS)"]:::process
+    
+    %% Admin & Staff System
+    StaffPortal["🔑 Cổng Đăng Nhập (/staff/login hoặc /admin/login)"]:::admin
+    AdminDashboard["📈 Dashboard Admin (/admin/dashboard)"]:::admin
+    StaffTracking["🔄 Quản Lý Tracker Gốm (/staff/tracking)"]:::admin
+    AdminBooking["📅 Quản Lý Booking (/admin/booking)"]:::admin
+    AdminProduct["🛠️ Quản Lý Sản Phẩm Sau Lớp (/admin/product)"]:::admin
 
-#### Tính năng UI đặc biệt
-
-- **Floating Chatbot** — nổi góc phải màn hình mọi trang (ẩn khi checkout/staff), tư vấn workshop
-- **Workshop Chatbot** — hỏi phong cách → kinh nghiệm → mục đích → gợi ý workshop phù hợp, lưu session vào DB
-- **Scroll reveal animation** — hiệu ứng fade-in khi scroll, tôn trọng `prefers-reduced-motion`
-- **Page transition** — fade nhẹ khi chuyển route (React Router + CSS)
-- **Design Primitives** (`/figma-export`) — xuất toàn bộ color token, typography cho Figma handoff
-
----
-
-### Dashboard Staff / Admin
-
-Route `/staff` và `/admin` dùng chung `StaffAdminPage`:
-
-| Tab | Nội dung |
-|---|---|
-| **Dashboard** | Tổng booking hôm nay/tuần, doanh thu, check-in pending, tracker cần cập nhật, QC issues |
-| **Quản lý Booking** | Bảng booking workshop: khách, ngày, slot, check-in, payment, tracking code, chatbot note |
-| **Ceramic Tracker** | Theo dõi từng sản phẩm qua 7 giai đoạn; cập nhật stage → tự đồng bộ timeline phía khách |
-| **Quản lý sản phẩm** | Danh sách đơn hàng sản phẩm vật lý theo stage xử lý |
-| **Tracking nội bộ** | Gắn tracking code, xem tiến độ từ góc nhìn nhân viên |
-
----
-
-### Backend API
-
-Tất cả endpoint có prefix `/api/v1`. Swagger UI: `http://localhost:8000/docs`
-
-| Nhóm | Endpoint chính |
-|---|---|
-| **Health** | `GET /health` |
-| **Auth** | `POST /auth/login` |
-| **Sản phẩm** | `GET /products`, `GET /products/{id}` |
-| **Workshop** | `GET /workshops` *(filter: audience, type, date_range, min_price, max_price)*, `GET /workshops/{id}` |
-| **Booking** | `POST /bookings`, `GET /bookings` |
-| **Giỏ hàng** | `GET /cart`, `POST /cart`, `DELETE /cart` |
-| **Đơn hàng** | `POST /orders` |
-| **Tracking** | `GET /tracking/{code}`, `POST /tracking` *(bulk upsert)* |
-| **Review** | `GET /reviews`, `POST /reviews` |
-| **Địa chỉ** | `GET /user/addresses`, `POST /user/addresses` |
-| **Tìm kiếm** | `GET /search` |
-| **Chatbot** | `POST /chatbot/session`, `PATCH /chatbot/session/{id}`, `GET /chatbot/recommend` |
-| **Staff** | `GET /staff/dashboard`, `/staff/bookings`, `/staff/trackers`, `/staff/product-jobs`, `PATCH /staff/trackers/{id}`, `GET /staff/chatbot-notes/{booking_id}` |
-
----
-
-### Cơ sở dữ liệu
-
-Schema được tự động khởi tạo khi backend start lần đầu (file `db/03_sqlite_schema.sql`).
-
-| Bảng | Nội dung |
-|---|---|
-| `products` | Sản phẩm gốm, tồn kho, style_tags, biến thể |
-| `workshops` | Workshop, slot, audience, type, khoảng giá |
-| `workshop_bookings` | Booking của khách: ngày, slot, check-in, payment, tracking |
-| `reviews` | Review sản phẩm/workshop, studio reply, helpful count, ảnh |
-| `tracking_records` | Bản ghi tracking đơn hàng / workshop vé / ceramic |
-| `tracking_timeline` | Từng bước timeline tracking hiển thị cho khách |
-| `ceramic_trackers` | Theo dõi sản phẩm gốm qua 7 giai đoạn sản xuất nội bộ |
-| `ceramic_product_jobs` | Job xử lý từng sản phẩm trong xưởng |
-| `chatbot_sessions` | Lưu phiên chatbot: phong cách, kinh nghiệm, mục đích, gợi ý |
-| `booking_chatbot_links` | Liên kết booking ↔ chatbot session |
-| `user_addresses` | Địa chỉ giao hàng của khách |
-| `orders` | Đơn hàng sản phẩm vật lý |
-| `cart` | Giỏ hàng tạm thời |
-
-> **Chuyển sang PostgreSQL:** Chỉ cần đổi `DATABASE_URL` trong `.env` thành chuỗi kết nối PostgreSQL — không cần sửa code.
-
----
-
-## Kiến trúc hệ thống
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   TRÌNH DUYỆT                        │
-│                                                     │
-│  React 18 + TypeScript + Vite                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
-│  │ Product  │  │Workshop  │  │  Staff/Admin      │  │
-│  │ Cart CTX │  │ Cart CTX │  │  Dashboard        │  │
-│  └──────────┘  └──────────┘  └──────────────────┘  │
-│        │              │               │             │
-│        └──────────────┴───────────────┘             │
-│                       │                             │
-│              React Router v7                        │
-└──────────────────┬──────────────────────────────────┘
-                   │ HTTP/REST  (fetch API)
-                   │ CORS: localhost:5173 ↔ :8000
-┌──────────────────▼──────────────────────────────────┐
-│               FASTAPI BACKEND                        │
-│                                                     │
-│  /api/v1/{products, workshops, bookings, ...}        │
-│  JWT Auth  │  Pydantic schemas  │  Service layer    │
-└──────────────────┬──────────────────────────────────┘
-                   │ SQLAlchemy / raw SQLite
-┌──────────────────▼──────────────────────────────────┐
-│             DATABASE (SQLite / PostgreSQL)            │
-│                                                     │
-│  db/tho_demo.sqlite   ←→   db/03_sqlite_schema.sql  │
-└─────────────────────────────────────────────────────┘
-```
-
-### Luồng dữ liệu Ceramic Tracker
-
-```
-Staff cập nhật stage (Dashboard)
-        │
-        ▼
-PATCH /api/v1/staff/trackers/{id}
-        │
-        ▼
-Cập nhật ceramic_trackers + ceramic_product_jobs
-        │
-        ▼
-Rebuild tracking_timeline → tracking_records
-        │
-        ▼
-Khách tra cứu GET /tracking/THO-xxxx → thấy cập nhật mới
+    %% Customer Flow Links
+    Home --> Workshop
+    Home --> Product
+    Home --> About
+    Home --> Tracking
+    
+    Workshop --> WorkshopDetail
+    WorkshopDetail --> WorkshopCustomizer
+    WorkshopDetail --> BookingHold
+    BookingHold --> Cart
+    Product --> ProductDetail
+    ProductDetail --> Cart
+    
+    Cart --> CheckoutProduct
+    Cart --> CheckoutWorkshop
+    
+    CheckoutProduct --> Success
+    CheckoutProduct --> Failure
+    CheckoutWorkshop --> Success
+    CheckoutWorkshop --> Failure
+    
+    Success --> Tracking
+    
+    Tracking --> TrackOrder
+    Tracking --> TrackWS
+    Tracking --> TrackCeramic
+    Tracking --> TrackCustom
+    
+    %% Admin Flow Links
+    StaffPortal --> AdminDashboard
+    StaffPortal --> StaffTracking
+    
+    AdminDashboard --> AdminBooking
+    AdminDashboard --> AdminProduct
+    AdminDashboard --> StaffTracking
+    
+    %% Style Applied
+    class Home,Workshop,WorkshopDetail,WorkshopCustomizer,Product,ProductDetail,About,Policy,Review,Cart,BookingHold,CheckoutProduct,CheckoutWorkshop,Success,Failure,Tracking client;
+    class StaffPortal,AdminDashboard,StaffTracking,AdminBooking,AdminProduct admin;
+    class TrackOrder,TrackWS,TrackCeramic,TrackCustom process;
 ```
 
 ---
 
-## Kiểm thử
+## 6. Thông tin thêm
 
-### Chạy smoke tests (pytest)
+### 📚 Tài liệu chi tiết dự án (Thư mục `/doc`)
+Bạn có thể tham khảo các tài liệu thuyết minh chi tiết của đồ án tại các liên kết sau:
+* 📄 [Báo Cáo Đồ Án Đầy Đủ (Chương 1–5)](file:///d:/UIUX/phatrienwebkinhdoanh/doc/BAO_CAO_THO_STUDIO.md) — Chi tiết về khảo sát thực trạng, đặc tả yêu cầu, thiết kế hệ thống và đánh giá.
+* 🗺️ [Sitemap & Wireframe](file:///d:/UIUX/phatrienwebkinhdoanh/doc/01_sitemap_wireframe.md) — Sơ đồ luồng trang chi tiết và bố cục khung xương giao diện.
+* 🎨 [Đặc Tả Figma Prototype UI](file:///d:/UIUX/phatrienwebkinhdoanh/doc/02_prototype_ui.md) — Chi tiết về Design Primitives, chuyển động micro-interactions.
+* 🔄 [Case Study & BPMN](file:///d:/UIUX/phatrienwebkinhdoanh/doc/03_case_study.md) — Phân tích quy trình nghiệp vụ thực tế của workshop gốm.
+* 👥 [Đặc Tả Chi Tiết Use Case](file:///d:/UIUX/phatrienwebkinhdoanh/doc/04_use_case_detail.md) — Kịch bản tương tác cụ thể của từng Actor (Khách hàng, Nhân viên, Nghệ nhân, Admin).
 
-```bash
-cd backend
-
-# Đảm bảo .env đã được cấu hình
-pytest -q
-```
-
-### Kết quả tests hiện tại
-
-| Test | Kết quả |
-|---|---|
-| `test_health` | ✅ `GET /health → 200` |
-| `test_login` | ✅ `POST /auth/login → access_token` |
-| `test_create_address` | ✅ `POST /user/addresses → address_id` |
-| `test_list_workshops` | ✅ `GET /workshops → list >= 1` |
-| `test_tracking_lookup` | ✅ `GET /tracking/THO-2024-0847 → ceramic type` |
-| `test_create_tracking` | ✅ `POST /tracking → 201, GET lookup đúng data` |
-| `test_staff_sync` | ✅ `bookings, trackers, dashboard đều trả đúng` |
-| `test_create_review` | ✅ `POST /reviews → review_id` |
+### 🔗 Liên kết & Thông tin hữu ích
+* **Tài liệu hướng dẫn phát triển API**: `http://localhost:8000/docs` (Swagger UI sau khi đã khởi chạy backend).
+* **Trang Token Figma**: `/figma-export` dùng để xuất mã màu CSS token sang Figma.
 
 ---
-
-## Deploy
-
-### Frontend — Vercel
-
-Dự án đã cấu hình sẵn `vercel.json`. Push lên GitHub và kết nối Vercel:
-
-```bash
-# Build production
-npm run build
-
-# Deploy (Vercel CLI)
-vercel --prod
-```
-
-> Vercel tự động nhận diện Vite và build `dist/` làm output directory.
-
-### Backend — Docker
-
-```bash
-cd backend
-
-# Build và chạy container
-docker compose up --build -d
-
-# Xem logs
-docker compose logs -f
-```
-
----
-
-## Hướng phát triển tiếp theo
-
-- [ ] **Thanh toán thật** — Tích hợp VNPay / MoMo / ZaloPay
-- [ ] **Slot reservation** — Giữ slot workshop 15 phút khi đang thanh toán (`slot_reservations` table)
-- [ ] **Vận chuyển thật** — Kết nối API GHN / GHTK, tính phí ship realtime
-- [ ] **Email notification** — Thông báo khi sản phẩm có hàng lại, cập nhật trạng thái đơn
-- [ ] **Đăng nhập mạng xã hội** — Google / Facebook OAuth
-- [ ] **Dashboard analytics** — Biểu đồ doanh thu theo ngày/tháng, hành vi khách hàng
-- [ ] **Bảo vệ review** — Chỉ cho phép review sau khi mua hàng hoặc hoàn thành workshop
-- [ ] **Scale production** — Chuyển sang PostgreSQL + Redis cache
-- [ ] **About Us nâng cấp** — Nghệ nhân, không gian xưởng, quy trình gốm video
-
----
-
-## Tài liệu dự án
-
-Thư mục `doc/` chứa tài liệu đồ án đầy đủ:
-
-| File | Nội dung |
-|---|---|
-| `BAO_CAO_THO_STUDIO.md` | Báo cáo đồ án đầy đủ (Chương 1–5) |
-| `01_sitemap_wireframe.md` | Sitemap và wireframe tất cả màn hình |
-| `02_prototype_ui.md` | Mô tả prototype Figma |
-| `03_case_study.md` | Phân tích use case và BPMN |
-| `04_use_case_detail.md` | Chi tiết use case từng actor |
-| `CHUONG_4_SITEMAP_WIREFRAME_PROTOTYPE_CASE_STUDY.md` | Tổng hợp Chương 4 |
-
----
-
 <p align="center">
-  Made with ❤️ for <strong>THỔ Studio</strong> — where clay meets craft.
+  Được hoàn thiện với ❤️ dành riêng cho dự án <strong>THỔ Studio</strong> — Nơi đất sét tìm về nghệ thuật thủ công.
 </p>

@@ -39,8 +39,66 @@ export function saveLocalTrackingRecords(records: ApiTracking[]) {
   }
 }
 
-export function findLocalTrackingRecord(code: string) {
+export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
+  'ORD-DELIVERED': {
+    code: 'ORD-DELIVERED',
+    tracking_type: 'order',
+    status: 'delivered',
+    title: 'Đơn hàng bộ ấm chén gốm mộc THỔ',
+    message: 'Đơn hàng đã được giao thành công đến bạn vào ngày 28/06/2026. Cảm ơn bạn đã lựa chọn THỔ!',
+    manager_name: 'Trần Minh Hoàng',
+    timeline: [
+      { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+      { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+      { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+      { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+    ],
+    items: [
+      { id: 'item-d1', name: 'Bộ ấm chén gốm mộc sơn trà', type: 'product', price: 850000, quantity: 1, image: '' }
+    ]
+  },
+  'WS-COMPLETED': {
+    code: 'WS-COMPLETED',
+    tracking_type: 'workshop',
+    status: 'completed',
+    title: 'Vé Workshop Nặn Gốm Căn Bản',
+    message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 25/06/2026. Hy vọng bạn đã có khoảng thời gian ý nghĩa chạm đất!',
+    manager_name: 'Nguyễn Thanh Linh',
+    participant_count: 2,
+    checkin_status: 'checked_in',
+    timeline: [
+      { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+      { stage: 'qr_sent', label: 'Đã gửi mã check-in', state: 'done' },
+      { stage: 'checked_in', label: 'Đã check-in & hoàn thành', state: 'done' }
+    ],
+    items: [
+      { id: 'item-d2', name: 'Vé Workshop Nặn Gốm Căn Bản', type: 'workshop', date: '25/06/2026', time: '14:00', tickets: 2, price: 450000, image: '' }
+    ]
+  },
+  'CER-READY': {
+    code: 'CER-READY',
+    tracking_type: 'ceramic',
+    status: 'ready',
+    title: 'Cốc gốm men hỏa biến & Bình hoa nhỏ',
+    message: 'Thành phẩm gốm của bạn đã hoàn thành tráng men và nung xong. Bạn có thể ghé Studio để nhận hoặc đăng ký giao hàng tận nhà.',
+    manager_name: 'Phạm Quốc Anh',
+    timeline: [
+      { stage: 'forming', label: 'Tạo hình', state: 'done' },
+      { stage: 'drying', label: 'Phơi khô', state: 'done' },
+      { stage: 'bisque_firing', label: 'Nung sơ', state: 'done' },
+      { stage: 'glazing', label: 'Tráng men', state: 'done' },
+      { stage: 'final_firing', label: 'Nung hoàn thiện', state: 'done' },
+      { stage: 'ready', label: 'Sẵn sàng nhận', state: 'done' }
+    ],
+    items: []
+  }
+};
+
+export function findLocalTrackingRecord(code: string): ApiTracking | null {
   const normalized = code.trim().toUpperCase();
+  if (normalized in MOCK_COMPLETED_RECORDS) {
+    return MOCK_COMPLETED_RECORDS[normalized];
+  }
   return readLocalTrackingRecords().find((record) => record.code.toUpperCase() === normalized) ?? null;
 }
 

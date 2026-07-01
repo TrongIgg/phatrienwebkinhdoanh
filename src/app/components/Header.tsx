@@ -285,6 +285,11 @@ function OrderHistoryModal({ onClose }: { onClose: () => void }) {
   }, []);
 
   const handleCancelClick = (record: ApiTracking) => {
+    const customer = readCustomerSession();
+    if (!customer) {
+      toast.error('Vui lòng đăng nhập trước khi thực hiện hủy đơn!');
+      return;
+    }
     setSelectedRecordToCancel(record);
     setCancelModalOpen(true);
   };

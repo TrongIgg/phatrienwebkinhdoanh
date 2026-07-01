@@ -134,12 +134,14 @@ function AppLayout() {
             <Route path="/staff/booking" element={<StaffAdminPage />} />
             <Route path="/staff/product" element={<StaffAdminPage />} />
             <Route path="/staff/tracking" element={<StaffAdminPage />} />
+            <Route path="/staff/reviews" element={<StaffAdminPage />} />
             <Route path="/admin" element={<StaffAdminPage />} />
             <Route path="/admin/login" element={<StaffAdminPage />} />
             <Route path="/admin/dashboard" element={<StaffAdminPage />} />
             <Route path="/admin/booking" element={<StaffAdminPage />} />
             <Route path="/admin/product" element={<StaffAdminPage />} />
             <Route path="/admin/tracking" element={<StaffAdminPage />} />
+            <Route path="/admin/reviews" element={<StaffAdminPage />} />
           </Routes>
         </div>
       </main>

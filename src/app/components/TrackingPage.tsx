@@ -13,6 +13,8 @@ import {
   Share2,
   Sparkles,
   UserRound,
+  Facebook,
+  Mail,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api, type ApiTracking } from '../lib/api';
@@ -24,6 +26,12 @@ import {
   saveMoment,
   type SavedMoment,
   type TrackingMedia,
+  readCustomerSession,
+  saveCustomerSession,
+  CUSTOMER_SESSION_EVENT,
+  createMockCustomerSession,
+  type CustomerSession,
+  type SocialProvider,
 } from '../lib/customerExperience';
 
 type TrackingType = 'order' | 'workshop' | 'ceramic' | 'custom';
@@ -305,9 +313,21 @@ export function TrackingPage({
   const selectedType = trackingTypes.find((type) => type.id === trackingType) ?? trackingTypes[0];
   const resultType = (result?.tracking_type as TrackingType | undefined) ?? trackingType;
 
-  // Cancellation state
+  // Cancellation state & customer session state
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedRecordToCancel, setSelectedRecordToCancel] = useState<ApiTracking | null>(null);
+  const [customer, setCustomer] = useState<CustomerSession | null>(() => readCustomerSession());
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+
+  useEffect(() => {
+    const syncCustomer = () => setCustomer(readCustomerSession());
+    window.addEventListener(CUSTOMER_SESSION_EVENT, syncCustomer);
+    window.addEventListener('storage', syncCustomer);
+    return () => {
+      window.removeEventListener(CUSTOMER_SESSION_EVENT, syncCustomer);
+      window.removeEventListener('storage', syncCustomer);
+    };
+  }, []);
 
   const lookupCode = async (rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
@@ -375,7 +395,20 @@ export function TrackingPage({
 
   const handleCancelClick = (record: ApiTracking) => {
     setSelectedRecordToCancel(record);
+    if (!customer) {
+      setLoginPromptOpen(true);
+      return;
+    }
     setCancelModalOpen(true);
+  };
+
+  const handleConfirmLogin = (provider: SocialProvider) => {
+    const session = createMockCustomerSession(provider);
+    saveCustomerSession(session);
+    setCustomer(session);
+    setLoginPromptOpen(false);
+    setCancelModalOpen(true);
+    toast.success(`Đăng nhập thành công dưới tên ${session.display_name}!`);
   };
 
   const handleConfirmCancel = () => {
@@ -526,6 +559,16 @@ export function TrackingPage({
           onConfirm={handleConfirmCancel}
         />
       )}
+
+      {loginPromptOpen && selectedRecordToCancel && (
+        <LoginPromptModal
+          onClose={() => {
+            setLoginPromptOpen(false);
+            setSelectedRecordToCancel(null);
+          }}
+          onLogin={handleConfirmLogin}
+        />
+      )}
     </div>
   );
 }
@@ -534,6 +577,7 @@ function CeramicTrackingExperience({ code, result }: { code: string; result: Api
   const trackingCode = (result?.code || code || 'CER-DEMO').toUpperCase();
   const timeline = buildCeramicTimeline(result?.timeline?.length ? result.timeline : fallbackTimeline);
   const readyActive = timeline.some((step) => step.stage === 'ready' && step.state !== 'waiting');
+  const isCeramicReady = timeline.some((step) => step.stage === 'ready' && step.state === 'done') || result?.status === 'ready' || result?.status === 'completed';
   const [media, setMedia] = useState<TrackingMedia[]>([]);
   const [savedMoments, setSavedMoments] = useState<SavedMoment[]>([]);
 
@@ -569,6 +613,20 @@ function CeramicTrackingExperience({ code, result }: { code: string; result: Api
             <h2 className="text-2xl text-foreground">{result?.title || 'Sản phẩm gốm của bạn'}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{result?.message || 'Studio đang cập nhật hành trình thành phẩm.'}</p>
             {result?.manager_name && <p className="mt-2 text-sm text-primary">Nhân viên phụ trách: {result.manager_name}</p>}
+            {isCeramicReady && (
+              <div className="mt-4 rounded-lg bg-[#EFE2D6] p-4 border border-[#C0AC8B]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
+                <div>
+                  <p className="font-bold text-sm text-[#361F17]">✨ Thành phẩm gốm đã sẵn sàng nhận!</p>
+                  <p className="text-xs text-[#716942] mt-0.5">Hãy để lại nhận xét đánh giá về trải nghiệm làm gốm và thành phẩm nhé.</p>
+                </div>
+                <Link
+                  to={`/review?targetType=workshop&code=${trackingCode}`}
+                  className="shrink-0 text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-4 py-2 transition-colors inline-flex items-center gap-1.5 shadow-sm justify-center"
+                >
+                  ✍️ Nhận xét ngay
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="rounded-lg border border-border bg-card p-6">
@@ -853,6 +911,65 @@ export function getCancellationRefundDetails(record: ApiTracking): {
   };
 }
 
+export function LoginPromptModal({
+  onClose,
+  onLogin,
+}: {
+  onClose: () => void;
+  onLogin: (provider: SocialProvider) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[1000] grid place-items-center bg-black/60 px-4 animate-fade-in">
+      <div className="w-full max-w-[440px] rounded-2xl bg-[#FFF8F2] border border-[#E2CDBD] p-6 shadow-2xl text-center animate-scale-up">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FFF1E8] border border-[#EFD8C7] text-primary">
+          <UserRound className="h-7 w-7 text-[#716942]" />
+        </div>
+        <h3 className="mt-4 text-2xl font-bold text-[#361F17]">
+          🔐 Đăng nhập để hủy đơn
+        </h3>
+        <p className="mt-3 text-sm text-[#716942] leading-relaxed">
+          Để bảo mật thông tin và tránh nhầm lẫn, vui lòng đăng nhập trước khi thực hiện hủy đơn hàng hoặc đặt chỗ tại THỔ Studio.
+        </p>
+        
+        <div className="mt-6 space-y-3">
+          <button
+            type="button"
+            onClick={() => onLogin('google')}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#E2CDBD] bg-white font-bold text-[#361F17] hover:bg-[#EFE2D6] transition-colors text-sm shadow-sm"
+          >
+            <Mail className="h-5 w-5 text-red-500" />
+            Tiếp tục với Google
+          </button>
+          <button
+            type="button"
+            onClick={() => onLogin('facebook')}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#E2CDBD] bg-white font-bold text-[#361F17] hover:bg-[#EFE2D6] transition-colors text-sm shadow-sm"
+          >
+            <Facebook className="h-5 w-5 text-blue-600" />
+            Tiếp tục với Facebook
+          </button>
+          <button
+            type="button"
+            onClick={() => onLogin('zalo')}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#E2CDBD] bg-white font-bold text-[#361F17] hover:bg-[#EFE2D6] transition-colors text-sm shadow-sm"
+          >
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0068FF] text-[10px] font-black text-white">Z</span>
+            Tiếp tục với Zalo
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-5 text-xs font-semibold text-muted-foreground underline hover:text-[#361F17] transition-colors block mx-auto"
+        >
+          Đóng, quay lại sau
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function CancelConfirmationModal({
   record,
   onClose,
@@ -953,14 +1070,27 @@ function SimpleTrackingResult({
               }`}>
                 {isCancelled ? 'Đã hủy đơn' : result?.status || (isOrder ? 'Đã thanh toán' : 'Đã xác nhận')}
               </span>
-              {!isCancelled && result && onCancelClick && (
-                <button
-                  type="button"
-                  onClick={() => onCancelClick(result)}
-                  className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-4 py-1.5 transition-colors"
-                >
-                  {isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
-                </button>
+              {!isCancelled && result && (
+                <div className="flex flex-col gap-2 mt-1 items-end">
+                  {onCancelClick && (
+                    <button
+                      type="button"
+                      onClick={() => onCancelClick(result)}
+                      className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full px-4 py-1.5 transition-colors"
+                    >
+                      {isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
+                    </button>
+                  )}
+                  {((isOrder && (result.status === 'delivered' || result.timeline?.some(step => step.stage === 'delivered' && step.state === 'done'))) ||
+                    (!isOrder && (result.checkin_status === 'checked_in' || result.status === 'completed'))) && (
+                    <Link
+                      to={`/review?targetType=${isOrder ? 'product' : 'workshop'}&code=${result.code}`}
+                      className="text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-4 py-1.5 transition-colors text-center inline-flex items-center gap-1 shadow-sm"
+                    >
+                      ✍️ Đánh giá trải nghiệm
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
           </div>
