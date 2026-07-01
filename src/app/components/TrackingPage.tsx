@@ -1073,7 +1073,16 @@ function SimpleTrackingResult({
                 {isCancelled ? 'Đã hủy đơn' : result?.status || (isOrder ? 'Đã thanh toán' : 'Đã xác nhận')}
               </span>
               {!isCancelled && result && (
-                <div className="flex flex-col gap-2 mt-1 items-end">
+                <div className="flex flex-wrap items-center gap-2 mt-1 justify-end">
+                  {((isOrder && (result.status === 'delivered' || result.timeline?.some(step => step.stage === 'delivered' && step.state === 'done'))) ||
+                    (!isOrder && (result.checkin_status === 'checked_in' || result.status === 'completed'))) && (
+                    <Link
+                      to={`/review?targetType=${isOrder ? 'product' : 'workshop'}&code=${result.code}`}
+                      className="text-xs font-bold text-white bg-[#716942] hover:bg-[#5a5332] rounded-full px-4 py-1.5 transition-colors text-center inline-flex items-center gap-1 shadow-sm animate-fade-in"
+                    >
+                      ✍️ Đánh giá trải nghiệm
+                    </Link>
+                  )}
                   {onCancelClick && (
                     <button
                       type="button"
