@@ -22,12 +22,12 @@ const glazes: Array<{ id: GlazeId; label: string; tone: string }> = [
 ];
 
 const stages: Array<{ id: StageId; label: string; note: string; image: string }> = [
-  { id: 'shape', label: 'Nặn hình', note: 'Chọn dáng ban đầu: đĩa, bình, ly hoặc bát.', image: workshopImages.handsWarm },
-  { id: 'wheel', label: 'Lên bàn xoay & gọt', note: 'Canh miệng, chỉnh độ nghiêng và gọt chân sản phẩm.', image: workshopImages.wheelBw },
-  { id: 'bisque', label: 'Nung sơ', note: 'Sản phẩm khô được nung lần đầu để cứng dáng.', image: workshopImages.largePot },
-  { id: 'paint', label: 'Tô màu / tráng men', note: 'Chọn màu men và vẽ chi tiết trang trí.', image: workshopImages.detailBw },
-  { id: 'dry', label: 'Phơi khô', note: 'Men cần ổn định trước khi vào lò hoàn thiện.', image: productImages.crackleBowls },
-  { id: 'ready', label: 'Thành phẩm', note: 'Xem mẫu sau nung, sẵn sàng nhận hoặc giao.', image: productImages.tealVase },
+  { id: 'shape', label: 'Tạo dáng đất', note: 'Khách trực tiếp nhào nặn đất sét, vuốt tay tạo dáng thô cho gốm.', image: workshopImages.handsWarm },
+  { id: 'paint', label: 'Vẽ họa tiết & Tô màu', note: 'Khách vẽ họa tiết, tô màu men lỏng trang trí lên phiếu đất sét thô.', image: workshopImages.detailBw },
+  { id: 'dry', label: 'Phơi khô tự nhiên', note: 'Phiếu đất sét thô được phơi khô hoàn toàn 3–5 ngày tránh nứt vỡ khi vào lò. • Xưởng thực hiện.', image: workshopImages.largePot },
+  { id: 'bisque', label: 'Nung sơ lần 1 (800°C)', note: 'Nung mộc phiếu đất khô ở nhiệt độ vừa phải để liên kết đất bền vững. • Xưởng thực hiện.', image: workshopImages.wheelBw },
+  { id: 'wheel', label: 'Tráng men màu', note: 'Nghệ nhân phủ lớp men bóng hoặc men màu bảo vệ lên gốm mộc. • Nghệ nhân thực hiện.', image: workshopImages.artisanBw },
+  { id: 'ready', label: 'Nung hoàn thiện (1200°C)', note: 'Nung lửa cao lần hai để lớp men thủy tinh hóa hoàn mỹ — thành phẩm. • Xưởng thực hiện.', image: productImages.tealVase },
 ];
 
 const shapeClass: Record<ShapeId, string> = {
@@ -60,12 +60,12 @@ export function WorkshopCustomizer() {
 
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#716942]">Mini game custom workshop</p>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#716942]">Mẫu thử quy trình chế tác gốm</p>
             <h1 className="mt-3 max-w-xl text-3xl font-bold leading-tight text-[#3B2118] sm:text-4xl">
-              Click từng giai đoạn để xem mẫu làm gốm
+              Khám phá từng bước tạo tác gốm thực tế
             </h1>
             <p className="mt-4 max-w-xl leading-7 text-[#6A5D52]">
-              Khách chọn dáng và màu men, sau đó bấm qua từng bước: nặn hình, lên bàn xoay, nung, tô màu, phơi khô và thành phẩm.
+              Khách chọn dáng gốm và màu men mong muốn, sau đó click qua từng giai đoạn để thử nghiệm quy trình tạo tác gốm thực tế tại xưởng THỔ.
             </p>
 
             <div className="mt-7 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-4">
@@ -110,7 +110,7 @@ export function WorkshopCustomizer() {
             <div className="mt-4 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-4">
               <div className="mb-3 flex items-center gap-2 font-bold">
                 <Flame className="h-5 w-5 text-[#C96B37]" />
-                Giai đoạn mẫu
+                Giai đoạn thử nghiệm
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 {stages.map((stage, index) => (

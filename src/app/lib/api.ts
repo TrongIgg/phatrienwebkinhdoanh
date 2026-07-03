@@ -46,6 +46,7 @@ export type ApiTracking = {
   status: string;
   title: string;
   message: string;
+  customer_name?: string | null;
   manager_name?: string | null;
   participant_count?: number | null;
   checkin_status?: string | null;

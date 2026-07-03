@@ -126,7 +126,7 @@ export function BookingForm({
             <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-[#EFD8C7] bg-[#FFF8F2] p-6">
               <Field label="Họ và tên" value={formData.name} onChange={(value) => setFormData({ ...formData, name: value })} placeholder="Nhập họ tên của bạn" required />
               <div className="rounded-lg bg-[#F7E8DC] p-4 text-sm text-[#6f5d52]">
-                Chỉ cần nhập email hoặc số điện thoại. THỔ sẽ dùng thông tin này để xác nhận lịch và gửi nhắc thanh toán.
+                Bạn chỉ cần nhập một trong hai (hoặc cả hai) kênh dưới đây. Nhập <strong>Số điện thoại</strong> để nhận SMS nhắc lịch học, nhập <strong>Email</strong> để nhận vé QR điện tử kèm mã theo dõi tiến trình thành phẩm gốm.
               </div>
               <div>
                 <span className="mb-2 block text-[#2B211D]">Số slot muốn giữ <span className="text-destructive">*</span></span>
@@ -161,8 +161,8 @@ export function BookingForm({
                   </p>
                 </div>
               </div>
-              <Field label="Số điện thoại" type="tel" value={formData.phone} onChange={(value) => setFormData({ ...formData, phone: value })} placeholder="0912 345 678" />
-              <Field label="Email" type="email" value={formData.email} onChange={(value) => setFormData({ ...formData, email: value })} placeholder="email@example.com" />
+              <Field label="Số điện thoại (Nhận SMS nhắc lịch học)" type="tel" value={formData.phone} onChange={(value) => setFormData({ ...formData, phone: value })} placeholder="0912 345 678" />
+              <Field label="Email (Nhận vé điện tử QR & mã theo dõi)" type="email" value={formData.email} onChange={(value) => setFormData({ ...formData, email: value })} placeholder="email@example.com" />
 
               <label className="block">
                 <span className="mb-2 block text-[#2B211D]">Ghi chú (không bắt buộc)</span>

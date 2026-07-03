@@ -46,6 +46,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'delivered',
     title: 'Đơn hàng bộ ấm chén gốm mộc THỔ',
     message: 'Đơn hàng đã được giao thành công đến bạn vào ngày 28/06/2026. Cảm ơn bạn đã lựa chọn THỔ!',
+    customer_name: 'Nguyễn Thu Hà',
     manager_name: 'Trần Minh Hoàng',
     timeline: [
       { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
@@ -63,6 +64,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'completed',
     title: 'Vé Workshop Nặn Gốm Căn Bản',
     message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 25/06/2026. Hy vọng bạn đã có khoảng thời gian ý nghĩa chạm đất!',
+    customer_name: 'Trần Minh Tuấn',
     manager_name: 'Nguyễn Thanh Linh',
     participant_count: 2,
     checkin_status: 'checked_in',
@@ -81,6 +83,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'ready',
     title: 'Cốc gốm men hỏa biến & Bình hoa nhỏ',
     message: 'Thành phẩm gốm của bạn đã hoàn thành tráng men và nung xong. Bạn có thể ghé Studio để nhận hoặc đăng ký giao hàng tận nhà.',
+    customer_name: 'Phạm Quốc Anh',
     manager_name: 'Phạm Quốc Anh',
     timeline: [
       { stage: 'forming', label: 'Tạo hình', state: 'done' },
@@ -98,6 +101,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'completed',
     title: 'Vé Workshop Xoay Gốm Trải Nghiệm',
     message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 28/06/2026. Cảm ơn bạn đã ghé thăm THỔ Studio!',
+    customer_name: 'Anh Quân',
     manager_name: 'Anh Quân',
     participant_count: 1,
     checkin_status: 'checked_in',
@@ -116,6 +120,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'delivered',
     title: 'Đơn hàng Ly gốm mộc & Đĩa lót gốm',
     message: 'Đơn hàng đã giao thành công vào ngày 27/06/2026.',
+    customer_name: 'Chị Linh',
     manager_name: 'Chị Linh',
     timeline: [
       { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
@@ -133,6 +138,7 @@ export const MOCK_COMPLETED_RECORDS: Record<string, ApiTracking> = {
     status: 'delivered',
     title: 'Đơn hàng Chậu cây cảnh mini',
     message: 'Đơn hàng đã giao thành công vào ngày 26/06/2026.',
+    customer_name: 'Chị Linh',
     manager_name: 'Chị Linh',
     timeline: [
       { stage: 'paid', label: 'Đã thanh toán', state: 'done' },

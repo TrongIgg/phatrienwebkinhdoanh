@@ -275,13 +275,10 @@ export function WorkshopPage() {
                   <span className="flex items-center gap-2"><Clock className="h-4 w-4" />{workshop.time}</span>
                   <span className="flex items-center gap-2"><Users className="h-4 w-4" />{workshop.package} · còn {workshop.slots.available}/{workshop.slots.total} slot</span>
                 </div>
-                <div className="mt-5 flex items-center justify-between gap-4">
-                  <p className="text-2xl font-bold text-[#643A2A]">{workshop.price.toLocaleString('vi-VN')}đ</p>
-                  <div className="flex gap-2">
-                    <Link to={`/workshop/${workshop.id}`} className="rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] hover:bg-[#EFE2D6]">Chi tiết</Link>
+                  <div className="mt-5 flex items-center justify-between gap-4">
+                    <p className="text-2xl font-bold text-[#643A2A]">{workshop.price.toLocaleString('vi-VN')}đ</p>
                     <Link to={`/workshop/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:opacity-85">Đặt chỗ</Link>
                   </div>
-                </div>
               </div>
             </article>
           ))}

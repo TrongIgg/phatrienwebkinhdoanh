@@ -204,7 +204,7 @@ export function ProductPage() {
   const [products, setProducts] = useState<CatalogProduct[]>(fallbackCatalog);
   const [query, setQuery] = useState('');
   const [collection, setCollection] = useState('all');
-  const [stockMode, setStockMode] = useState('all');
+  const [priceRange, setPriceRange] = useState('all');
   const [page, setPage] = useState(1);
   const [notifyProduct, setNotifyProduct] = useState<CatalogProduct | null>(null);
   const [notifyEmail, setNotifyEmail] = useState('');
@@ -220,7 +220,7 @@ export function ProductPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [query, collection, stockMode]);
+  }, [query, collection, priceRange]);
 
   const matchingProducts = products.filter((product) => {
     const text = normalize(`${product.name} ${product.detailName} ${product.description} ${product.collection}`);
@@ -229,8 +229,14 @@ export function ProductPage() {
     return queryOk && collectionOk;
   });
 
-  const filteredProducts = stockMode === 'soldout' ? [] : matchingProducts.filter((product) => product.stockQty > 0);
-  const outOfStockProducts = stockMode === 'available' ? [] : matchingProducts.filter((product) => product.stockQty === 0);
+  const filteredProducts = matchingProducts.filter((product) => {
+    if (priceRange === 'all') return product.stockQty > 0;
+    if (priceRange === 'under_300') return product.stockQty > 0 && product.price < 300000;
+    if (priceRange === '300_600') return product.stockQty > 0 && product.price >= 300000 && product.price <= 600000;
+    if (priceRange === 'over_600') return product.stockQty > 0 && product.price > 600000;
+    return product.stockQty > 0;
+  });
+  const outOfStockProducts = matchingProducts.filter((product) => product.stockQty === 0);
   const pageSize = 8;
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -308,12 +314,13 @@ export function ProductPage() {
                 <option key={item} value={item}>{item === 'all' ? 'Tất cả bộ sưu tập' : item}</option>
               ))}
             </select>
-            <select value={stockMode} onChange={(event) => setStockMode(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
-              <option value="all">Tất cả tồn kho</option>
-              <option value="available">Còn hàng</option>
-              <option value="soldout">Hết hàng</option>
+            <select value={priceRange} onChange={(event) => setPriceRange(event.target.value)} className="h-12 rounded-full border border-[#C0AC8B] bg-white px-5">
+              <option value="all">Tất cả mức giá</option>
+              <option value="under_300">Dưới 300.000đ</option>
+              <option value="300_600">300.000đ – 600.000đ</option>
+              <option value="over_600">Trên 600.000đ</option>
             </select>
-            <button type="button" onClick={() => { setQuery(''); setCollection('all'); setStockMode('all'); setPage(1); }} className="h-12 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
+            <button type="button" onClick={() => { setQuery(''); setCollection('all'); setPriceRange('all'); setPage(1); }} className="h-12 rounded-full border border-[#716942]/40 px-5 font-semibold text-[#716942] hover:bg-[#716942] hover:text-white">
               Xóa lọc
             </button>
           </div>

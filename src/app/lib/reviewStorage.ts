@@ -19,6 +19,7 @@ export type ViewReview = {
   rating: number;
   date: string;
   helpful: number;
+  code?: string;
   studioReply?: string; // For backwards compatibility
   replies?: ReviewReply[];
 };
