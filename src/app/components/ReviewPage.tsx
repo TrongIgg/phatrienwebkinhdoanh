@@ -27,6 +27,25 @@ function detectTypeFromCode(code: string): ReviewTarget | null {
   return null;
 }
 
+function maskCode(code: string): string {
+  if (!code) return '';
+  const trimmed = code.trim().toUpperCase();
+  const parts = trimmed.split('-');
+  if (parts.length < 2) {
+    if (trimmed.length > 4) {
+      return trimmed.slice(0, 2) + '***' + trimmed.slice(-2);
+    }
+    return '***';
+  }
+  const prefix = parts[0];
+  const suffix = parts.slice(1).join('-');
+  if (suffix.length > 4) {
+    return `${prefix}-****${suffix.slice(-3)}`;
+  }
+  return `${prefix}-***`;
+}
+
+
 export function ReviewPage() {
   const [searchParams] = useSearchParams();
   const urlTargetType = searchParams.get('targetType') as 'product' | 'workshop' | null;
@@ -278,7 +297,7 @@ export function ReviewPage() {
                     <div className="flex items-center gap-2">
                       {review.code && (
                         <span className="rounded-full bg-[#F7F1EB] px-2 py-0.5 text-[10px] font-mono text-[#8B765D] border border-[#E5D5C5]">
-                          {review.code}
+                          {maskCode(review.code)}
                         </span>
                       )}
                       <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] ${
