@@ -155,7 +155,7 @@ export function HomePage() {
             {journey.map(([type, label], index) => (
               <div key={label} className="relative flex flex-col items-center text-center">
                 {index < journey.length - 1 && (
-                  <div className="absolute left-1/2 top-[52px] hidden h-0.5 w-full translate-x-1/2 bg-[#FBEEE5] md:block" />
+                  <div className="absolute left-1/2 top-[52px] hidden h-0.5 w-full bg-[#FBEEE5] md:block" />
                 )}
                 <div className="relative z-10 flex h-[106px] w-[106px] items-center justify-center rounded-full bg-[#FBEEE5]">
                   <JourneyIcon type={type} />
@@ -230,7 +230,6 @@ export function HomePage() {
                   <h3 className="text-base font-bold text-black">{workshop.name}</h3>
                   <p className="mt-2 text-sm leading-5 text-[#6A6A6A]">{workshop.description}</p>
                   <div className="mt-4 flex gap-3">
-                    <Link to={`/workshop/${workshop.id}`} className="rounded-full border border-[#716942] px-4 py-2 text-sm font-bold text-[#716942] transition-colors hover:bg-[#716942] hover:text-white">Chi tiết</Link>
                     <Link to={`/workshop/${workshop.id}`} className="rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-85">Đặt chỗ</Link>
                   </div>
                 </div>

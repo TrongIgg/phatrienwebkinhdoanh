@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+
+/* ===== CSS Variables (Design Tokens) ===== */
+:root {
+  --page: #FBEEE5;
+  --checkout-page: #F7F1EC;
+  --paper: #FFF8F2;
+  --paper-warm: #FFF1E8;
+  --olive: #716942;
+  --clay: #C0AC8B;
+  --bark: #361F17;
+  --coffee: #3B2118;
+  --ink: #3F3F35;
+  --rust: #643A2A;
+  --line: #EFD8C7;
+  --muted: #EFE2D6;
+  --muted-fg: #6A5D52;
+  --accent-warm: #C96B37;
+  --danger: #A33A2F;
+  --success-bg: #D8EFD1;
+  --success-fg: #3F7D37;
+
+  --font-family: "Be Vietnam Pro", Arial, sans-serif;
+  --font-size: clamp(13px, 1vw, 15px);
+  --fw-light: 300;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 14px 36px rgba(119, 115, 170, 0.12);
+  --shadow-elevated: 0 19px 47px rgba(119, 115, 170, 0.1);
+  --shadow-hover: 0 26px 58px rgba(65, 48, 33, 0.18), 0 0 32px rgba(192, 172, 139, 0.18);
+
+  --max-width: 1440px;
+}
+
+/* ===== Reset & Base ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: var(--font-size);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  font-weight: var(--fw-normal);
+  color: var(--bark);
+  background: var(--page);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: var(--font-family);
+  font-size: 16px;
+}
+
+/* ===== Typography ===== */
+h1, h2, h3, h4 {
+  font-family: var(--font-family);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+h1 { font-size: 32px; line-height: 1.4; }
+h2 { font-size: 24px; font-weight: var(--fw-semibold); line-height: 1.4; }
+h3 { font-size: 18px; font-weight: var(--fw-semibold); line-height: 1.5; }
+
+p {
+  font-size: 16px;
+  font-weight: var(--fw-normal);
+  line-height: 1.6;
+}
+
+small {
+  font-size: 14px;
+  font-weight: var(--fw-normal);
+  line-height: 1.5;
+}
+
+label, .standard-label {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+}

@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useSearchParams } from 'react-router';
 import { AlertCircle, ArrowLeft, CreditCard, Loader2, QrCode, ShoppingBag, Tag, TimerReset, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { useProductCart, type CheckoutAddress } from '../contexts/ProductCartContext';
 import { useWorkshopCart } from '../contexts/WorkshopCartContext';
 import { AssetImage, CheckoutShell, PolicyBar, workshopImages } from './DesignPrimitives';
@@ -155,13 +156,14 @@ export function CheckoutPage({
 }) {
   const [searchParams] = useSearchParams();
   const { productItems } = useProductCart();
-  const { workshopItems } = useWorkshopCart();
+  const { workshopItems, renewWorkshopHold } = useWorkshopCart();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [now, setNow] = useState(Date.now());
+  const [holdRenewed, setHoldRenewed] = useState(false);
   const [voucherInput, setVoucherInput] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountPercent: number } | null>(null);
   const [voucherError, setVoucherError] = useState('');
@@ -259,11 +261,29 @@ export function CheckoutPage({
     return () => window.clearInterval(timer);
   }, [hasWorkshopCheckout]);
 
-  // Khi giờ giữ slot hết → báo lên page layer
+  // Khi giờ giữ slot hết → báo lên page layer (ONLY if not renewed)
   useEffect(() => {
-    if (!hasWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0) return;
+    if (!hasWorkshopCheckout || !workshopHoldExpiresAt || workshopHoldSeconds > 0 || holdRenewed) return;
     onPaymentCancel(selectedWorkshopIds);
-  }, [hasWorkshopCheckout, onPaymentCancel, selectedWorkshopIds, workshopHoldExpiresAt, workshopHoldSeconds]);
+  }, [hasWorkshopCheckout, holdRenewed, onPaymentCancel, selectedWorkshopIds, workshopHoldExpiresAt, workshopHoldSeconds]);
+
+  // Handler for renewing hold
+  const handleRenewHold = () => {
+    let allRenewed = true;
+    for (const item of checkoutWorkshopItems) {
+      const ok = renewWorkshopHold(item.id);
+      if (!ok) { allRenewed = false; break; }
+    }
+    if (allRenewed) {
+      setHoldRenewed(true);
+      setNow(Date.now());
+      // Reset holdRenewed so the effect can fire again next time if needed
+      window.setTimeout(() => setHoldRenewed(false), 500);
+      toast.success('Đã gia hạn giữ vé thêm 15 phút.');
+    } else {
+      toast.error('Không còn đủ slot trống. Vui lòng giảm số lượng vé hoặc chọn buổi học khác.');
+    }
+  };
 
   // ── Form logic ───────────────────────────────────────────────────────────
 
@@ -503,13 +523,26 @@ export function CheckoutPage({
                       <p className="font-bold text-[#2B211D]">Xác nhận thông tin đặt chỗ</p>
                       <p className="mt-1 text-sm">Kiểm tra lại thông tin bên dưới (có thể sửa trực tiếp). Nếu cần thay đổi số lượng vé, bấm nút quay lại.</p>
                     </div>
-                    {workshopHoldExpiresAt && (
+                    {workshopHoldExpiresAt && workshopHoldSeconds > 0 && (
                       <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#716942]">
                         <TimerReset className="h-4 w-4" />
                         Còn {workshopHoldClock}
                       </span>
                     )}
                   </div>
+                  {workshopHoldExpiresAt && workshopHoldSeconds === 0 && (
+                    <div className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3">
+                      <p className="text-sm font-bold text-red-700">⏰ Thời gian giữ vé 15 phút của bạn đã hết hạn. Hệ thống đã giải phóng slot này cho người khác.</p>
+                      <button
+                        type="button"
+                        onClick={handleRenewHold}
+                        className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#716942] px-5 py-2 text-sm font-bold text-white hover:bg-[#595232]"
+                      >
+                        <TimerReset className="h-4 w-4" />
+                        Gia hạn & Thử lại
+                      </button>
+                    </div>
+                  )}
                   <Link to="/cart" className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#716942] underline">
                     ← Quay lại chỉnh thông tin
                   </Link>

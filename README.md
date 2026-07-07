@@ -1,7 +1,9 @@
 # THỔ Studio — Web Thương Mại & Booking Workshop Gốm
 
 <p align="center">
+
   <img src="image/logo/logo.jpg" alt="THỔ Studio Banner" width="100%" />
+
 </p>
 
 > **THỔ Studio** là một giải pháp website toàn diện dành cho studio gốm thủ công nghệ thuật. Nền tảng kết hợp hài hòa giữa thương mại điện tử sản phẩm gốm mộc độc bản, hệ thống đặt lịch workshop trải nghiệm thực tế, trợ lý AI tư vấn cá nhân hóa và hệ thống quản trị vận hành nội bộ dành cho nhân viên (Staff/Admin).

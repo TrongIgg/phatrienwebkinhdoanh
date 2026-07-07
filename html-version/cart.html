@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Giỏ hàng">
+  <title>THỔ Studio - Giỏ hàng</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="checkout-shell">
+
+  <!-- Checkout Header -->
+  <header class="checkout-header">
+    <div class="checkout-header-inner">
+      <a href="index.html" class="checkout-header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <div class="checkout-stepper">
+        <div class="checkout-step">
+          <div class="checkout-step-circle active">1</div>
+          <span class="checkout-step-label">Giỏ hàng</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle inactive">2</div>
+          <span class="checkout-step-label" style="color:#BFA99E;">Thanh toán</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle inactive">3</div>
+          <span class="checkout-step-label" style="color:#BFA99E;">Hoàn tất</span>
+        </div>
+      </div>
+      <div style="width:56px;"></div>
+    </div>
+  </header>
+
+  <main class="page-transition" style="max-width:1440px; margin:0 auto; padding:48px 24px 96px;">
+    <!-- Empty State -->
+    <div id="cart-empty" style="display:none;">
+      <button onclick="history.back()" class="back-btn" style="margin-bottom:32px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Quay lại
+      </button>
+      <div class="empty-state" style="border-radius:24px; border:2px solid #EFD8C7; background:#FFF1E8;">
+        <div style="margin-bottom:28px; display:flex; height:96px; width:96px; align-items:center; justify-content:center; border-radius:50%; background:#EFE2D6;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#716942" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h1 style="font-size:36px; font-weight:700; color:#2B211D;">Giỏ hàng đang trống</h1>
+        <p style="margin-top:16px; max-width:520px; font-size:18px; line-height:1.6; color:#6E4E3F;">Chọn một workshop hoặc món gốm yêu thích để bắt đầu đơn hàng.</p>
+        <div style="margin-top:36px; display:flex; flex-wrap:wrap; gap:16px;">
+          <a href="product.html" class="btn btn-dark">Mua sản phẩm</a>
+          <a href="workshop.html" class="btn btn-outline" style="border-color:rgba(58,31,23,0.25); color:#3A1F17;">Đặt workshop</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Content -->
+    <div id="cart-content" style="display:none;">
+      <div style="display:grid; gap:40px;" class="cart-layout">
+        <div>
+          <div style="margin-bottom:32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;">
+            <div>
+              <button onclick="history.back()" class="back-btn" style="margin-bottom:20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                Quay lại
+              </button>
+              <h1 style="font-size:34px; font-weight:700; color:#2B211D;">Giỏ hàng của bạn</h1>
+            </div>
+            <a href="product.html" class="btn btn-outline btn-sm" style="border-color:rgba(58,31,23,0.25); color:#3A1F17;">Tiếp tục mua sắm</a>
+          </div>
+          <div id="cart-items"></div>
+        </div>
+
+        <!-- Summary Sidebar -->
+        <aside style="position:sticky; top:112px; height:fit-content; border-radius:18px; border:2px solid #EFD8C7; background:#FFF1E8; padding:28px;">
+          <h2 style="margin-bottom:24px; font-size:32px; font-weight:400; color:#000;">Tóm tắt đơn hàng</h2>
+          <div id="cart-summary"></div>
+          <div style="margin:28px 0; border-top:1px solid #E8D6C9;"></div>
+          <div style="display:flex; justify-content:space-between; font-size:24px; color:#3A2A24;">
+            <span>Tạm tính</span>
+            <span id="cart-total">0đ</span>
+          </div>
+          <div style="margin-top:24px; border-radius:20px; background:#EFE2D6; padding:20px; color:#7A6A58;">
+            Sản phẩm vật lý sẽ được thanh toán với địa chỉ giao hàng và phí vận chuyển ở bước tiếp theo.
+          </div>
+          <button id="checkout-btn" onclick="goToCheckout()" class="btn btn-dark" style="margin-top:32px; width:100%; padding:16px; font-size:18px;">
+            Thanh toán
+          </button>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    function renderCart() {
+      const productItems = readProductCart();
+      const workshopItems = readWorkshopCart();
+      const hasItems = productItems.length > 0 || workshopItems.length > 0;
+
+      document.getElementById('cart-empty').style.display = hasItems ? 'none' : 'block';
+      document.getElementById('cart-content').style.display = hasItems ? 'block' : 'none';
+
+      if (!hasItems) return;
+
+      const itemsContainer = document.getElementById('cart-items');
+      let html = '';
+
+      // Workshop items
+      if (workshopItems.length > 0) {
+        html += `<div style="margin-bottom:24px;">
+          <span style="display:inline-flex; border-radius:9999px; background:#EFE7E1; padding:8px 20px; font-size:14px; font-weight:700; color:#7A3E2D;">Vé Workshop</span>
+        </div>`;
+        workshopItems.forEach(item => {
+          const expired = item.reservedUntil <= Date.now();
+          html += `
+          <article style="margin-bottom:20px; border-radius:18px; border:2px solid ${expired ? '#D4C8BE' : '#EFD8C7'}; background:${expired ? '#EFEAE5' : '#FFF1E8'}; padding:20px; ${expired ? 'opacity:0.75;' : ''}">
+            <div style="display:grid; gap:20px; grid-template-columns:96px 1fr auto;">
+              <div class="asset-img" style="height:87px; width:87px; border-radius:12px; ${expired ? 'filter:grayscale(1);' : ''}"><img src="${workshopImages.handsWarm}" alt="${item.name}"></div>
+              <div>
+                <h3 style="font-size:18px; font-weight:700; color:${expired ? '#7A6A58' : '#2B211D'};">${item.name} ${expired ? '<span style="border-radius:9999px; background:#D8CEC5; padding:4px 12px; font-size:12px; color:#6E4E3F;">Hết hạn giữ chỗ</span>' : ''}</h3>
+                <p style="margin-top:12px; font-size:14px; color:#6E4E3F;">${item.date || ''} · ${item.time || ''}</p>
+                <p style="margin-top:12px; font-size:14px; color:#8A715F;">Giảng viên: ${item.instructor || ''}</p>
+                <p style="margin-top:8px; font-size:14px; color:#8A715F;">Gói: ${item.package || ''}</p>
+              </div>
+              <div style="display:flex; align-items:start; gap:32px;">
+                <p style="font-size:24px; color:${expired ? '#8A7C70' : '#2B211D'};">${formatVND(item.price * (item.tickets || 1))}</p>
+                <button onclick="removeWorkshopFromCart('${item.id}'); renderCart(); updateCartBadge();" style="color:#BFA083; cursor:pointer; background:none; border:none;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>`;
+        });
+      }
+
+      // Product items
+      if (productItems.length > 0) {
+        html += `<div style="margin-top:40px; margin-bottom:16px;">
+          <span style="display:inline-flex; border-radius:9999px; background:#EFE7E1; padding:8px 20px; font-size:14px; color:#7A6A45;">Sản phẩm vật lý</span>
+          <span style="margin-left:12px; font-size:14px; font-weight:700; color:#8B765D;">Giao tận nơi</span>
+        </div>`;
+        productItems.forEach(item => {
+          html += `
+          <article style="margin-bottom:20px; border-radius:18px; border:2px solid #EFD8C7; background:#FFF1E8; padding:20px;">
+            <div style="display:grid; gap:20px; grid-template-columns:96px 1fr auto;">
+              <div class="asset-img" style="height:87px; width:87px; border-radius:12px;"><img src="${item.image}" alt="${item.name}"></div>
+              <div>
+                <h3 style="font-size:18px; font-weight:700; color:#2B211D;">${item.name}</h3>
+                <div style="margin-top:24px; display:flex; align-items:center; gap:20px;">
+                  <button onclick="updateProductQuantity('${item.id}', ${item.quantity - 1}); renderCart(); updateCartBadge();" style="display:flex; height:30px; width:30px; align-items:center; justify-content:center; border-radius:50%; border:2px solid #E5CDBA; background:transparent; cursor:pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                  </button>
+                  <span style="min-width:32px; text-align:center; font-size:24px;">${item.quantity}</span>
+                  <button onclick="updateProductQuantity('${item.id}', ${item.quantity + 1}); renderCart(); updateCartBadge();" style="display:flex; height:30px; width:30px; align-items:center; justify-content:center; border-radius:50%; border:2px solid #E5CDBA; background:transparent; cursor:pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div style="display:flex; align-items:start; gap:32px;">
+                <p style="font-size:24px; color:#2B211D;">${formatVND(item.price * item.quantity)}</p>
+                <button onclick="removeProductFromCart('${item.id}'); renderCart(); updateCartBadge();" style="color:#BFA083; cursor:pointer; background:none; border:none;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>`;
+        });
+      }
+
+      itemsContainer.innerHTML = html;
+
+      // Summary
+      const pTotal = getProductTotal();
+      const wTotal = getWorkshopTotal();
+      const total = pTotal + wTotal;
+      const pCount = getProductCount();
+      const wCount = getWorkshopTicketCount();
+
+      let summaryHtml = '';
+      if (workshopItems.length > 0) {
+        summaryHtml += `<div style="display:flex; justify-content:space-between; font-size:20px; color:#756D4E; margin-bottom:16px;"><span>Workshop (${wCount} slot)</span><span>${formatVND(wTotal)}</span></div>`;
+      }
+      if (productItems.length > 0) {
+        summaryHtml += `<div style="display:flex; justify-content:space-between; font-size:20px; color:#756D4E;"><span>Sản phẩm (${pCount} món)</span><span>${formatVND(pTotal)}</span></div>`;
+      }
+      document.getElementById('cart-summary').innerHTML = summaryHtml;
+      document.getElementById('cart-total').textContent = formatVND(total);
+    }
+
+    function goToCheckout() {
+      const pCount = getProductCount();
+      const wCount = getWorkshopTicketCount();
+      if (pCount + wCount === 0) {
+        showToast('Giỏ hàng trống.', 'error');
+        return;
+      }
+      window.location.href = 'checkout.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCart);
+  </script>
+
+  <style>
+    .cart-layout { grid-template-columns: 1fr 420px; }
+    @media (max-width: 1023px) { .cart-layout { grid-template-columns: 1fr !important; } }
+    @media (max-width: 767px) {
+      article > div { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</body>
+</html>

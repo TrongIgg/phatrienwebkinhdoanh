@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Đặt hàng thành công">
+  <title>THỔ Studio - Đặt hàng thành công</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .success-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1.08fr 0.92fr;
+    }
+    @media (max-width: 1023px) {
+      .success-grid { grid-template-columns: 1fr; }
+    }
+    .barcode-box {
+      max-width: 520px;
+      margin: 16px auto 0;
+      border-radius: 8px;
+      border: 1px solid #D8C1AE;
+      background: #fff;
+      padding: 16px 20px;
+    }
+    .barcode-lines {
+      display: flex;
+      height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      overflow: hidden;
+    }
+    .barcode-line {
+      display: inline-block;
+      border-radius: 2px;
+      background: #2C1907;
+    }
+  </style>
+</head>
+<body class="checkout-shell">
+
+  <!-- Checkout Header -->
+  <header class="checkout-header">
+    <div class="checkout-header-inner">
+      <a href="index.html" class="checkout-header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <div class="checkout-stepper">
+        <div class="checkout-step">
+          <div class="checkout-step-circle active" style="background:#FFF1E8; color:var(--coffee);">1</div>
+          <span class="checkout-step-label">Giỏ hàng</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle active" style="background:#FFF1E8; color:var(--coffee);">2</div>
+          <span class="checkout-step-label">Thanh toán</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle active">3</div>
+          <span class="checkout-step-label">Hoàn tất</span>
+        </div>
+      </div>
+      <div style="width:56px;"></div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-transition" style="max-width:1080px; margin:0 auto; padding:48px 24px 96px;">
+    <!-- Top Message -->
+    <div style="text-align:center;">
+      <div style="margin:0 auto 16px; display:flex; height:80px; width:80px; align-items:center; justify-content:center; border-radius:50%; background:#D8EFD1; color:#3F7D37;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+      </div>
+      <h1 style="font-size:24px; font-weight:700; color:#000;">Đặt hàng thành công</h1>
+      <p style="margin:12px auto 0; max-width:760px; font-size:14px; line-height:1.6; color:#4F4038;">
+        Cảm ơn bạn đã đặt hàng tại THỔ Studio. Mã đơn, vé workshop và thông tin giao hàng đã được tạo để bạn dễ tra cứu lại.
+      </p>
+    </div>
+
+    <!-- Success Details Grid -->
+    <div class="success-grid" style="margin-top:32px;">
+      <!-- Left side: Order code barcode & items summary -->
+      <div style="display:grid; gap:16px;">
+        <div style="border-radius:8px; border:1px solid #EFD8C7; background:#FFF1E8; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:16px;">
+            <div>
+              <p style="font-size:12px; font-weight:700; text-transform:uppercase; tracking:0.16em; color:#716942;">Mã đơn hàng</p>
+              <h2 id="order-code-title" style="font-size:36px; font-weight:700; margin-top:8px; line-height:1; color:#000;"></h2>
+            </div>
+            <p id="order-meta-info" style="font-size:14px; font-weight:700; color:#6A5D52; text-align:right; line-height:1.5;"></p>
+          </div>
+
+          <!-- Barcode representation (Hidden as per request) -->
+          <div class="barcode-box" style="display:none;">
+            <div class="barcode-lines" id="barcode-lines-render">
+              <!-- rendered by JS -->
+            </div>
+            <p id="barcode-value" style="margin-top:8px; text-align:center; font-family:monospace; font-size:14px; tracking:0.18em; color:#2C1907;"></p>
+          </div>
+
+          <!-- Items rows -->
+          <div style="margin-top:24px; border-top:1px dashed #C0AC8B; padding-top:20px; display:grid; gap:12px; font-size:14px;" id="order-items-summary-list">
+            <!-- filled by JS -->
+          </div>
+
+          <button onclick="downloadReceiptPDF()" class="btn btn-outline btn-sm" style="margin-top:20px; width:100%; border-radius:9999px; height:44px; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Tải biên lai PDF
+          </button>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="index.html" class="btn btn-dark" style="border-radius:9999px; flex:1; height:48px;">Về trang chủ</a>
+          <a id="tracking-redirect-btn" href="" class="btn btn-outline" style="border-radius:9999px; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            Tra cứu tracking
+          </a>
+        </div>
+      </div>
+
+      <!-- Right side: tickets & shipping -->
+      <div style="display:grid; gap:16px;">
+        <!-- Tickets section (only shown if workshops in order) -->
+        <section id="workshop-tickets-box" style="display:none; border-radius:8px; border:1px solid #EFD8C7; background:#FFF1E8; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <h2 style="font-size:18px; font-weight:700; color:#000; margin:0 0 16px;">Vé Workshop của bạn</h2>
+          <div id="tickets-list" style="display:grid; gap:16px;"></div>
+        </section>
+
+        <!-- Shipping section (only shown if products in order) -->
+        <section id="shipping-info-box" style="display:none; border-radius:8px; border:1px solid #EFD8C7; background:#FFF1E8; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <h2 style="font-size:18px; font-weight:700; color:#000; margin:0 0 12px;">Thông tin giao hàng</h2>
+          <p id="shipping-address-text" style="font-size:14px; color:#6A4A3D; line-height:1.6; margin:0;"></p>
+          
+          <div style="border-top:1px dashed #C0AC8B; margin:16px 0;"></div>
+          <div id="shipping-products-list" style="display:grid; gap:12px;"></div>
+
+          <div style="margin-top:16px; border-radius:8px; background:#FEF5F2; padding:12px; color:#C62828; font-size:14px; font-weight:700;">
+            Hàng dễ vỡ / độc bản - giao hàng có bảo hiểm.
+          </div>
+          <p style="margin-top:8px; font-size:13px; color:#6A4A3D; line-height:1.5;">Dự kiến giao: 3-5 ngày làm việc · SMS thông báo khi lấy hàng</p>
+        </section>
+
+        <!-- Status notice -->
+        <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:8px; background:#FFF1E8; padding:12px; font-size:14px; color:#6A5D52; text-align:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Vé và biên lai đã được gửi đến email/SMS của bạn
+        </span>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    let activeOrder = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      activeOrder = readOrderData();
+
+      if (!activeOrder) {
+        // Fallback to demo order if none found
+        activeOrder = {
+          orderCode: 'ORD-826491',
+          createdAt: new Date().toISOString(),
+          paymentMethod: 'momo',
+          subtotal: 1310000,
+          shippingFee: 40000,
+          total: 1350000,
+          customer: {
+            name: 'Nguyễn Văn A',
+            phone: '0948558670',
+            email: 'anguyen@gmail.com',
+            city: 'TP. Hồ Chí Minh',
+            district: 'Thủ Đức',
+            ward: 'Linh Trung',
+            address: '12 Võ Văn Ngân',
+            note: '',
+            shipping: 'standard'
+          },
+          items: [
+            { type: 'product', id: 'p1', name: 'Bình gốm men celadon - Dáng oval S', price: 380000, quantity: 1, image: productImages.tealVase }
+          ]
+        };
+      }
+
+      // Populate layout safely
+      const codeValue = activeOrder.orderCode || 'ORD-826491';
+      document.getElementById('order-code-title').textContent = codeValue;
+      if (document.getElementById('barcode-value')) {
+        document.getElementById('barcode-value').textContent = codeValue;
+      }
+      
+      const orderDate = new Date(activeOrder.createdAt || new Date());
+      const dateStr = isNaN(orderDate.getTime()) 
+        ? '07/07/2026' 
+        : `${orderDate.getDate().toString().padStart(2, '0')}/${(orderDate.getMonth() + 1).toString().padStart(2, '0')}/${orderDate.getFullYear()}`;
+      
+      const payMethod = activeOrder.paymentMethod || 'momo';
+      document.getElementById('order-meta-info').innerHTML = `${dateStr}<br>${payMethod.toUpperCase()}`;
+
+      // Redirect button
+      const redirectBtn = document.getElementById('tracking-redirect-btn');
+      if (redirectBtn) {
+        redirectBtn.href = `tracking.html?code=${codeValue}`;
+        redirectBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          Tra cứu tracking (${codeValue})
+        `;
+      }
+
+      // Render barcode lines
+      const barcodeLines = document.getElementById('barcode-lines-render');
+      if (barcodeLines) {
+        barcodeLines.innerHTML = '';
+        for (let i = 0; i < 40; i++) {
+          const h = 24 + Math.round(Math.random() * 20);
+          const w = 1 + Math.round(Math.random() * 3);
+          const gap = 1 + Math.round(Math.random() * 2);
+          barcodeLines.innerHTML += `<span class="barcode-line" style="height:${h}px; width:${w}px; margin-right:${gap}px;"></span>`;
+        }
+      }
+
+      // Populate Items summaries & lists safely
+      const summaries = document.getElementById('order-items-summary-list');
+      const itemsList = activeOrder.items || [];
+      const workshops = itemsList.filter(i => i.type === 'workshop');
+      const productsList = itemsList.filter(i => i.type === 'product');
+
+      let summariesHtml = '';
+      itemsList.forEach(item => {
+        const qty = item.type === 'workshop' ? item.tickets : item.quantity;
+        summariesHtml += `
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>${item.name} <strong>x${qty}</strong></span>
+            <span>${formatVND(item.price * qty)}</span>
+          </div>`;
+      });
+      summariesHtml += `
+        <div style="margin:12px 0; border-top:1px solid #E5D5C5;"></div>
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:16px;">
+          <span>Tổng thanh toán</span>
+          <span>${formatVND(activeOrder.total || 0)}</span>
+        </div>`;
+      if (summaries) {
+        summaries.innerHTML = summariesHtml;
+      }
+
+      // Tickets list
+      if (workshops.length > 0) {
+        const tBox = document.getElementById('workshop-tickets-box');
+        if (tBox) tBox.style.display = 'block';
+        const ticketsContainer = document.getElementById('tickets-list');
+        if (ticketsContainer) {
+          ticketsContainer.innerHTML = workshops.map((ws, index) => `
+            <div>
+              <h3 style="font-size:14px; font-weight:700; color:#3B2118; margin:0;">${ws.name}</h3>
+              <p style="margin:4px 0 0; font-size:13px; color:#6A4A3D;">${ws.date} · ${ws.time}</p>
+              <p style="margin:4px 0 0; font-size:13px; color:#3B2118;">Giảng viên: ${ws.instructor || 'Nghệ nhân THỔ'}</p>
+              <div style="display:flex; align-items:center; gap:12px; background:#fff; border-radius:8px; border:1px solid #EFD8C7; padding:12px; margin-top:12px; width:fit-content;">
+                <!-- Simulated QR code icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#361F17" stroke-width="1.5"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
+                <div>
+                  <p style="font-family:monospace; font-size:15px; font-weight:700; color:#361F17; margin:0;">WS-${activeOrder.orderCode.slice(-4)}-0${index + 1}</p>
+                  <p style="font-size:11px; color:#6A4A3D; margin:4px 0 0;">Xuất trình khi đến studio</p>
+                </div>
+              </div>
+            </div>`).join('');
+        }
+      }
+
+      // Shipping info
+      if (productsList.length > 0) {
+        document.getElementById('shipping-info-box').style.display = 'block';
+        const addrText = `${activeOrder.customer.name} · ${activeOrder.customer.phone}<br>${activeOrder.customer.address}, ${activeOrder.customer.ward}, ${activeOrder.customer.district}, ${activeOrder.customer.city}`;
+        document.getElementById('shipping-address-text').innerHTML = addrText;
+
+        const prContainer = document.getElementById('shipping-products-list');
+        prContainer.innerHTML = productsList.map(p => `
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="asset-img" style="height:48px; width:48px; border-radius:50%;"><img src="${p.image}" alt="${p.name}"></div>
+            <p style="font-size:14px; font-weight:700; margin:0;">${p.name} · x${p.quantity}</p>
+          </div>`).join('');
+      }
+    });
+
+    // Receipt PDF simulation
+    function downloadReceiptPDF() {
+      const rows = activeOrder.items.map(item => {
+        const qty = item.type === 'workshop' ? item.tickets : item.quantity;
+        return `<tr><td style="padding:10px 0; border-bottom:1px solid #e5d4c6;">${item.name}</td><td style="padding:10px 0; border-bottom:1px solid #e5d4c6;">x${qty}</td><td style="padding:10px 0; border-bottom:1px solid #e5d4c6; text-align:right;">${formatVND(item.price * qty)}</td></tr>`;
+      }).join('');
+
+      const html = `
+        <!doctype html>
+        <html lang="vi">
+          <head>
+            <meta charset="utf-8" />
+            <title>${activeOrder.orderCode}-receipt</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; color: #2B211D; background:#FFF8F2; }
+              h1 { font-size: 26px; margin-bottom: 8px; color:#3B2118; }
+              table { width: 100%; border-collapse: collapse; margin-top: 32px; }
+              @media print { button { display: none; } }
+            </style>
+          </head>
+          <body>
+            <h1>THỔ Studio - Biên lai thanh toán</h1>
+            <p>Mã đơn hàng: <strong>${activeOrder.orderCode}</strong></p>
+            <p>Khách hàng: <strong>${activeOrder.customer.name}</strong> (${activeOrder.customer.phone})</p>
+            <p>Phương thức: ${activeOrder.paymentMethod.toUpperCase()}</p>
+            <table>${rows}</table>
+            <p style="text-align:right; font-size:20px; font-weight:700; margin-top:24px;">Tổng thanh toán: ${formatVND(activeOrder.total)}</p>
+            <button onclick="window.print()" style="margin-top:32px; background:#716942; color:#fff; border:none; border-radius:4px; padding:12px 24px; font-weight:bold; cursor:pointer;">Lưu thành PDF / In</button>
+            <script>window.onload = () => window.print();<\/script>
+          </body>
+        </html>`;
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+  </script>
+</body>
+</html>
