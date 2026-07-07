@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Thanh toán đơn hàng">
+  <title>THỔ Studio - Thanh toán</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .payment-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .payment-choice {
+      display: flex;
+      min-height: 140px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 1px solid #D4D4D4;
+      background: #fff;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 16px;
+    }
+    .payment-choice.active {
+      border: 2px solid var(--olive);
+      background: #F7F1EC;
+    }
+    .payment-logo-container {
+      margin-bottom: 12px;
+      display: flex;
+      height: 54px;
+      width: 110px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #fff;
+      padding: 4px;
+      border: 1px solid #E2CDBD;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .payment-logo-container img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+    .checkout-col-grid {
+      display: grid;
+      gap: 48px;
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+    @media (max-width: 1023px) {
+      .checkout-col-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Modal Overlay fixed styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    @media (max-width: 767px) {
+      .modal-body-grid {
+        grid-template-columns: 1fr !important;
+      }
+      #payment-modal-box {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+    }
+  </style>
+</head>
+<body class="checkout-shell">
+
+  <!-- Header -->
+  <header class="checkout-header">
+    <div class="checkout-header-inner">
+      <a href="index.html" class="checkout-header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <div class="checkout-stepper">
+        <div class="checkout-step">
+          <div class="checkout-step-circle active" style="background:#FFF1E8; color:var(--coffee);">1</div>
+          <span class="checkout-step-label">Giỏ hàng</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle active">2</div>
+          <span class="checkout-step-label">Thanh toán</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle inactive">3</div>
+          <span class="checkout-step-label" style="color:#BFA99E;">Hoàn tất</span>
+        </div>
+      </div>
+      <div style="width:56px;"></div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-transition" style="max-width:1440px; margin:0 auto; padding:48px 24px 96px;">
+    <button onclick="history.back()" class="back-btn" style="margin-bottom:32px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      Quay lại giỏ hàng
+    </button>
+
+    <h1 style="text-align:center; font-size:36px; font-weight:700; color:#252323;">THANH TOÁN</h1>
+    <p id="checkout-description" style="text-align:center; margin-top:8px; font-size:16px; color:#6A4A3D;"></p>
+
+    <form onsubmit="handleCheckoutFormSubmit(event)" class="checkout-col-grid" style="margin-top:40px;">
+      <!-- Left column: inputs -->
+      <div>
+        <h2 style="font-size:18px; font-weight:700; text-transform:uppercase; color:#252323; margin-bottom:24px;">Thông tin thanh toán</h2>
+
+        <!-- Held seats countdown banner (if workshop items in cart) -->
+        <div id="hold-banner" style="display:none; border-radius:12px; border:1px solid #716942; background:#F3E2D5; padding:16px; margin-bottom:24px; color:#6E4E3F;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <p style="font-weight:700; color:#2B211D;">Xác nhận đặt chỗ workshop</p>
+              <p style="font-size:13px; margin-top:2px;">Hãy xác nhận thông tin nhận vé bên dưới. Slot của bạn đang được giữ chỗ tạm thời.</p>
+            </div>
+            <span style="display:inline-flex; align-items:center; gap:6px; border-radius:9999px; background:#fff; padding:6px 16px; font-weight:700; color:#716942; font-size:13px;">
+              ⏱ Còn <span id="hold-timer">15:00</span>
+            </span>
+          </div>
+          <div id="hold-expired-actions" style="display:none; margin-top:12px; border-top:1px solid rgba(113, 105, 66, 0.2); padding-top:12px;">
+            <p style="color:#A33A2F; font-weight:700; font-size:13px;">⏰ Hết hạn giữ slot vé. Hệ thống đã giải phóng slot này.</p>
+            <button type="button" onclick="renewHoldSlots()" class="btn btn-primary btn-sm" style="margin-top:8px; border-radius:9999px;">Gia hạn giữ vé</button>
+          </div>
+        </div>
+
+        <!-- Voucher shortcut helper -->
+        <div style="border-radius:12px; border:1px dashed rgba(113, 105, 66, 0.4); background:#F9F3ED; padding:16px; margin-bottom:24px;">
+          <p style="font-weight:700; font-size:14px; color:#361F17; margin-bottom:8px;">🎟️ Mã giảm giá đặc biệt</p>
+          <button type="button" onclick="applyQuickVoucher()" id="quick-voucher-btn" style="width:100%; border-radius:8px; border:1px solid #E5CDBA; background:#fff; padding:12px; text-align:left; font-size:13px; cursor:pointer;">
+            <span style="font-weight:700; display:block; color:#361F17;">THO10</span>
+            <span style="font-size:11px; color:#6E4E3F;">Giảm ngay 10% tổng hóa đơn (Click để áp dụng nhanh)</span>
+          </button>
+        </div>
+
+        <div style="display:grid; gap:20px;">
+          <label>
+            <span class="form-label">Họ và tên <span style="color:red;">*</span></span>
+            <input required id="cust-name" type="text" class="form-input" placeholder="Nguyễn Văn A">
+          </label>
+          <label>
+            <span class="form-label">Số điện thoại <span style="color:red;">*</span></span>
+            <input required id="cust-phone" type="tel" class="form-input" placeholder="09xxxxxxxx">
+          </label>
+          <label>
+            <span class="form-label">Địa chỉ email <span style="color:red;">*</span></span>
+            <input required id="cust-email" type="email" class="form-input" placeholder="email@example.com">
+          </label>
+
+          <!-- Shipping Address Fields (only for product physical items) -->
+          <div id="shipping-address-fields" style="display:none; display:grid; gap:16px;">
+            <span class="form-label">Địa chỉ giao hàng <span style="color:red;">*</span></span>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;" class="address-select-grid">
+              <select id="addr-city" class="form-select" onchange="populateDistricts()">
+                <option value="" disabled selected>Chọn Tỉnh/TP</option>
+              </select>
+              <select id="addr-district" class="form-select" onchange="populateWards()">
+                <option value="" disabled selected>Chọn Quận/Huyện</option>
+              </select>
+              <select id="addr-ward" class="form-select">
+                <option value="" disabled selected>Chọn Phường/Xã</option>
+              </select>
+            </div>
+            <label>
+              <span class="form-label">Địa chỉ chi tiết <span style="color:red;">*</span></span>
+              <input id="addr-detail" type="text" class="form-input" placeholder="Số nhà, tên đường...">
+            </label>
+
+            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:16px; font-size:13px; color:#6E4E3F; line-height:1.6;">
+              <p style="font-weight:700; color:#C96B37;" id="shipping-destination-notice">Vận chuyển tiêu chuẩn toàn quốc: 35.000đ</p>
+              <p style="margin-top:4px;">Gốm được bao gói chống sốc kỹ càng. Bảo hiểm vỡ 1 đổi 1 hoặc hoàn tiền khi gửi kèm video mở hộp.</p>
+            </div>
+          </div>
+
+          <label>
+            <span class="form-label">Ghi chú đơn hàng</span>
+            <textarea id="cust-note" class="form-textarea" placeholder="Lời dặn về giao hàng, gói quà hoặc yêu cầu khác..."></textarea>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-dark" style="margin-top:32px; width:100%; height:50px; font-size:16px;">
+          Tiến hành thanh toán
+        </button>
+      </div>
+
+      <!-- Right column: summary & payments -->
+      <aside style="display:grid; gap:28px; height:fit-content;">
+        <!-- Summary Box -->
+        <div style="border-radius:12px; border:1px solid rgba(0,0,0,0.1); background:#fff; padding:28px;">
+          <h2 style="font-size:20px; font-weight:700; text-transform:uppercase; color:#252323; margin-bottom:24px;">Thông tin đơn hàng</h2>
+          <div style="display:grid; gap:12px;" id="order-summary-details">
+            <!-- Summary stats -->
+          </div>
+
+          <!-- Items list -->
+          <div style="margin-top:24px; border-top:1px solid #E2E2E2; padding-top:20px; display:grid; gap:12px;" id="order-items-list">
+            <!-- Items rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Payment Method choice -->
+        <div style="border-radius:12px; border:1px solid rgba(0,0,0,0.1); background:#fff; padding:28px;">
+          <h2 style="font-size:18px; font-weight:700; color:#252323; margin-bottom:16px;">Phương thức thanh toán</h2>
+          <div class="payment-grid">
+            <div id="pay-momo" class="payment-choice active" onclick="selectPaymentMethod('momo')">
+              <div class="payment-logo-container"><img src="../image/logo/momo.png" alt="MoMo logo"></div>
+              <span style="font-size:14px; font-weight:700;">Ví MoMo</span>
+            </div>
+            <div id="pay-vnpay" class="payment-choice" onclick="selectPaymentMethod('vnpay')">
+              <div class="payment-logo-container"><img src="../image/logo/vnpay.jpg" alt="VNPAY logo"></div>
+              <span style="font-size:14px; font-weight:700;">VNPAY QR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voucher Input -->
+        <div style="border-radius:12px; border:1px solid rgba(0,0,0,0.1); background:#fff; padding:28px;">
+          <h2 style="font-size:18px; font-weight:700; color:#252323; margin-bottom:12px;">Mã voucher</h2>
+          <div style="display:flex; gap:8px;">
+            <input id="voucher-input" type="text" class="form-input" style="border-radius:8px; height:44px;" placeholder="Nhập mã voucher">
+            <button type="button" id="apply-voucher-btn" onclick="applyVoucher()" class="btn btn-primary" style="border-radius:9999px; height:44px; padding:0 24px; font-size:14px; background:var(--olive); border-color:var(--olive);">Áp dụng</button>
+          </div>
+          <p id="voucher-status-msg" style="margin-top:8px; font-size:13px; font-weight:700;"></p>
+        </div>
+      </aside>
+    </form>
+  </main>
+
+  <!-- Payment Simulation Modal -->
+  <div id="payment-modal" class="modal-overlay" style="display:none;">
+    <div id="payment-modal-box" style="width:100%; max-width:960px; border-radius:14px; background:#F7F1EC; overflow:hidden; display:grid; grid-template-rows: auto 1fr;">
+      
+      <!-- Modal Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; background:#fff; padding:20px 24px; border-bottom:1px solid #E2E2E2;">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="display:flex; height:44px; width:72px; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; border:1px solid #E2CDBD; background:#fff; padding:4px;">
+            <img id="modal-logo" src="" alt="Payment Gateway Logo" style="max-height:100%; max-width:100%; object-fit:contain;">
+          </div>
+          <div>
+            <h2 id="modal-title" style="font-size:20px; font-weight:700; margin:0;"></h2>
+            <p style="font-size:11px; color:#727272; margin:2px 0 0;">
+              Mã QR thanh toán sẽ hết hạn sau <span id="modal-timer">05:00</span>.
+            </p>
+          </div>
+        </div>
+        <button onclick="closePaymentModal()" style="font-size:24px; cursor:pointer; opacity:0.7; background:none; border:none;">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="display:grid; grid-template-columns:320px 1fr; gap:24px; padding:24px;" class="modal-body-grid">
+        <!-- Order Stats Info -->
+        <div style="background:#fff; border-radius:10px; padding:24px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h3 style="font-size:18px; font-weight:700; color:#3B2118; margin:0 0 16px;">Thông tin đơn hàng</h3>
+            <p style="font-size:13px; color:#68788F; margin:0;">Số tiền thanh toán</p>
+            <p id="modal-payable-total" style="font-size:24px; font-weight:700; margin:4px 0 0;"></p>
+            <p style="font-size:13px; color:#68788F; margin:20px 0 0;">Thời gian còn lại</p>
+            <p id="modal-countdown" style="font-size:28px; font-weight:700; margin:4px 0 0; color:#A33A2F;"></p>
+          </div>
+          <button type="button" onclick="closePaymentModal()" class="btn btn-outline" style="border-radius:9999px; margin-top:32px; font-size:13px;">
+            ← Chọn phương thức khác
+          </button>
+        </div>
+
+        <!-- QR Code Display Box -->
+        <div id="modal-qr-container" style="border-radius:10px; padding:32px; text-align:center; color:#fff;">
+          <h3 style="font-size:24px; font-weight:700; margin:0 0 8px;">Quét mã để thanh toán</h3>
+          <p style="font-size:13px; opacity:0.9; margin:0 0 24px;">Mở ứng dụng ngân hàng hoặc ví điện tử để quét</p>
+          <div style="display:flex; height:240px; width:240px; align-items:center; justify-content:center; border-radius:10px; background:#fff; margin:0 auto 24px;">
+            <!-- Simulated QR code icon -->
+            <svg id="modal-qr-icon" xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
+          </div>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <button onclick="handlePaymentFailureSim()" class="btn btn-light" style="border-radius:9999px; background:#fff; color:#000; font-size:14px; border:none; height:44px; padding:0 24px;">Hủy giao dịch</button>
+            <button onclick="handlePaymentSuccessSim()" class="btn btn-dark" style="border-radius:9999px; font-size:14px; height:44px; padding:0 24px;">Đã thanh toán</button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    const citiesList = [
+      'TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Đồng Nai', 'Lâm Đồng', 'Khánh Hòa', 'Cần Thơ', 'Hải Phòng', 'Vĩnh Long'
+    ];
+    const mockDistricts = {
+      'TP. Hồ Chí Minh': ['Quận 1', 'Quận 3', 'Bình Thạnh', 'Thủ Đức', 'Gò Vấp', 'Quận 7'],
+      'Hà Nội': ['Hoàn Kiếm', 'Ba Đình', 'Cầu Giấy', 'Đống Đa', 'Tây Hồ', 'Hai Bà Trưng'],
+      'Đà Nẵng': ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn']
+    };
+    const mockWards = {
+      'Quận 1': ['Bến Nghé', 'Đa Kao', 'Tân Định', 'Phạm Ngũ Lão'],
+      'Thủ Đức': ['Linh Trung', 'Linh Xuân', 'Linh Chiểu', 'Bình Thọ'],
+      'Hoàn Kiếm': ['Tràng Tiền', 'Hàng Bạc', 'Hàng Bồ', 'Hàng Đào'],
+      'Hải Châu': ['Thuận Phước', 'Thạch Thang', 'Hòa Thuận Đông']
+    };
+
+    let paymentMethod = 'momo';
+    let appliedVoucher = null;
+    let secondsLeft = 15 * 60; // 15 minutes hold
+    let timerInterval = null;
+    let paymentTimerInterval = null;
+    let checkoutProductItems = [];
+    let checkoutWorkshopItems = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkoutProductItems = readProductCart();
+      checkoutWorkshopItems = readWorkshopCart();
+
+      const hasProducts = checkoutProductItems.length > 0;
+      const hasWorkshops = checkoutWorkshopItems.length > 0;
+
+      if (checkoutProductItems.length + checkoutWorkshopItems.length === 0) {
+        window.location.href = 'cart.html';
+        return;
+      }
+
+      // Populate description details
+      const descEl = document.getElementById('checkout-description');
+      if (hasProducts && hasWorkshops) {
+        descEl.textContent = 'Thanh toán chung sản phẩm và vé workshop. Phí vận chuyển chỉ áp dụng cho sản phẩm vật lý.';
+      } else if (hasWorkshops) {
+        descEl.textContent = 'Thanh toán vé workshop không yêu cầu địa chỉ giao hàng và không cộng phí vận chuyển.';
+      } else {
+        descEl.textContent = 'Thanh toán sản phẩm vật lý và giao hàng tận nơi. Phí vận chuyển tiêu chuẩn là 35.000đ.';
+      }
+
+      // Visible sections
+      if (hasWorkshops) {
+        document.getElementById('hold-banner').style.display = 'block';
+        startHoldTimer();
+      }
+      if (hasProducts) {
+        document.getElementById('shipping-address-fields').style.display = 'grid';
+        populateCities();
+      }
+
+      // Try load booking contact or customer session
+      try {
+        const cachedCustomer = JSON.parse(sessionStorage.getItem('tho-checkout-customer') || '{}');
+        if (cachedCustomer.name) document.getElementById('cust-name').value = cachedCustomer.name;
+        if (cachedCustomer.phone) document.getElementById('cust-phone').value = cachedCustomer.phone;
+        if (cachedCustomer.email) document.getElementById('cust-email').value = cachedCustomer.email;
+        if (cachedCustomer.notes) document.getElementById('cust-note').value = cachedCustomer.notes;
+      } catch {}
+
+      renderOrderSummary();
+    });
+
+    // Populate address selectors
+    function populateCities() {
+      const citySelect = document.getElementById('addr-city');
+      citiesList.forEach(city => {
+        citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+      });
+    }
+
+    function populateDistricts() {
+      const city = document.getElementById('addr-city').value;
+      const distSelect = document.getElementById('addr-district');
+      distSelect.innerHTML = '<option value="" disabled selected>Chọn Quận/Huyện</option>';
+      document.getElementById('addr-ward').innerHTML = '<option value="" disabled selected>Chọn Phường/Xã</option>';
+      
+      const list = mockDistricts[city] || ['Quận/Huyện 1', 'Quận/Huyện 2'];
+      list.forEach(d => {
+        distSelect.innerHTML += `<option value="${d}">${d}</option>`;
+      });
+
+      // Update notice destination
+      document.getElementById('shipping-destination-notice').textContent = `Vận chuyển tiêu chuẩn đến ${city}: 35.000đ`;
+    }
+
+    function populateWards() {
+      const district = document.getElementById('addr-district').value;
+      const wardSelect = document.getElementById('addr-ward');
+      wardSelect.innerHTML = '<option value="" disabled selected>Chọn Phường/Xã</option>';
+
+      const list = mockWards[district] || ['Phường/Xã 1', 'Phường/Xã 2', 'Phường/Xã 3'];
+      list.forEach(w => {
+        wardSelect.innerHTML += `<option value="${w}">${w}</option>`;
+      });
+    }
+
+    // Timer hold slots
+    function startHoldTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      const timerLabel = document.getElementById('hold-timer');
+      
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(timerInterval);
+          timerLabel.textContent = '00:00';
+          document.getElementById('hold-expired-actions').style.display = 'block';
+          showToast('Giữ vé workshop đã hết hạn! Vui lòng gia hạn.', 'error');
+        } else {
+          const min = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+          const sec = (secondsLeft % 60).toString().padStart(2, '0');
+          timerLabel.textContent = `${min}:${sec}`;
+        }
+      }, 1000);
+    }
+
+    function renewHoldSlots() {
+      secondsLeft = 15 * 60;
+      document.getElementById('hold-expired-actions').style.display = 'none';
+      startHoldTimer();
+      showToast('Gia hạn vé workshop thành công thêm 15 phút!');
+    }
+
+    // Payment methods choices selection
+    function selectPaymentMethod(method) {
+      paymentMethod = method;
+      document.querySelectorAll('.payment-choice').forEach(el => el.classList.remove('active'));
+      document.getElementById(`pay-${method}`).classList.add('active');
+    }
+
+    // Voucher codes
+    function applyQuickVoucher() {
+      document.getElementById('voucher-input').value = 'THO10';
+      applyVoucher();
+    }
+
+    function applyVoucher() {
+      const code = document.getElementById('voucher-input').value.toUpperCase().trim();
+      const statusEl = document.getElementById('voucher-status-msg');
+
+      if (!code) {
+        statusEl.textContent = 'Vui lòng nhập mã voucher.';
+        statusEl.style.color = '#A33A2F';
+        return;
+      }
+
+      if (code === 'THO10') {
+        appliedVoucher = { code: 'THO10', discountPercent: 10 };
+        statusEl.textContent = '✓ Áp dụng voucher THO10 thành công: giảm 10%!';
+        statusEl.style.color = '#16a34a';
+        renderOrderSummary();
+      } else {
+        statusEl.textContent = 'Mã voucher không hợp lệ hoặc đã hết hạn.';
+        statusEl.style.color = '#A33A2F';
+      }
+    }
+
+    // Summary calculation
+    function renderOrderSummary() {
+      const hasProducts = checkoutProductItems.length > 0;
+      const hasWorkshops = checkoutWorkshopItems.length > 0;
+
+      const pTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const wTotal = checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
+      const subtotal = pTotal + wTotal;
+      const shipping = hasProducts ? 35000 : 0;
+
+      // Gift wrapping fee is 50.000 for each gift item
+      const giftWrapFee = checkoutProductItems.filter(item => item.gift).length * 50000;
+
+      const totalPreVoucher = subtotal + shipping + giftWrapFee;
+      const discount = appliedVoucher ? Math.round(totalPreVoucher * appliedVoucher.discountPercent / 100) : 0;
+      const finalTotal = totalPreVoucher - discount;
+
+      // Stats
+      const summaryStats = document.getElementById('order-summary-details');
+      let statsHtml = `
+        <div style="display:flex; justify-content:space-between; font-size:16px; color:#756D4E;">
+          <span>Tạm tính</span>
+          <span>${formatVND(subtotal)}</span>
+        </div>`;
+      if (giftWrapFee > 0) {
+        statsHtml += `
+          <div style="display:flex; justify-content:space-between; font-size:16px; color:#DC2626;">
+            <span>Phí quà tặng</span>
+            <span>+${formatVND(giftWrapFee)}</span>
+          </div>`;
+      }
+      if (shipping > 0) {
+        statsHtml += `
+          <div style="display:flex; justify-content:space-between; font-size:16px; color:#756D4E;">
+            <span>Phí vận chuyển</span>
+            <span>+${formatVND(shipping)}</span>
+          </div>`;
+      }
+      if (discount > 0) {
+        statsHtml += `
+          <div style="display:flex; justify-content:space-between; font-size:16px; color:#16a34a; font-weight:bold;">
+            <span>Voucher giảm giá</span>
+            <span>-${formatVND(discount)}</span>
+          </div>`;
+      }
+      statsHtml += `
+        <div style="margin:16px 0; border-top:1px solid #E2E2E2;"></div>
+        <div style="display:flex; justify-content:space-between; font-size:22px; font-weight:700; color:#3A2A24;">
+          <span>Tổng thanh toán</span>
+          <span>${formatVND(finalTotal)}</span>
+        </div>`;
+      summaryStats.innerHTML = statsHtml;
+
+      // Items list
+      const itemsList = document.getElementById('order-items-list');
+      let itemsHtml = '';
+      
+      // Workshop
+      checkoutWorkshopItems.forEach(item => {
+        itemsHtml += `
+          <div style="display:grid; grid-template-columns: 80px 1fr; gap:16px; align-items:center; border-bottom:1px solid #F0ECE4; padding-bottom:12px;">
+            <div class="asset-img" style="height:64px; width:64px; border-radius:8px;"><img src="${workshopImages.handsWarm}" alt="${item.name}"></div>
+            <div>
+              <p style="font-weight:700; font-size:14px; color:#2B211D; margin:0;">${item.name}</p>
+              <p style="font-size:12px; color:#6E4E3F; margin:4px 0 0;">${item.date} · ${item.time} · x${item.tickets} vé</p>
+              <p style="font-size:14px; font-weight:700; color:#643A2A; margin:4px 0 0;">${formatVND(item.price * item.tickets)}</p>
+            </div>
+          </div>`;
+      });
+
+      // Product
+      checkoutProductItems.forEach(item => {
+        itemsHtml += `
+          <div style="display:grid; grid-template-columns: 80px 1fr; gap:16px; align-items:center; border-bottom:1px solid #F0ECE4; padding-bottom:12px;">
+            <div class="asset-img" style="height:64px; width:64px; border-radius:8px;"><img src="${item.image}" alt="${item.name}"></div>
+            <div>
+              <p style="font-weight:700; font-size:14px; color:#2B211D; margin:0;">${item.name}</p>
+              <p style="font-size:12px; color:#6E4E3F; margin:4px 0 0;">Số lượng: x${item.quantity}</p>
+              ${item.gift ? `<p style="font-size:11px; color:#DC2626; margin:4px 0 0; background:#FFF1E8; padding:2px 8px; border-radius:4px; width:fit-content;">🎁 Hộp quà tặng (+50K)</p>` : ''}
+              <p style="font-size:14px; font-weight:700; color:#643A2A; margin:4px 0 0;">${formatVND(item.price * item.quantity)}</p>
+            </div>
+          </div>`;
+      });
+      itemsList.innerHTML = itemsHtml;
+    }
+
+    // Submit handler & payment modal
+    function handleCheckoutFormSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const email = document.getElementById('cust-email').value.trim();
+
+      if (checkoutWorkshopItems.length > 0 && secondsLeft <= 0) {
+        showToast('Vé workshop giữ chỗ đã hết hạn. Hãy gia hạn giữ vé trước khi thanh toán.', 'error');
+        return;
+      }
+
+      if (checkoutProductItems.length > 0) {
+        const city = document.getElementById('addr-city').value;
+        const district = document.getElementById('addr-district').value;
+        const ward = document.getElementById('addr-ward').value;
+        const detail = document.getElementById('addr-detail').value.trim();
+
+        if (!city || !district || !ward || !detail) {
+          showToast('Vui lòng điền đầy đủ địa chỉ giao hàng.', 'error');
+          return;
+        }
+      }
+
+      // Calculate final total
+      const pTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const wTotal = checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
+      const subtotal = pTotal + wTotal;
+      const shipping = checkoutProductItems.length > 0 ? 35000 : 0;
+      const giftWrapFee = checkoutProductItems.filter(item => item.gift).length * 50000;
+      const totalPreVoucher = subtotal + shipping + giftWrapFee;
+      const discount = appliedVoucher ? Math.round(totalPreVoucher * appliedVoucher.discountPercent / 100) : 0;
+      const payableTotal = totalPreVoucher - discount;
+
+      // Show payment simulation modal
+      openPaymentModal(payableTotal);
+    }
+
+    function openPaymentModal(totalAmount) {
+      const modal = document.getElementById('payment-modal');
+      const box = document.getElementById('payment-modal-box');
+      const logo = document.getElementById('modal-logo');
+      const title = document.getElementById('modal-title');
+      const qrContainer = document.getElementById('modal-qr-container');
+
+      if (paymentMethod === 'momo') {
+        logo.src = '../image/logo/momo.png';
+        title.textContent = 'Thanh toán ví MoMo';
+        box.style.borderColor = '#DC1A8D';
+        qrContainer.style.background = '#DC1A8D';
+      } else {
+        logo.src = '../image/logo/vnpay.jpg';
+        title.textContent = 'Thanh toán qua VNPAY';
+        box.style.borderColor = '#0088C9';
+        qrContainer.style.background = '#0088C9';
+      }
+
+      document.getElementById('modal-payable-total').textContent = payableTotalVNDText(totalAmount);
+      modal.style.display = 'flex';
+
+      let modalSeconds = 5 * 60; // 5 minutes payment qr timing
+      if (checkoutWorkshopItems.length > 0) {
+        modalSeconds = Math.min(secondsLeft, 5 * 60);
+      }
+
+      startPaymentCountdown(modalSeconds);
+    }
+
+    function payableTotalVNDText(val) {
+      return val.toLocaleString('vi-VN') + ' VND';
+    }
+
+    function startPaymentCountdown(secCount) {
+      if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+      const timerLabel = document.getElementById('modal-timer');
+      const countLabel = document.getElementById('modal-countdown');
+
+      let left = secCount;
+      paymentTimerInterval = setInterval(() => {
+        left--;
+        if (left <= 0) {
+          clearInterval(paymentTimerInterval);
+          closePaymentModal();
+          handlePaymentFailureSim();
+        } else {
+          const min = Math.floor(left / 60).toString().padStart(2, '0');
+          const s = (left % 60).toString().padStart(2, '0');
+          timerLabel.textContent = `${min}:${s}`;
+          countLabel.textContent = `${min}:${s}`;
+        }
+      }, 1000);
+    }
+
+    function closePaymentModal() {
+      document.getElementById('payment-modal').style.display = 'none';
+      if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+    }
+
+    // Success Simulation
+    function handlePaymentSuccessSim() {
+      closePaymentModal();
+
+      // Create Order payload object
+      const codeSuffix = Math.floor(100000 + Math.random() * 900000);
+      const orderCode = checkoutProductItems.length > 0 ? `ORD-${codeSuffix}` : `WS-${codeSuffix}`;
+
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const email = document.getElementById('cust-email').value;
+      const note = document.getElementById('cust-note').value;
+
+      const orderPayload = {
+        orderCode,
+        createdAt: new Date().toISOString(),
+        paymentMethod,
+        customer: {
+          name, phone, email, note,
+          city: document.getElementById('addr-city')?.value || '',
+          district: document.getElementById('addr-district')?.value || '',
+          ward: document.getElementById('addr-ward')?.value || '',
+          address: document.getElementById('addr-detail')?.value || '',
+          shipping: checkoutProductItems.length > 0 ? 'standard' : 'none'
+        },
+        items: [...checkoutWorkshopItems, ...checkoutProductItems],
+        subtotal: checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0),
+        shippingFee: checkoutProductItems.length > 0 ? 35000 : 0,
+        total: getFinalPayableTotal(),
+      };
+
+      // Save order to localStorage
+      saveOrderData(orderPayload);
+
+      // Create new tracking records for this order and save
+      let localRecords = [];
+      try {
+        const storedStr = localStorage.getItem('tho-persistent-tracking-records');
+        if (storedStr) {
+          const parsed = JSON.parse(storedStr);
+          localRecords = Array.isArray(parsed) ? parsed : (parsed.records || []);
+        } else {
+          localRecords = JSON.parse(localStorage.getItem('tho-tracking-records') || '[]');
+        }
+      } catch {}
+
+      // Add main tracking record
+      const mainRecord = {
+        code: orderCode,
+        tracking_type: checkoutProductItems.length > 0 ? 'order' : 'workshop',
+        status: checkoutProductItems.length > 0 ? 'paid_waiting_pack' : 'confirmed',
+        title: checkoutProductItems.length > 0 ? 'Đơn hàng THỔ Studio' : 'Vé workshop THỔ Studio',
+        message: checkoutProductItems.length > 0 ? 'Đơn hàng đã thanh toán thành công và đang được chuẩn bị.' : 'Đăng ký vé thành công. Vé check-in điện tử đã sẵn sàng.',
+        customer_name: name,
+        manager_name: 'Nghệ nhân Minh Châu',
+        participant_count: checkoutProductItems.length > 0 ? 0 : 1,
+        checkin_status: 'waiting',
+        timeline: checkoutProductItems.length > 0 ? [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'packing', label: 'Chờ đóng gói', state: 'current' },
+          { stage: 'delivering', label: 'Đang giao', state: 'waiting' },
+          { stage: 'received', label: 'Đã nhận', state: 'waiting' },
+        ] : [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'qr_sent', label: 'Đã gửi QR check-in', state: 'current' },
+          { stage: 'checked_in', label: 'Chờ check-in tại studio', state: 'waiting' },
+        ]
+      };
+
+      const recordsToPost = [mainRecord];
+
+      // Add workshop ceramic tracking record if workshop item
+      if (checkoutWorkshopItems.length > 0) {
+        checkoutWorkshopItems.forEach((ws, idx) => {
+          recordsToPost.push({
+            code: `WS-${orderCode.slice(-4)}-0${idx + 1}`,
+            tracking_type: 'workshop',
+            status: 'forming',
+            title: `Thành phẩm ${ws.name}`,
+            message: `Quy trình nung và hoàn thiện thành phẩm gốm của bạn đang được xử lý tại xưởng.`,
+            customer_name: name,
+            manager_name: 'Nghệ nhân Minh Châu',
+            participant_count: 1,
+            checkin_status: 'waiting',
+            timeline: [
+              { stage: 'booking_paid', label: 'Đã thanh toán', state: 'done' },
+              { stage: 'waiting_workshop', label: 'Chờ tham gia workshop', state: 'done' },
+              { stage: 'forming', label: 'Tạo hình tại studio', state: 'current' },
+              { stage: 'drying', label: 'Phơi khô', state: 'waiting' },
+              { stage: 'bisque_firing', label: 'Nung sơ', state: 'waiting' },
+              { stage: 'glazing', label: 'Tráng men', state: 'waiting' },
+            ]
+          });
+        });
+      }
+
+      // Add all to local cache fallback
+      localRecords.push(...recordsToPost);
+      localStorage.setItem('tho-tracking-records', JSON.stringify(localRecords));
+      localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({
+        savedAt: Date.now(),
+        records: localRecords
+      }));
+
+      // POST to FastAPI Docker backend (if Docker is up and active)
+      fetch('http://127.0.0.1:8000/api/v1/tracking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records: recordsToPost })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('API return non-2xx status');
+        return res.json();
+      })
+      .then(data => {
+        console.log('Successfully synchronized tracking history to Docker Database:', data);
+      })
+      .catch(err => {
+        console.warn('Docker backend offline or CORS error, fallback to local storage history:', err);
+      });
+
+      // Clear cart
+      clearProductCart();
+      clearWorkshopCart();
+
+      // Redirect
+      showToast('Thanh toán thành công! Đang chuyển hướng...');
+      setTimeout(() => {
+        window.location.href = 'success.html';
+      }, 1000);
+    }
+
+    function handlePaymentFailureSim() {
+      closePaymentModal();
+      showToast('Thanh toán thất bại hoặc đã hủy.', 'error');
+      setTimeout(() => {
+        window.location.href = 'payment-failed.html';
+      }, 600);
+    }
+
+    function getFinalPayableTotal() {
+      const pTotal = checkoutProductItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const wTotal = checkoutWorkshopItems.reduce((sum, item) => sum + item.price * item.tickets, 0);
+      const subtotal = pTotal + wTotal;
+      const shipping = checkoutProductItems.length > 0 ? 35000 : 0;
+      const giftWrapFee = checkoutProductItems.filter(item => item.gift).length * 50000;
+      const totalPreVoucher = subtotal + shipping + giftWrapFee;
+      const discount = appliedVoucher ? Math.round(totalPreVoucher * appliedVoucher.discountPercent / 100) : 0;
+      return totalPreVoucher - discount;
+    }
+  </script>
+</body>
+</html>

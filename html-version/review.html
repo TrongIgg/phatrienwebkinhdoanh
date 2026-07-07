@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Cảm nhận từ khách hàng. Đánh giá sản phẩm và workshop.">
+  <title>THỔ Studio - Đánh giá</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <nav class="header-nav"><a href="index.html">Trang chủ</a><a href="workshop.html">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html" class="active">Đánh giá</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="cart-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span id="cart-badge" class="cart-badge" style="display:none">0</span></a>
+        <a href="workshop.html" class="header-cta">Đặt lịch</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Mở menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" style="display:none"><a href="index.html">Trang chủ</a><a href="workshop.html">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html" class="active">Đánh giá</a><a href="workshop.html" class="mobile-cta">Đặt lịch</a></nav>
+    <div class="progress-rule"><div class="progress-rule-line"></div></div>
+  </header>
+
+  <main class="page-transition" style="min-height:100vh; background:#FBEEE5; color:#361F17;">
+    <section style="max-width:1440px; margin:0 auto; padding:64px 24px 32px;">
+      <h1 style="text-align:center; font-size:clamp(36px, 5vw, 56px); font-weight:700; line-height:1.2; color:#643A2A;">Cảm nhận từ khách hàng</h1>
+      <p style="margin:16px auto 0; max-width:768px; text-align:center; font-size:20px; line-height:1.6; color:#3F3F35;">
+        Những dòng ghi lại màu men, dáng cầm, lớp đóng gói và khoảnh khắc chạm đất tại studio.
+      </p>
+    </section>
+
+    <!-- Filter -->
+    <section style="max-width:1440px; margin:0 auto; padding:0 24px 24px;">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; border-radius:18px; border:1px solid #EFD8C7; background:#FFF8F2; padding:12px 16px;">
+        <span style="font-size:14px; font-weight:700; color:#716942;">Lọc:</span>
+        <button onclick="setFilter('all')" class="filter-pill active" data-filter="all">Tất cả</button>
+        <button onclick="setFilter('product')" class="filter-pill" data-filter="product">Sản phẩm</button>
+        <button onclick="setFilter('workshop')" class="filter-pill" data-filter="workshop">Workshop</button>
+        <div style="margin-left:auto; display:flex; flex-wrap:wrap; gap:8px;">
+          <button onclick="setRating('all')" class="filter-pill active" data-rating="all">Tất cả ★</button>
+          <button onclick="setRating(5)" class="filter-pill" data-rating="5">5 ★</button>
+          <button onclick="setRating(4)" class="filter-pill" data-rating="4">4 ★</button>
+          <button onclick="setRating(3)" class="filter-pill" data-rating="3">3 ★</button>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1440px; margin:0 auto; display:grid; gap:40px; padding:0 24px 96px;" class="review-layout">
+      <!-- Review List -->
+      <div id="review-list" style="scroll-margin-top:128px;"></div>
+
+      <!-- Write Review Form -->
+      <form id="review-form" onsubmit="submitReview(event)" style="position:sticky; top:128px; scroll-margin-top:128px; border-radius:8px; border:2px solid #EFD8C7; background:#FFF1E8; padding:28px; height:fit-content;">
+        <h2 style="font-size:30px; font-weight:700; color:#2B211D;">Viết đánh giá</h2>
+        <p style="margin-top:8px; font-size:14px; color:#6A5D52;">Bạn cần nhập mã đơn hàng hoặc mã vé workshop để xác thực trước khi gửi.</p>
+
+        <div style="margin-top:20px;">
+          <label class="form-label">Mã đơn hàng / Mã vé <span style="color:#C62828;">*</span></label>
+          <p style="margin-bottom:8px; font-size:12px; color:#8B765D;">Nhập <strong style="color:#643A2A;">ORD-</strong> (đơn hàng) hoặc <strong style="color:#59612E;">WS-</strong> / <strong style="color:#59612E;">CER-</strong> (workshop)</p>
+          <input id="rv-code" type="text" class="form-input" style="font-family:monospace;" placeholder="VD: ORD-66470040 hoặc WS-67157855">
+          <p id="rv-code-error" class="field-error" style="display:none;"></p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <span class="form-label">Loại đánh giá <span style="color:#C62828;">*</span></span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+            <button type="button" id="type-product" class="btn btn-primary" onclick="setReviewType('product')">Sản phẩm</button>
+            <button type="button" id="type-workshop" class="btn btn-outline" onclick="setReviewType('workshop')">Workshop</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <label class="form-label">Tên của bạn <span style="font-size:12px; font-weight:400; color:#8B765D;">(để trống để ẩn danh)</span></label>
+          <input id="rv-name" type="text" class="form-input" placeholder="Nguyễn Văn A (tùy chọn)">
+        </div>
+
+        <div style="margin-top:20px;">
+          <label class="form-label">Tiêu đề ngắn (không bắt buộc)</label>
+          <input id="rv-title" type="text" class="form-input" placeholder="Ví dụ: Không gian rất ấm">
+        </div>
+
+        <div style="margin-top:20px;">
+          <span class="form-label">Số sao <span style="color:#C62828;">*</span></span>
+          <div id="star-picker" style="display:flex; gap:8px; margin-top:8px;"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <label class="form-label">Cảm nhận của bạn <span style="color:#C62828;">*</span></label>
+          <textarea id="rv-comment" class="form-textarea" placeholder="Bạn thấy sản phẩm, men gốm, đóng gói như thế nào?"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top:24px; width:100%; padding:16px;">Gửi đánh giá</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></div>
+      <div class="footer-section"><h3>Thông tin</h3><ul><li><a href="policy.html">Chính sách</a></li><li><a href="about.html">Về THỔ</a></li></ul></div>
+      <div class="footer-section"><h3>Dịch vụ</h3><ul><li><a href="tracking.html">Theo dõi đơn hàng</a></li><li><a href="workshop.html">Workshop</a></li><li><a href="staff.html">Kênh nhân viên (Staff)</a></li><li><a href="admin.html">Trang quản trị (Admin)</a></li></ul></div>
+      <div class="footer-section"><h3>Liên hệ</h3><div class="footer-social"><a href="#">Facebook</a></div></div>
+    </div>
+    <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    const REVIEWS_KEY = 'tho-reviews';
+    let currentFilter = 'all';
+    let currentRating = 'all';
+    let selectedRating = 5;
+    let reviewType = 'product';
+
+    // Seed default reviews
+    function getStoredReviews() {
+      try {
+        const data = localStorage.getItem(REVIEWS_KEY);
+        if (data) return JSON.parse(data);
+      } catch {}
+      // Seed defaults
+      const defaultReviews = reviews.map((r, i) => {
+        let replies = [];
+        if (i === 0) {
+          replies = [
+            { name: 'THỔ Studio', role: 'staff', date: '15/05/2026', comment: 'Cảm ơn bạn đã ghé THỔ. Studio đã ghi nhận cảm nhận này để nghệ nhân chuẩn bị lớp và đóng gói tốt hơn trong các đơn sau.' },
+            { name: 'Minh Tuấn', role: 'user', date: '15/05/2026', comment: 'Ui lớp này vui lắm hả bạn? Mình đang tính đăng ký cho cả nhà đi cuối tuần.' },
+            { name: 'Nguyễn Thu Hà', role: 'user', date: '15/05/2026', comment: 'Đúng rồi bạn ơi, nghệ nhân kèm cặp siêu kỹ tính mà vui lắm, nên đăng ký sớm nhé!' }
+          ];
+        }
+        return {
+          id: 'seed-' + i,
+          ...r,
+          targetType: i % 2 === 0 ? 'product' : 'workshop',
+          code: i % 2 === 0 ? 'ORD-66470040' : 'WS-67157855',
+          helpful: Math.floor(Math.random() * 12) + 5,
+          replies: replies,
+        };
+      });
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify(defaultReviews));
+      return defaultReviews;
+    }
+
+    function renderReviews() {
+      const allReviews = getStoredReviews();
+      let filtered = allReviews;
+      if (currentFilter !== 'all') filtered = filtered.filter(r => r.targetType === currentFilter);
+      if (currentRating !== 'all') filtered = filtered.filter(r => r.rating === currentRating);
+
+      const container = document.getElementById('review-list');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:18px; border:1px solid #EFD8C7; background:#FFF8F2; padding:80px 20px; text-align:center;">
+          <p style="font-size:18px; font-weight:700; color:#716942;">Không có đánh giá phù hợp</p>
+          <p style="margin-top:8px; font-size:14px; color:#8B765D;">Thử thay đổi bộ lọc để xem thêm cảm nhận từ khách hàng.</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = `<div style="display:grid; gap:20px;" class="review-cards-grid">${filtered.map(r => {
+        const repliesHtml = (r.replies || []).map(reply => `
+          <div style="margin-top:12px; display:flex; gap:12px; background:#fff; border-radius:12px; border:1px solid #EFD8C7; padding:12px 16px; align-items:start; text-align:left;">
+            <div style="width:32px; height:32px; border-radius:50%; background:#EFE2D6; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; color:#643A2A; flex-shrink:0;">
+              ${reply.name.charAt(0).toUpperCase()}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:13px; font-weight:700; color:#3B2118; display:inline-flex; align-items:center;">
+                  ${reply.name}
+                  ${reply.role === 'staff' ? '<span style="background:#716942; color:#fff; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:bold;">THỔ STUDIO</span>' : ''}
+                </span>
+                <span style="font-size:11px; color:#8B765D;">${reply.date}</span>
+              </div>
+              <p style="margin-top:6px; font-size:13px; color:#6A5D52; line-height:1.5; margin-bottom:0;">${reply.comment}</p>
+            </div>
+          </div>
+        `).join('');
+
+        return `
+        <article style="border-radius:8px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px;">
+            <div class="stars">${starsHTML(r.rating, 20)}</div>
+            <span style="border-radius:9999px; padding:4px 12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; ${r.targetType === 'product' ? 'background:#EFE2D6; color:#643A2A;' : 'background:#E8EAD8; color:#59612E;'}">${r.targetType === 'product' ? 'Sản phẩm' : 'Workshop'}</span>
+          </div>
+          ${r.title ? `<h3 style="font-size:24px; font-weight:700;">${r.title}</h3>` : ''}
+          <p style="margin-top:12px; line-height:1.75; color:#6A5D52;">"${r.comment}"</p>
+          <p style="margin-top:24px; font-weight:700; margin-bottom:4px;">${r.name}</p>
+          <p style="font-size:14px; color:#8B765D; margin:0 0 16px;">${r.date}</p>
+          
+          <div style="margin-top:20px; display:flex; flex-wrap:wrap; gap:12px;">
+            <button onclick="markHelpful('${r.id}')" style="display:inline-flex; align-items:center; gap:8px; border-radius:9999px; border:1px solid #C0AC8B; padding:8px 16px; font-size:14px; font-weight:700; color:#716942; background:transparent; cursor:pointer;">
+              👍 Hữu ích (${r.helpful})
+            </button>
+            <button onclick="toggleReplyForm('${r.id}')" style="display:inline-flex; align-items:center; gap:8px; border-radius:9999px; border:1px solid #C0AC8B; padding:8px 16px; font-size:14px; font-weight:700; color:#716942; background:transparent; cursor:pointer;">
+              💬 Trả lời
+            </button>
+          </div>
+
+          <!-- Nested Replies List -->
+          <div id="replies-list-${r.id}" style="margin-top:8px; display:grid; gap:4px;">
+            ${repliesHtml}
+          </div>
+
+          <!-- Inline Reply Form -->
+          <div id="reply-form-container-${r.id}" style="display:none; margin-top:16px; border-top:1px dashed #EFD8C7; padding-top:16px;">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input id="reply-name-${r.id}" type="text" placeholder="Tên bạn..." class="form-input" style="width:140px; font-size:13px; height:36px; border-radius:8px; border-color:#E5CDBA;">
+              <input id="reply-comment-${r.id}" type="text" placeholder="Nhập câu trả lời..." class="form-input" style="flex:1; font-size:13px; height:36px; border-radius:8px; border-color:#E5CDBA;">
+              <button onclick="submitReply('${r.id}')" class="btn btn-primary" style="height:36px; padding:0 16px; font-size:13px; border-radius:8px;">Gửi</button>
+            </div>
+          </div>
+        </article>`;
+      }).join('')}</div>`;
+    }
+
+    function toggleReplyForm(id) {
+      const container = document.getElementById(`reply-form-container-${id}`);
+      const isHidden = container.style.display === 'none';
+      container.style.display = isHidden ? 'block' : 'none';
+    }
+
+    function submitReply(id) {
+      const nameInput = document.getElementById(`reply-name-${id}`);
+      const commentInput = document.getElementById(`reply-comment-${id}`);
+      const name = nameInput.value.trim() || 'Ẩn danh';
+      const comment = commentInput.value.trim();
+
+      if (!comment) {
+        showToast('Vui lòng nhập nội dung trả lời.', 'error');
+        return;
+      }
+
+      const allReviews = getStoredReviews();
+      const reviewIdx = allReviews.findIndex(r => r.id === id);
+      if (reviewIdx !== -1) {
+        const today = new Date();
+        const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+        
+        if (!allReviews[reviewIdx].replies) {
+          allReviews[reviewIdx].replies = [];
+        }
+        
+        allReviews[reviewIdx].replies.push({
+          name: name,
+          role: name.toLowerCase().includes('thổ') || name.toLowerCase().includes('studio') ? 'staff' : 'user',
+          date: dateStr,
+          comment: comment
+        });
+
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(allReviews));
+        showToast('Đã gửi câu trả lời.');
+        renderReviews();
+      }
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      document.querySelectorAll('[data-filter]').forEach(el => {
+        el.classList.toggle('active', el.dataset.filter === type);
+        el.style.background = el.dataset.filter === type ? '#716942' : '#fff';
+        el.style.color = el.dataset.filter === type ? '#fff' : '#716942';
+      });
+      renderReviews();
+    }
+
+    function setRating(rating) {
+      currentRating = rating;
+      document.querySelectorAll('[data-rating]').forEach(el => {
+        const match = el.dataset.rating === String(rating);
+        el.classList.toggle('active', match);
+        el.style.background = match ? '#716942' : '#fff';
+        el.style.color = match ? '#fff' : '#716942';
+      });
+      renderReviews();
+    }
+
+    function setReviewType(type) {
+      reviewType = type;
+      document.getElementById('type-product').className = type === 'product' ? 'btn btn-primary' : 'btn btn-outline';
+      document.getElementById('type-workshop').className = type === 'workshop' ? 'btn btn-primary' : 'btn btn-outline';
+    }
+
+    function renderStarPicker() {
+      const picker = document.getElementById('star-picker');
+      picker.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${i <= selectedRating ? '#716942' : 'none'}" stroke="#716942" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+        btn.style.cssText = 'background:none; border:none; cursor:pointer; padding:0;';
+        btn.onclick = () => { selectedRating = i; renderStarPicker(); };
+        picker.appendChild(btn);
+      }
+    }
+
+    function submitReview(e) {
+      e.preventDefault();
+      const code = document.getElementById('rv-code').value.trim();
+      const errorEl = document.getElementById('rv-code-error');
+
+      if (!code) {
+        errorEl.textContent = 'Vui lòng nhập mã đơn hàng hoặc mã vé workshop.';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      const prefix = code.toUpperCase();
+      if (!prefix.startsWith('ORD-') && !prefix.startsWith('WS-') && !prefix.startsWith('CER-')) {
+        errorEl.textContent = 'Mã không hợp lệ. Vui lòng nhập đúng định dạng ORD-... hoặc WS-/CER-...';
+        errorEl.style.display = 'flex';
+        return;
+      }
+
+      errorEl.style.display = 'none';
+      const comment = document.getElementById('rv-comment').value.trim();
+      if (!comment) {
+        showToast('Vui lòng nhập cảm nhận của bạn.', 'error');
+        return;
+      }
+
+      const name = document.getElementById('rv-name').value.trim() || 'Khách hàng ẩn danh';
+      const title = document.getElementById('rv-title').value.trim();
+      const now = new Date();
+      const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+
+      const newReview = {
+        id: 'rv-' + Date.now(),
+        name, title, comment,
+        rating: selectedRating,
+        targetType: reviewType,
+        code: code.toUpperCase(),
+        date: dateStr,
+        helpful: 0,
+        replies: [],
+      };
+
+      const stored = getStoredReviews();
+      stored.unshift(newReview);
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify(stored));
+
+      // Reset form
+      document.getElementById('rv-code').value = '';
+      document.getElementById('rv-name').value = '';
+      document.getElementById('rv-title').value = '';
+      document.getElementById('rv-comment').value = '';
+      selectedRating = 5;
+      renderStarPicker();
+      renderReviews();
+      showToast('Đã gửi cảm nhận của bạn. Cảm ơn bạn đã chia sẻ!');
+      document.getElementById('review-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function markHelpful(id) {
+      const stored = getStoredReviews();
+      const review = stored.find(r => r.id === id);
+      if (review) {
+        review.helpful += 1;
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(stored));
+        renderReviews();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Init filter pill styles
+      document.querySelectorAll('.filter-pill').forEach(el => {
+        el.style.cssText = `border-radius:9999px; border:1px solid #C0AC8B; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s; ${el.classList.contains('active') ? 'background:#716942; color:#fff;' : 'background:#fff; color:#716942;'}`;
+      });
+
+      renderStarPicker();
+      renderReviews();
+
+      // Auto-fill code from URL
+      const params = new URLSearchParams(window.location.search);
+      const urlCode = params.get('code');
+      if (urlCode) {
+        document.getElementById('rv-code').value = urlCode;
+        if (urlCode.toUpperCase().startsWith('WS-') || urlCode.toUpperCase().startsWith('CER-')) {
+          setReviewType('workshop');
+        } else {
+          setReviewType('product');
+        }
+      }
+    });
+  </script>
+
+  <style>
+    .review-layout { grid-template-columns: 1fr 480px; }
+    .review-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1023px) { .review-layout { grid-template-columns: 1fr !important; } }
+    @media (max-width: 767px) { .review-cards-grid { grid-template-columns: 1fr !important; } }
+  </style>
+</body>
+</html>

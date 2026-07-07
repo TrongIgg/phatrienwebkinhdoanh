@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Trải nghiệm gốm thủ công. Workshop làm gốm, sản phẩm gốm và theo dõi thành phẩm.">
+  <title>THỔ Studio - Trải nghiệm gốm thủ công</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo" aria-label="THỔ Studio">
+        <img src="../image/logo/logo.jpg" alt="THỔ Studio logo">
+      </a>
+
+      <nav class="header-nav">
+        <a href="index.html" class="active">Trang chủ</a>
+        <a href="workshop.html">Workshop</a>
+        <a href="product.html">Sản phẩm</a>
+        <a href="tracking.html">Theo dõi</a>
+        <a href="about.html">Về THỔ</a>
+        <a href="review.html">Đánh giá</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="cart.html" class="cart-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span id="cart-badge" class="cart-badge" style="display:none">0</span>
+        </a>
+        <a href="workshop.html" class="header-cta">Đặt lịch</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Mở menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <nav id="mobile-nav" class="mobile-nav" style="display:none">
+      <a href="index.html" class="active">Trang chủ</a>
+      <a href="workshop.html">Workshop</a>
+      <a href="product.html">Sản phẩm</a>
+      <a href="tracking.html">Theo dõi</a>
+      <a href="about.html">Về THỔ</a>
+      <a href="review.html">Đánh giá</a>
+      <a href="workshop.html" class="mobile-cta">Đặt lịch</a>
+    </nav>
+
+    <div class="progress-rule"><div class="progress-rule-line"></div></div>
+  </header>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="page-transition" style="background:#FBEEE5; color:#3F3F35;">
+
+    <!-- Hero Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:40px 16px 32px;">
+      <div class="clay-cinema" style="position:relative; min-height:560px; overflow:hidden; border-radius:24px; background:#361F17; padding:32px 20px; color:#FBEEE5; box-shadow:0 24px 62px rgba(54,31,23,0.2);">
+        <video
+          style="position:absolute; inset:0; width:100%; height:100%; border-radius:30px; object-fit:cover; opacity:0.62;"
+          src="../src/assets/video/hero-clay.mp4"
+          autoplay muted loop playsinline preload="metadata"
+          poster="../image/workshop/workshop_02_Yx0ge-ua.jpg"
+          aria-label="Video nghệ nhân tạo hình gốm tại THỔ"
+        ></video>
+        <div style="position:absolute; inset:0; background:linear-gradient(to right, rgba(38,20,14,0.88), rgba(54,31,23,0.54), rgba(54,31,23,0.18));"></div>
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(38,20,14,0.62), transparent, rgba(38,20,14,0.18));"></div>
+
+        <div style="position:relative; z-index:10; display:flex; max-width:760px; min-height:460px; flex-direction:column; justify-content:center;">
+          <span class="standard-label" style="display:inline-flex; width:fit-content; align-items:center; gap:8px; border-radius:9999px; background:rgba(251,238,229,0.12); padding:8px 16px; color:#F3D4BE;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            Trải nghiệm gốm thủ công
+          </span>
+          <h1 style="margin-top:24px; font-size:clamp(48px, 7vw, 72px); font-weight:700; line-height:1.1; letter-spacing:normal;">THỔ Studio</h1>
+          <p style="margin-top:20px; max-width:700px; font-size:clamp(20px, 2.5vw, 24px); line-height:1.5; color:#F8E5D4;">Một lát cắt chậm của đất, nước, bàn tay và ký ức.</p>
+          <p style="margin-top:24px; max-width:560px; font-size:clamp(16px, 1.5vw, 18px); line-height:1.75; color:rgba(251,238,229,0.82);">Trước khi là sản phẩm, gốm là một chuyển động: xoay, nén, nâng, lắng lại.</p>
+          <div style="margin-top:40px; display:flex; flex-wrap:wrap; gap:16px;">
+            <a href="workshop.html" style="display:inline-flex; align-items:center; gap:8px; border-radius:9999px; background:#FBEEE5; padding:16px 28px; font-weight:700; color:#361F17;">
+              Khám phá workshop
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workshop Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:96px 24px; display:grid; gap:48px;" class="workshop-intro-grid">
+      <div>
+        <h2 style="font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2; color:#3F3F35;">Workshop tại THỔ</h2>
+        <div style="margin-top:56px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div class="asset-img" style="height:190px; border-radius:18px;"><img src="../image/workshop/workshop_02_Yx0ge-ua.jpg" alt="Bàn xoay gốm thủ công" loading="lazy"></div>
+          <div class="asset-img" style="height:249px; border-radius:18px;"><img src="../image/workshop/workshop_03_IMU94a5Q.jpg" alt="Tạo hình gốm trên bàn xoay" loading="lazy"></div>
+          <div class="asset-img" style="height:286px; border-radius:18px;"><img src="../image/workshop/workshop_20_aVXIc03K.jpg" alt="Nghệ nhân vẽ chi tiết gốm" loading="lazy"></div>
+          <div class="asset-img" style="height:195px; border-radius:18px;"><img src="../image/workshop/workshop_06_-aebrWVm.jpg" alt="Nặn thân gốm bằng tay" loading="lazy"></div>
+        </div>
+      </div>
+      <div style="padding-top:48px; text-align:right;">
+        <p style="font-size:clamp(18px, 2vw, 20px); line-height:1.7;">
+          THỔ là không gian để bạn chạm vào đất sét, thử tạo hình và trang trí món đồ gốm mang dấu ấn cá nhân. Dù là lần đầu,
+          bạn vẫn được nghệ nhân hướng dẫn từng bước và có thể theo dõi thành phẩm sau buổi học.
+        </p>
+        <a href="workshop.html" style="margin-top:32px; display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#643A2A;">
+          Xem tất cả workshop
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <div style="margin-top:48px; display:grid; gap:32px; grid-template-columns:repeat(3, 1fr);">
+          <div style="text-align:left;">
+            <h3 style="margin-bottom:16px; font-size:24px; font-weight:600;">Tự tay tạo hình</h3>
+            <p style="font-size:16px; line-height:1.7;">Được trực tiếp nặn, vuốt hoặc trang trí theo phong cách riêng.</p>
+          </div>
+          <div style="text-align:left;">
+            <h3 style="margin-bottom:16px; font-size:24px; font-weight:600;">Nghệ nhân hướng dẫn</h3>
+            <p style="font-size:16px; line-height:1.7;">Mỗi gói trải nghiệm đều có nghệ nhân hỗ trợ từ cơ bản đến nâng cao.</p>
+          </div>
+          <div style="text-align:left;">
+            <h3 style="margin-bottom:16px; font-size:24px; font-weight:600;">Theo dõi thành phẩm</h3>
+            <p style="font-size:16px; line-height:1.7;">Xem tiến độ qua từng giai đoạn phơi khô, nung, tráng men và sẵn sàng nhận sản phẩm.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Journey Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:0 20px 64px;">
+      <h2 style="margin-bottom:48px; text-align:center; font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2; color:#361F17;">Hành trình tại THỔ</h2>
+      <div style="border-radius:20px; background:#716942; padding:80px 32px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+        <div class="journey-grid">
+          <div class="journey-step">
+            <div class="journey-connector"></div>
+            <div class="journey-circle"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
+            <h3 class="journey-label">Chọn workshop</h3>
+          </div>
+          <div class="journey-step">
+            <div class="journey-connector"></div>
+            <div class="journey-circle"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div>
+            <h3 class="journey-label">Đặt lịch & Thanh toán</h3>
+          </div>
+          <div class="journey-step">
+            <div class="journey-connector"></div>
+            <div class="journey-circle"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+            <h3 class="journey-label">Tham gia workshop</h3>
+          </div>
+          <div class="journey-step">
+            <div class="journey-connector"></div>
+            <div class="journey-circle"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+            <h3 class="journey-label">Theo dõi quy trình</h3>
+          </div>
+          <div class="journey-step">
+            <div class="journey-circle"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29,7 12,12 20.71,7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></div>
+            <h3 class="journey-label">Nhận sản phẩm</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section style="margin-top:80px; background:#C0AC8B; padding:80px 0;">
+      <div style="max-width:1440px; margin:0 auto; display:grid; gap:48px; padding:0 24px;" class="about-grid">
+        <div>
+          <h2 style="font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2; color:#361F17;">About THỔ</h2>
+          <h3 style="margin-top:48px; font-size:clamp(30px, 3.5vw, 40px); font-weight:600; line-height:1.2; color:#361F17;">THỔ - Nơi đất trở thành ký ức</h3>
+          <div class="progress-rule light" style="margin-top:24px; max-width:642px; opacity:0.2;"><div class="progress-rule-line"></div></div>
+          <p style="margin-top:40px; font-size:18px; line-height:1.7; color:#fff;">
+            THỔ được tạo nên từ mong muốn mang gốm thủ công đến gần hơn với đời sống hiện đại.
+            Giữa nhịp sống vội vã, THỔ mở ra một không gian để mỗi người chậm lại, chạm vào đất
+            và tự tay tạo nên món gốm mang dấu ấn riêng.
+          </p>
+          <a href="about.html" style="margin-top:40px; display:inline-block;">
+            <span class="pill-btn pill-btn-light">Tìm hiểu thêm</span>
+          </a>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          <div class="asset-img kinetic-sheen" style="height:389px; border-radius:18px; opacity:0.7;"><img src="../image/workshop/workshop_20_aVXIc03K.jpg" alt="Không gian làm gốm tỉ mỉ" loading="lazy"></div>
+          <div class="asset-img hero-float kinetic-sheen" style="margin-top:-40px; height:532px; border-radius:18px; opacity:0.7;"><img src="../image/workshop/workshop_07_6MJ0jtzI.jpg" alt="Bình gốm đang tạo hình" loading="lazy"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Choose Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:96px 24px;">
+      <h2 style="margin-bottom:36px; font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2;">Vì sao nên chọn THỔ</h2>
+      <div style="display:grid; gap:20px;" class="why-grid">
+        <div style="display:flex; height:159px; flex-direction:column; align-items:center; justify-content:center; background:#361F17; color:#FBEEE5;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          <h3 style="text-align:center; font-size:20px; font-weight:600; line-height:1.3;">Đặt lịch dễ dàng</h3>
+        </div>
+        <div style="display:flex; height:159px; flex-direction:column; align-items:center; justify-content:center; background:#361F17; color:#FBEEE5;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+          <h3 style="text-align:center; font-size:20px; font-weight:600; line-height:1.3;">Không gian ấm cúng</h3>
+        </div>
+        <div style="display:flex; height:159px; flex-direction:column; align-items:center; justify-content:center; background:#361F17; color:#FBEEE5;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <h3 style="text-align:center; font-size:20px; font-weight:600; line-height:1.3;">Theo dõi quá trình hoàn thiện</h3>
+        </div>
+        <div style="display:flex; height:159px; flex-direction:column; align-items:center; justify-content:center; background:#361F17; color:#FBEEE5;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          <h3 style="text-align:center; font-size:20px; font-weight:600; line-height:1.3;">Phù hợp nhiều nhu cầu</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workshop Cards Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:80px 24px;">
+      <div style="margin-bottom:64px; display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between;">
+        <h2 style="font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2; color:#643A2A;">Lựa chọn trải nghiệm của bạn</h2>
+        <a href="workshop.html"><span class="pill-btn pill-btn-outline">Xem tất cả</span></a>
+      </div>
+      <div id="workshop-cards" style="display:grid; gap:28px;" class="cards-grid-3">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- Moments & Reviews Section -->
+    <section style="max-width:1440px; margin:0 auto; display:grid; gap:32px; padding:56px 24px;" class="moments-grid">
+      <div>
+        <h2 style="margin-bottom:24px; font-size:clamp(30px, 3vw, 36px); font-weight:700; line-height:1.2; color:#361F17;">Khoảnh khắc tại THỔ</h2>
+        <div style="display:grid; grid-template-columns:1.05fr 0.95fr; gap:16px;">
+          <div class="asset-img" style="height:300px; border-radius:18px;"><img src="../image/workshop/workshop_20_aVXIc03K.jpg" alt="Khoảnh khắc tỉ mỉ tại THỔ" loading="lazy"></div>
+          <div style="display:grid; gap:16px;">
+            <div class="asset-img" style="height:140px; border-radius:18px;"><img src="../image/workshop/workshop_06_-aebrWVm.jpg" alt="Tạo hình gốm bằng tay" loading="lazy"></div>
+            <div class="asset-img" style="height:140px; border-radius:18px;"><img src="../image/workshop/workshop_03_IMU94a5Q.jpg" alt="Bàn xoay gốm" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h2 style="margin-bottom:24px; text-align:right; font-size:clamp(30px, 3vw, 36px); font-weight:700; line-height:1.2; color:#361F17;">Khách hàng nói gì?</h2>
+        <div id="review-strip" style="display:grid; gap:16px;" class="cards-grid-3">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section style="background:#3F3F35; padding:64px 0; color:#FBEEE5;">
+      <div style="max-width:1440px; margin:0 auto; padding:0 24px;">
+        <h2 style="margin-bottom:48px; text-align:center; font-size:clamp(36px, 4vw, 48px); font-weight:700; line-height:1.2;">Một số sản phẩm</h2>
+        <div id="product-cards" style="display:grid; gap:24px;" class="cards-grid-4">
+          <!-- Filled by JS -->
+        </div>
+        <div style="margin-top:48px; text-align:center;">
+          <a href="product.html"><span class="pill-btn pill-btn-light">Xem sản phẩm</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:96px 24px;">
+      <div style="position:relative; overflow:hidden; border-radius:30px; background:#EFE2D6; padding:80px 32px;">
+        <div class="asset-img cta-bg-img" style="position:absolute; inset:0; right:0; width:48%; border-radius:30px; opacity:0.95;">
+          <img src="../image/product/products_20_jpxDBK5P.jpg" alt="Sản phẩm gốm thủ công" style="object-fit:cover; width:100%; height:100%;">
+        </div>
+        <div style="position:absolute; inset:0; background:linear-gradient(to right, #EFE2D6, rgba(239,226,214,0.92), rgba(239,226,214,0.18));"></div>
+        <div style="position:relative; z-index:10; max-width:880px;">
+          <h2 style="max-width:1101px; font-size:clamp(36px, 5vw, 60px); font-weight:700; line-height:1.2; color:#3F3F35;">
+            Sẵn sàng bắt đầu hành trình làm gốm cùng THỔ?
+          </h2>
+          <p style="margin-top:40px; max-width:795px; font-size:20px; line-height:1.7; color:#3F3F35;">
+            Lựa chọn trải nghiệm workshop và đặt lịch ngay để cùng THỔ tự tay làm ra những món đồ gốm mang dấu ấn của bạn!
+          </p>
+          <div style="margin-top:56px; display:flex; flex-wrap:wrap; gap:40px;">
+            <a href="workshop.html"><span class="pill-btn pill-btn-outline" style="min-width:260px;">Xem các gói trải nghiệm</span></a>
+            <a href="product.html"><span class="pill-btn pill-btn-filled" style="min-width:260px;">Xem sản phẩm gốm</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;">
+        <img src="../image/logo/logo.jpg" alt="THỔ Studio logo">
+      </div>
+      <div class="footer-section">
+        <h3>Thông tin về chính sách</h3>
+        <ul>
+          <li><a href="policy.html">Mua hàng và thanh toán Online</a></li>
+          <li><a href="policy.html">Chính sách giao hàng</a></li>
+          <li><a href="policy.html">Chính sách đổi trả</a></li>
+          <li><a href="policy.html">Bảo hiểm hàng dễ vỡ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Dịch vụ và thông tin khác</h3>
+        <ul>
+          <li><a href="tracking.html">Quy trình theo dõi đơn hàng</a></li>
+          <li><a href="about.html">Liên hệ và hợp tác kinh doanh</a></li>
+          <li><a href="about.html">Tuyển dụng</a></li>
+          <li><a href="about.html">Quy chế hoạt động</a></li>
+          <li><a href="about.html">Về chúng tôi</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Theo dõi THỔ trên mạng xã hội</h3>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/tho">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            <span>https://www.facebook.com/tho</span>
+          </a>
+          <a href="https://www.instagram.com/tho/">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            <span>https://www.instagram.com/tho/</span>
+          </a>
+        </div>
+        <h3 style="margin-top:28px;">Hỗ trợ trực tuyến</h3>
+        <ul style="margin-top:12px; list-style:disc; padding-left:20px;">
+          <li style="font-size:14px; font-weight:300; line-height:1.5;">Tư vấn mua hàng qua kênh mạng xã hội của THỔ</li>
+          <li style="font-size:14px; font-weight:300; line-height:1.5;">Tiếp nhận góp ý và khiếu nại qua biểu mẫu liên hệ</li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-bottom">
+      Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ, cấp tại Sở KH &amp; ĐT TP. HCM.
+      Địa chỉ văn phòng: XXX-XXX Võ Văn Ngân, Thành phố Thủ Đức, Thành phố Hồ Chí Minh, Việt Nam.
+    </p>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Render workshop cards (first 3)
+      const workshopContainer = document.getElementById('workshop-cards');
+      const badgeLabels = { '1': 'Phù hợp người mới', '2': 'Men màu hút khách', '3': 'Đi cùng người thương' };
+
+      workshops.slice(0, 3).forEach(ws => {
+        workshopContainer.innerHTML += `
+          <article class="workshop-card card">
+            <div class="card-img">
+              <div class="asset-img" style="height:157px; border-radius:19px 19px 0 0;"><img src="${ws.image}" alt="${ws.name}"></div>
+              <span class="card-badge card-badge-warm">
+                ${ICONS.flame}
+                ${badgeLabels[ws.id] || 'Gợi ý từ studio'}
+              </span>
+            </div>
+            <div style="display:grid; grid-template-columns:52px 1fr; gap:16px; padding:20px;">
+              <div style="text-align:center;">
+                <p style="font-size:12px; font-weight:700; color:#3D37F1;">${ws.day}</p>
+                <p style="font-size:30px; font-weight:700; line-height:1; color:#000;">${ws.date}</p>
+              </div>
+              <div>
+                <h3 style="font-size:16px; font-weight:700; color:#000;">${ws.name}</h3>
+                <p style="margin-top:8px; font-size:14px; line-height:1.5; color:#6A6A6A;">${ws.description}</p>
+                <div style="margin-top:16px; display:flex; gap:12px;">
+                  <a href="workshop-detail.html?id=${ws.id}" class="btn btn-primary btn-sm">Đặt chỗ</a>
+                </div>
+              </div>
+            </div>
+          </article>`;
+      });
+
+      // Render review strip (first 3)
+      const reviewContainer = document.getElementById('review-strip');
+      reviews.slice(0, 3).forEach(review => {
+        reviewContainer.innerHTML += `
+          <article class="review-card">
+            <div class="stars" style="margin-bottom:16px;">
+              ${starsHTML(review.rating)}
+            </div>
+            <h3 style="margin-bottom:8px; font-size:20px; font-weight:600;">${review.title}</h3>
+            <p style="margin-bottom:20px; min-height:66px; font-size:14px; line-height:1.7; color:rgba(251,238,229,0.85);">${review.comment}</p>
+            <div class="review-card-name">
+              <div class="review-avatar">${review.name.charAt(0)}</div>
+              <div>
+                <p style="font-weight:600;">${review.name}</p>
+                <p style="font-size:14px; color:#B3B3B3;">${review.date}</p>
+              </div>
+            </div>
+          </article>`;
+      });
+
+      // Render product cards
+      const productContainer = document.getElementById('product-cards');
+      const productBadges = { p1: 'Bán chạy', p2: 'Sẵn làm quà', p3: 'Trang trí đẹp', p4: 'Sắp hết' };
+
+      products.slice(0, 4).forEach(product => {
+        productContainer.innerHTML += `
+          <article class="product-card card" style="color:#000;">
+            <div class="card-img">
+              <div class="asset-img" style="height:157px; border-radius:19px 19px 0 0; overflow:hidden;"><img src="${product.image}" alt="${product.name}"></div>
+              <span class="card-badge card-badge-light">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C96B37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                ${productBadges[product.id] || 'Hot'}
+              </span>
+            </div>
+            <div style="display:grid; grid-template-columns:82px 1fr; gap:16px; padding:16px;">
+              <p style="font-size:14px; font-weight:700;">${formatVND(product.price)}</p>
+              <div>
+                <h3 style="font-size:16px; font-weight:700;">${product.name}</h3>
+                <p style="font-size:12px; line-height:1.5; color:#6A6A6A;">${product.description}</p>
+                <div style="margin-top:16px; display:flex; gap:8px;">
+                  <button onclick="addProductToCart({id:'${product.id}', name:'${product.detailName}', price:${product.price}, quantity:1, image:'${product.image}'}); showToast('Đã thêm &quot;${product.detailName}&quot; vào giỏ hàng'); updateCartBadge();"
+                    class="btn btn-outline btn-sm">Thêm giỏ</button>
+                  <button onclick="addProductToCart({id:'${product.id}', name:'${product.detailName}', price:${product.price}, quantity:1, image:'${product.image}'}); showToast('Đã thêm &quot;${product.detailName}&quot; — đang chuyển đến giỏ hàng'); window.location.href='cart.html';"
+                    class="btn btn-primary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    Mua ngay
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>`;
+      });
+    });
+  </script>
+
+  <style>
+    /* Responsive grid adjustments for this page */
+    .workshop-intro-grid { grid-template-columns: 520px 1fr; }
+    .about-grid { grid-template-columns: 540px 1fr; }
+    .moments-grid { grid-template-columns: 520px 1fr; }
+    .why-grid { grid-template-columns: repeat(4, 1fr); }
+    .cards-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .cards-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .cta-bg-img { display: none; }
+
+    @media (min-width: 1024px) {
+      .cta-bg-img { display: block; }
+      .header-inner { padding: 0 64px; }
+    }
+
+    @media (max-width: 1023px) {
+      .workshop-intro-grid { grid-template-columns: 1fr !important; }
+      .about-grid { grid-template-columns: 1fr !important; }
+      .moments-grid { grid-template-columns: 1fr !important; }
+    }
+
+    @media (max-width: 767px) {
+      .why-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .cards-grid-3 { grid-template-columns: 1fr !important; }
+      .cards-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
+    @media (max-width: 480px) {
+      .cards-grid-4 { grid-template-columns: 1fr !important; }
+      .why-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+
+</body>
+</html>

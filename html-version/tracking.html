@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Theo dõi đơn hàng và thành phẩm workshop.">
+  <title>THỔ Studio - Theo dõi đơn hàng</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <nav class="header-nav"><a href="index.html">Trang chủ</a><a href="workshop.html">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html" class="active">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="cart-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span id="cart-badge" class="cart-badge" style="display:none">0</span></a>
+        <a href="workshop.html" class="header-cta">Đặt lịch</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Mở menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" style="display:none"><a href="index.html">Trang chủ</a><a href="workshop.html">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html" class="active">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a><a href="workshop.html" class="mobile-cta">Đặt lịch</a></nav>
+    <div class="progress-rule"><div class="progress-rule-line"></div></div>
+  </header>
+
+  <main class="page-transition" style="min-height:100vh; background:#FBEEE5; color:#361F17;">
+    <!-- 2-Column Search Header (Matches React Screenshot layout) -->
+    <section style="max-width:1440px; margin:0 auto; padding:64px 24px; display:grid; grid-template-columns: 1.2fr 1fr; gap:40px; align-items: start;" class="tracking-search-header-grid">
+      <!-- Left Column: Title -->
+      <div>
+        <p style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; color:#716942; margin-bottom:8px;">Tra cứu THỔ</p>
+        <h1 style="font-size:clamp(32px, 4vw, 44px); font-weight:700; line-height:1.2; color:#3B2118; margin:0 0 16px; font-family:'Outfit', sans-serif;">Tra cứu trạng thái tại THỔ</h1>
+        <p style="font-size:16px; line-height:1.7; color:#6A5D52; margin:0;">
+          Nhập mã đơn hàng, mã vé hoặc mã theo dõi thành phẩm. Hệ thống tự nhận diện ORD, WS, CER/THO.
+        </p>
+      </div>
+
+      <!-- Right Column: Card form -->
+      <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
+        <h3 style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#716942; margin:0 0 12px;">Mã tra cứu</h3>
+        <div style="display:flex; gap:12px;">
+          <input id="tracking-code" type="text" class="form-input" placeholder="VD: THO 2024 0847" style="font-family:monospace; font-size:15px; flex:1;">
+          <button onclick="lookupTracking()" class="btn btn-primary" style="white-space:nowrap; background:#716942; border-color:#716942; padding:12px 24px; font-weight:700;">🔍 Tra cứu</button>
+        </div>
+        <p style="margin-top:12px; font-size:11px; color:#8B765D; line-height:1.5; margin-bottom:0;">
+          Gợi ý: 'ORD-' cho đơn sản phẩm, 'WS-' cho vé workshop, 'CER/THO-' cho hành trình thành phẩm gốm.
+        </p>
+
+        <!-- Dynamic Quick Choice for recently created order/brief codes -->
+        <div id="recent-track-container" style="display:none; margin-top:16px; border-top:1px dashed #EFD8C7; padding-top:16px;">
+          <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin-bottom:8px;">Chọn nhanh mã vừa tạo:</p>
+          <div id="recent-track-list" style="display:flex; flex-wrap:wrap; gap:8px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Initial State Placeholder (visible by default, hidden when result shown) -->
+    <section id="tracking-initial-state" style="max-width:980px; margin:0 auto; padding:0 24px 64px;">
+      <div style="text-align:center; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:64px 24px;">
+        <div style="font-size:48px; margin-bottom:16px; opacity:0.65;">🔍</div>
+        <h3 style="font-size:20px; font-weight:700; color:#3B2118; margin:0 0 8px;">Nhập mã để xem kết quả</h3>
+        <p style="font-size:14px; color:#6A5D52; margin:0;">Sau thanh toán, dùng mã trên hóa đơn hoặc chọn nhanh mã vừa tạo.</p>
+      </div>
+    </section>
+
+    <!-- Result Area -->
+    <section id="tracking-result" style="display:none; max-width:980px; margin:0 auto; padding:0 24px 96px;">
+      <div id="tracking-content"></div>
+    </section>
+
+    <!-- Demo data info -->
+    <section style="max-width:980px; margin:0 auto; padding:0 24px 64px;">
+      <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px;">
+        <h3 style="font-size:16px; font-weight:700; color:#716942;">Mã demo để thử</h3>
+        <p style="margin-top:8px; font-size:14px; line-height:1.7; color:#6A5D52; margin-bottom:0;">
+          <strong>ORD-66470040</strong> — Đơn hàng sản phẩm (đang giao)<br>
+          <strong>WS-67157855</strong> — Vé workshop (đang nung)<br>
+          <strong>CER-55219382</strong> — Chứng nhận workshop (hoàn tất)
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></div>
+      <div class="footer-section"><h3>Thông tin</h3><ul><li><a href="policy.html">Chính sách</a></li><li><a href="about.html">Về THỔ</a></li></ul></div>
+      <div class="footer-section"><h3>Dịch vụ</h3><ul><li><a href="tracking.html">Theo dõi đơn hàng</a></li><li><a href="workshop.html">Workshop</a></li><li><a href="staff.html">Kênh nhân viên (Staff)</a></li><li><a href="admin.html">Trang quản trị (Admin)</a></li></ul></div>
+      <div class="footer-section"><h3>Liên hệ</h3><div class="footer-social"><a href="#">Facebook</a></div></div>
+    </div>
+    <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    // Mock tracking data
+    const trackingRecords = {
+      'ORD-66470040': {
+        title: 'Bình gốm men celadon - Dáng oval S',
+        type: 'product',
+        customer_name: 'Nguyễn Văn A',
+        manager_name: 'Nghệ nhân Minh Châu',
+        status: 'shipping',
+        steps: [
+          { label: 'Đơn hàng đã xác nhận', date: '28/05/2026', done: true },
+          { label: 'Đang đóng gói', date: '29/05/2026', done: true },
+          { label: 'Đang giao hàng', date: '30/05/2026', done: true },
+          { label: 'Giao thành công', date: '', done: false },
+        ]
+      },
+      'WS-67157855': {
+        title: 'Workshop nặn gốm cơ bản',
+        type: 'workshop',
+        customer_name: 'Trần Minh Tuấn',
+        manager_name: 'Nghệ nhân Minh Châu',
+        status: 'firing',
+        steps: [
+          { label: 'Tham gia workshop', date: '31/05/2026', done: true },
+          { label: 'Phơi khô sản phẩm', date: '01/06/2026', done: true },
+          { label: 'Nung sơ (bisque)', date: '03/06/2026', done: true },
+          { label: 'Tráng men', date: '05/06/2026', done: false },
+          { label: 'Nung hoàn thiện', date: '', done: false },
+          { label: 'Sẵn sàng giao', date: '', done: false },
+        ]
+      },
+      'CER-55219382': {
+        title: 'Chứng nhận Workshop "Combo có đôi có cặp"',
+        type: 'workshop',
+        customer_name: 'Lê Phương Anh',
+        manager_name: 'Nghệ nhân Hoài An',
+        status: 'completed',
+        steps: [
+          { label: 'Tham gia workshop', date: '10/05/2026', done: true },
+          { label: 'Phơi khô', date: '11/05/2026', done: true },
+          { label: 'Nung sơ', date: '13/05/2026', done: true },
+          { label: 'Tráng men', date: '15/05/2026', done: true },
+          { label: 'Nung hoàn thiện', date: '17/05/2026', done: true },
+          { label: 'Đã giao thành công', date: '20/05/2026', done: true },
+        ]
+      }
+    };
+
+    // Auto-fill from URL params & load recently created codes
+    document.addEventListener('DOMContentLoaded', () => {
+      let localRecords = [];
+      try {
+        const storedStr = localStorage.getItem('tho-persistent-tracking-records');
+        if (storedStr) {
+          const parsed = JSON.parse(storedStr);
+          localRecords = Array.isArray(parsed) ? parsed : (parsed.records || []);
+        } else {
+          // Fallback to tho-tracking-records
+          const fallbackStr = localStorage.getItem('tho-tracking-records');
+          if (fallbackStr) {
+            localRecords = JSON.parse(fallbackStr) || [];
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to parse local records:', err);
+      }
+
+      if (localRecords && localRecords.length > 0) {
+        document.getElementById('recent-track-container').style.display = 'block';
+        const listDiv = document.getElementById('recent-track-list');
+        listDiv.innerHTML = localRecords.slice(-4).reverse().map(r => `
+          <button onclick="setTrackCode('${r.code}')" style="background:#EFE2D6; border:1px solid #C0AC8B; border-radius:6px; padding:6px 12px; font-family:monospace; font-size:12px; font-weight:700; color:#643A2A; cursor:pointer; transition:all 0.2s;">
+            ${r.code}
+          </button>
+        `).join('');
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code) {
+        document.getElementById('tracking-code').value = code;
+        lookupTracking();
+      }
+    });
+
+    function setTrackCode(code) {
+      document.getElementById('tracking-code').value = code;
+      lookupTracking();
+    }
+
+    function lookupTracking() {
+      const code = document.getElementById('tracking-code').value.trim().toUpperCase();
+      if (!code) {
+        showToast('Vui lòng nhập mã đơn hàng.', 'error');
+        return;
+      }
+
+      // Check localStorage first
+      let localRecords = [];
+      try {
+        const storedStr = localStorage.getItem('tho-persistent-tracking-records');
+        if (storedStr) {
+          const parsed = JSON.parse(storedStr);
+          localRecords = Array.isArray(parsed) ? parsed : (parsed.records || []);
+        } else {
+          const fallbackStr = localStorage.getItem('tho-tracking-records');
+          if (fallbackStr) {
+            localRecords = JSON.parse(fallbackStr) || [];
+          }
+        }
+      } catch {}
+
+      const record = localRecords.find(r => r.code === code);
+      if (record) {
+        renderRecordData(code, record);
+      } else if (trackingRecords[code]) {
+        renderRecordData(code, trackingRecords[code]);
+      } else {
+        // Fallback: fetch from local FastAPI docker backend
+        fetch(`http://127.0.0.1:8000/api/v1/tracking/${encodeURIComponent(code)}`)
+          .then(res => {
+            if (!res.ok) throw new Error('Not found');
+            return res.json();
+          })
+          .then(data => {
+            renderRecordData(code, data);
+          })
+          .catch(err => {
+            console.warn('Backend lookup failed or server is offline, showing fallback error state:', err);
+            showErrorState(code);
+          });
+      }
+    }
+
+    window.cancelBooking = function(code) {
+      if (confirm(`Bạn có chắc chắn muốn hủy đặt chỗ cho vé ${code}?`)) {
+        showToast('Yêu cầu hủy đặt chỗ đã được gửi. Nhân viên hỗ trợ THỔ Studio sẽ liên hệ với bạn để hoàn trả phí.', 'info');
+      }
+    };
+
+    function showErrorState(code) {
+      document.getElementById('tracking-initial-state').style.display = 'none';
+      const resultSection = document.getElementById('tracking-result');
+      const content = document.getElementById('tracking-content');
+      resultSection.style.display = 'block';
+      content.innerHTML = `
+        <div style="text-align:center; padding:48px 20px; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; width: 100%;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C96B37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <h2 style="margin-top:16px; font-size:24px; font-weight:700; color:#C96B37;">Không tìm thấy mã "${code}"</h2>
+          <p style="margin-top:12px; color:#6A5D52; margin-bottom:0;">Hãy kiểm tra lại mã đơn hàng hoặc mã vé workshop của bạn hoặc bật Docker Backend để truy vấn trực tiếp.</p>
+        </div>`;
+    }
+
+    function renderRecordData(code, record) {
+      // Normalize values
+      const type = record.type || record.tracking_type || 'order';
+      const status = record.status || 'confirmed';
+      const customerName = record.customer_name || (record.customer ? record.customer.name : 'Khách hàng THỔ');
+      const managerName = record.manager_name || 'Nghệ nhân Minh Châu';
+
+      // Ensure steps timeline is parsed/generated
+      if (!record.steps || record.steps.length === 0) {
+        if (record.timeline && record.timeline.length > 0) {
+          record.steps = record.timeline.map(t => ({
+            label: t.label,
+            date: t.state === 'done' ? 'Cập nhật xưởng' : '',
+            done: t.state === 'done' || t.state === 'current'
+          }));
+        } else {
+          // Generate default steps
+          if (type === 'order') {
+            const isDone = (s) => {
+              const stages = ['confirmed', 'paid', 'paid_waiting_pack', 'shipping', 'completed'];
+              return stages.indexOf(status) >= stages.indexOf(s);
+            };
+            record.steps = [
+              { label: 'Đơn hàng đã xác nhận', date: isDone('confirmed') ? 'Hôm nay' : '', done: isDone('confirmed') },
+              { label: 'Đang đóng gói', date: isDone('paid_waiting_pack') ? 'Hôm nay' : '', done: isDone('paid_waiting_pack') },
+              { label: 'Đang giao hàng', date: isDone('shipping') ? 'Hôm nay' : '', done: isDone('shipping') },
+              { label: 'Giao thành công', date: isDone('completed') ? 'Hôm nay' : '', done: isDone('completed') },
+            ];
+          } else {
+            const stages = ['confirmed', 'forming', 'drying', 'bisque_firing', 'glazing', 'final_firing', 'completed'];
+            const idx = stages.indexOf(status);
+            record.steps = [
+              { label: 'Tạo hình tại workshop', date: idx >= 1 ? 'Cập nhật xưởng' : '', done: idx >= 1 },
+              { label: 'Phơi khô tự nhiên', date: idx >= 2 ? 'Cập nhật xưởng' : '', done: idx >= 2 },
+              { label: 'Nung mộc (Bisque)', date: idx >= 3 ? 'Cập nhật xưởng' : '', done: idx >= 3 },
+              { label: 'Tráng men màu', date: idx >= 4 ? 'Cập nhật xưởng' : '', done: idx >= 4 },
+              { label: 'Nung men hoàn thiện', date: idx >= 5 ? 'Cập nhật xưởng' : '', done: idx >= 5 },
+              { label: 'Thành phẩm sẵn sàng', date: idx >= 6 ? 'Cập nhật xưởng' : '', done: idx >= 6 },
+            ];
+          }
+        }
+      }
+
+      const completedSteps = record.steps.filter(s => s.done).length;
+      const progress = Math.round((completedSteps / record.steps.length) * 100);
+      const statusLabels = {
+        shipping: 'Đang giao',
+        firing: 'Đang nung',
+        completed: 'Hoàn tất',
+        forming: 'Tạo hình',
+        drying: 'Phơi khô',
+        bisque_firing: 'Nung sơ',
+        glazing: 'Tráng men',
+        confirmed: 'Đã xác nhận',
+        paid_waiting_pack: 'Chờ đóng gói'
+      };
+
+      document.getElementById('tracking-initial-state').style.display = 'none';
+      const resultSection = document.getElementById('tracking-result');
+      const content = document.getElementById('tracking-content');
+      resultSection.style.display = 'block';
+
+      const isWorkshopOrCeramic = type === 'workshop' || type === 'ceramic' || code.startsWith('WS') || code.startsWith('CER');
+
+      content.innerHTML = `
+        <div style="display:grid; gap:28px; grid-template-columns: 1fr 340px;" class="tracking-main-grid">
+          
+          <!-- Left Column -->
+          <div style="display:grid; gap:24px;">
+            <!-- Header card -->
+            <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
+              <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;">
+                <div>
+                  <span style="font-family:monospace; font-size:14px; font-weight:700; color:#716942; background:#EFE2D6; padding:4px 10px; border-radius:4px;">${code}</span>
+                  <h2 style="margin-top:12px; font-size:28px; font-weight:700; color:#2B211D; margin-bottom:0;">${record.title}</h2>
+                  <p style="margin-top:8px; font-size:14px; color:#6A5D52; margin-bottom:0;">Khách hàng: <strong>${record.customer_name}</strong> · Phụ trách: <strong>${record.manager_name}</strong></p>
+                </div>
+                <span style="display:inline-flex; align-items:center; gap:6px; border-radius:9999px; background:${record.status === 'completed' ? '#D8EFD1' : '#EFE2D6'}; padding:8px 20px; font-size:14px; font-weight:700; color:${record.status === 'completed' ? '#3F7D37' : '#716942'};">
+                  ● ${statusLabels[record.status] || record.status}
+                </span>
+              </div>
+              <div style="margin-top:24px; height:8px; border-radius:9999px; background:#EFE2D6; overflow:hidden;">
+                <div style="height:100%; width:${progress}%; border-radius:9999px; background:${record.status === 'completed' ? '#3F7D37' : '#716942'}; transition:width 0.6s ease;"></div>
+              </div>
+              <p style="margin-top:8px; font-size:13px; color:#8B765D; text-align:right; margin-bottom:0;">${progress}% hoàn tất quy trình</p>
+
+              <!-- Actions (Đánh giá trải nghiệm & Hủy đặt chỗ) -->
+              <div style="margin-top:24px; display:flex; gap:12px; justify-content:flex-end; border-top:1px dashed #EFD8C7; padding-top:16px;">
+                <a href="review.html?code=${code}" class="btn" style="background:#716942; color:#fff; border-radius:9999px; padding:10px 20px; font-size:14px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                  ✍️ Đánh giá trải nghiệm
+                </a>
+                <button onclick="cancelBooking('${code}')" class="btn" style="border:1px solid #DC2626; color:#DC2626; background:transparent; border-radius:9999px; padding:10px 20px; font-size:14px; font-weight:700; cursor:pointer;">
+                  Hủy đặt chỗ
+                </button>
+              </div>
+            </div>
+
+            <!-- Timeline Steps card -->
+            <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
+              <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 24px; border-bottom:1px solid #EFD8C7; padding-bottom:12px;">Hành trình sản phẩm</h3>
+              <div style="display:grid; gap:0;">
+                ${record.steps.map((step, i) => `
+                  <div class="tracking-step" style="display:grid; grid-template-columns:32px 1fr; gap:16px; padding:16px 0; ${i < record.steps.length - 1 ? 'border-bottom:1px solid #EFD8C7;' : ''}">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                      <div style="display:flex; height:32px; width:32px; align-items:center; justify-content:center; border-radius:50%; ${step.done ? 'background:#716942; color:#fff;' : 'background:#EFE2D6; color:#8B765D;'} font-weight:700;">
+                        ${step.done
+                          ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+                          : `<span style="font-size:12px;">${i + 1}</span>`}
+                      </div>
+                      ${i < record.steps.length - 1 ? '<div style="flex:1; width:2px; background:#EFD8C7; min-height:30px;"></div>' : ''}
+                    </div>
+                    <div>
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <p style="font-size:16px; font-weight:${step.done ? '700' : '400'}; color:${step.done ? '#2B211D' : '#8B765D'}; margin:0;">${step.label}</p>
+                        ${step.date ? `<span style="font-size:12px; color:#8B765D; font-weight:700;">${step.date}</span>` : ''}
+                      </div>
+                      <p style="font-size:13px; color:#8B765D; margin-top:4px; margin-bottom:0;">
+                        ${step.done ? 'Quy trình đã hoàn tất và lưu đệm trên hệ thống xưởng.' : 'Đang chờ cập nhật công đoạn tiếp theo.'}
+                      </p>
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+
+            ${isWorkshopOrCeramic ? `
+              <!-- Moment Gallery -->
+              <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
+                <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 4px;">Khoảnh khắc tại THỔ của bạn</h3>
+                <p style="font-size:13px; color:#6A5D52; margin:0 0 24px;">Hình ảnh thực tế quá trình xoay gốm và nung mộc sản phẩm của bạn.</p>
+                <div style="display:grid; gap:16px;" class="moment-gallery-grid">
+                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
+                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.handsWarm}" style="width:100%; height:100%; object-fit:cover;"></div>
+                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">1. Tạo hình</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Chị Linh</p></div>
+                  </div>
+                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
+                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.largePot}" style="width:100%; height:100%; object-fit:cover;"></div>
+                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">2. Phơi khô</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Anh Quân</p></div>
+                  </div>
+                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
+                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.detailBw}" style="width:100%; height:100%; object-fit:cover;"></div>
+                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">3. Trang trí</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Chị Hạnh</p></div>
+                  </div>
+                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
+                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${productImages.tealVase}" style="width:100%; height:100%; object-fit:cover;"></div>
+                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">4. Nung men</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Studio QC</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mini Vlog Card -->
+              <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px; display:grid; grid-template-columns: 240px 1fr; gap:20px;" class="vlog-card-grid">
+                <div style="position:relative; border-radius:8px; overflow:hidden; aspect-ratio:16/10; height:150px; background:#000;">
+                  <img src="${workshopImages.wheelBw}" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+                  <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                    <span style="font-size:40px; color:#fff; background:rgba(113,105,66,0.85); width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding-left:4px;">▶</span>
+                  </div>
+                </div>
+                <div>
+                  <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700; text-transform:uppercase;">Mini Vlog</span>
+                  <h4 style="font-size:18px; font-weight:700; color:#361F17; margin:8px 0 4px;">Khoảnh khắc xoay gốm tại bàn xoay</h4>
+                  <p style="font-size:14px; color:#6A5D52; line-height:1.5;">Đoạn video ngắn ghi lại chuyển động bàn tay và nhịp điều khiển bàn xoay của bạn lúc tạo dáng phôi.</p>
+                  <p style="font-size:11px; color:#8B765D; margin-top:8px;">Quay bởi trợ giảng xưởng THỔ</p>
+                </div>
+              </div>` : ''}
+
+            ${record.status === 'completed' ? `
+              <div style="text-align:center;">
+                <a href="review.html?code=${code}" class="btn btn-primary" style="border-radius:9999px; padding:12px 36px;">Viết đánh giá trải nghiệm</a>
+              </div>` : ''}
+          </div>
+
+          <!-- Right Column (Sidebar panels) -->
+          <div style="display:grid; gap:20px; height:fit-content;">
+            
+            <!-- Panel: Đơn hàng -->
+            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
+              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">📦 Đơn hàng</h4>
+              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
+                ${record.type === 'order' ? 'Đơn hàng chứa sản phẩm vật lý đặt qua website. Sẵn sàng giao sau khi đóng gói bảo hiểm.' : 'Mã theo dõi này thuộc loại vé/thành phẩm học viên sau workshop.'}
+              </p>
+            </div>
+
+            <!-- Panel: Workshop -->
+            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
+              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">📅 Lớp học & Thành phẩm</h4>
+              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
+                ${isWorkshopOrCeramic ? 'Vết dấu tay và dáng phôi sẽ được giữ nguyên vẹn. Trải nghiệm nung củi và nung ga tùy thuộc gói lựa chọn.' : 'Đơn hàng gốm chế tác sẵn từ bộ sưu tập của studio.'}
+              </p>
+            </div>
+
+            <!-- Panel: Nhân viên phụ trách -->
+            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
+              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">👤 Nhân sự xưởng</h4>
+              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
+                Nghệ nhân phụ trách: <strong>${record.manager_name}</strong><br>
+                Tiếp nhận thắc mắc qua hỗ trợ trực tuyến của THỔ Studio.
+              </p>
+            </div>
+
+            <!-- Panel: Hướng dẫn bảo quản -->
+            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px; font-size:13px; color:#716942; line-height:1.6; background:#FFFDFB;">
+              💡 <strong>Hướng dẫn bảo quản:</strong> Hạn chế sử dụng máy rửa bát nhiệt độ cao cho gốm tráng men mỏng thủ công. Tránh va đập mạnh.
+            </div>
+
+          </div>
+
+        </div>`;
+    }
+  </script>
+
+
+  <style>
+    .moment-gallery-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width: 1023px) {
+      .tracking-main-grid { grid-template-columns: 1fr !important; }
+      .tracking-search-header-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+    }
+    @media (max-width: 767px) {
+      .moment-gallery-grid { grid-template-columns: 1fr 1fr !important; }
+      .vlog-card-grid { grid-template-columns: 1fr !important; }
+      .vlog-card-grid img { height: 140px !important; }
+      #floating-chat-window { width: 310px !important; right: -10px !important; }
+    }
+  </style>
+</body>
+</html>

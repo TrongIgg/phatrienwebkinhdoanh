@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Chi tiết lịch trình và đặt vé workshop làm gốm thủ công.">
+  <title>THỔ Studio - Đặt lịch Workshop</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .meta-card {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 16px;
+    }
+    .advisory-box {
+      margin-top: 24px;
+      border-radius: 12px;
+      border: 1px solid #E5CDBA;
+      background: linear-gradient(to bottom right, #FFF8F2, #FBF0E4);
+      padding: 24px;
+    }
+    .ws-detail-grid {
+      display: grid;
+      gap: 40px;
+      grid-template-columns: 0.95fr 1fr;
+    }
+    @media (max-width: 1023px) {
+      .ws-detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <nav class="header-nav"><a href="index.html">Trang chủ</a><a href="workshop.html" class="active">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="cart-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span id="cart-badge" class="cart-badge" style="display:none">0</span></a>
+        <a href="workshop.html" class="header-cta">Đặt lịch</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Mở menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" style="display:none"><a href="index.html">Trang chủ</a><a href="workshop.html" class="active">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a><a href="workshop.html" class="mobile-cta">Đặt lịch</a></nav>
+    <div class="progress-rule"><div class="progress-rule-line"></div></div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-transition" style="min-height:100vh; background:#FBEEE5; color:#361F17;">
+    <div id="ws-detail-loader" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:120px 20px;">
+      <div class="btn-spinner" style="width:36px; height:36px; border-width:3px; border-top-color:var(--olive); border-left-color:rgba(0,0,0,0.1);"></div>
+      <p style="margin-top:16px; color:#7A6A58;">Đang tải workshop...</p>
+    </div>
+
+    <div id="ws-detail-empty" style="display:none; text-align:center; padding:120px 20px;">
+      <p style="font-size:18px;">Không tìm thấy lịch trình này.</p>
+      <a href="workshop.html" class="btn btn-outline" style="margin-top:20px; border-radius:9999px;">Quay lại workshop</a>
+    </div>
+
+    <!-- Container -->
+    <section id="ws-detail-container" style="display:none; max-width:1440px; margin:0 auto; padding:56px 24px 80px;">
+      <div class="ws-detail-grid">
+        <!-- Left: image & scripts -->
+        <div>
+          <a href="workshop.html" class="back-btn" style="margin-bottom:24px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+            Workshop
+          </a>
+          <div class="asset-img" style="aspect-ratio:4/3.8; border-radius:8px;"><img id="ws-main-img" src="" alt="Workshop image"></div>
+          
+          <!-- Advisory script per type -->
+          <div class="advisory-box">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; height:32px; width:32px; border-radius:50%; background:rgba(113, 105, 66, 0.1); color:var(--olive);">✨</span>
+              <h3 style="font-size:18px; font-weight:700; color:#3B2118; margin:0;">Tại sao nên chọn gói này?</h3>
+            </div>
+            <h4 id="adv-title" style="font-size:16px; font-weight:700; color:#643A2A; margin-bottom:12px;"></h4>
+            <div id="adv-paragraphs" style="display:grid; gap:12px; font-size:14px; line-height:1.75; color:#6A5D52;"></div>
+            <div style="margin-top:20px; display:flex; align-items:start; gap:8px; border-radius:8px; background:rgba(113,105,66,0.08); padding:12px 16px;">
+              <span style="color:#716942; font-weight:bold; font-size:14px; white-space:nowrap;">Phù hợp nhất:</span>
+              <p id="adv-bestfor" style="font-size:14px; color:#361F17; margin:0;"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: info & booking form -->
+        <div style="align-self:start;">
+          <p id="ws-audience" style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; color:#716942;"></p>
+          <h1 id="ws-name" style="margin-top:12px; font-size:48px; font-weight:700; line-height:1.2; color:#3B2118;"></h1>
+          <p id="ws-desc" style="margin-top:24px; font-size:20px; line-height:1.8; color:#6A5D52;"></p>
+
+          <!-- Meta cards grid -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:32px;" class="cols-2-grid">
+            <div class="meta-card">
+              <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#716942; margin-bottom:8px;">
+                📅 Ngày học
+              </div>
+              <p id="ws-date" style="font-weight:700; color:#361F17; margin:0;"></p>
+            </div>
+            <div class="meta-card">
+              <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#716942; margin-bottom:8px;">
+                🕒 Khung giờ
+              </div>
+              <p id="ws-time" style="color:#361F17; margin:0;"></p>
+            </div>
+            <div class="meta-card">
+              <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#716942; margin-bottom:8px;">
+                👤 Nghệ nhân
+              </div>
+              <p id="ws-instructor" style="color:#361F17; margin:0;"></p>
+            </div>
+            <div class="meta-card" id="ws-slots-card">
+              <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#716942; margin-bottom:8px;">
+                👥 Slot còn lại
+              </div>
+              <p id="ws-slots-text" style="margin:0;"></p>
+            </div>
+          </div>
+
+          <!-- Urgent badge -->
+          <div id="ws-urgent-badge" style="display:none; margin-top:16px; border-radius:9999px; background:rgba(201, 107, 55, 0.15); padding:8px 16px; font-size:14px; font-weight:700; color:#C96B37;">
+            ⚡ Chỉ còn <span id="ws-urgent-count"></span> chỗ — đặt ngay để không mất slot!
+          </div>
+
+          <!-- Booking inline form -->
+          <form onsubmit="handleBookingSubmit(event)" style="margin-top:32px; border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px; display:grid; gap:16px;">
+            <h2 style="font-size:20px; font-weight:700; color:#3B2118; margin:0;">Thông tin đặt chỗ</h2>
+            
+            <label>
+              <span class="form-label" style="font-size:13px; margin-bottom:6px;">Họ và tên <span style="color:#C96B37;">*</span></span>
+              <input required id="book-name" type="text" class="form-input" style="border-radius:8px;" placeholder="Nhập họ tên của bạn">
+            </label>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;" class="cols-2-grid">
+              <label>
+                <span class="form-label" style="font-size:13px; margin-bottom:6px;">Số điện thoại</span>
+                <input id="book-phone" type="tel" class="form-input" style="border-radius:8px;" placeholder="0912 345 678">
+              </label>
+              <label>
+                <span class="form-label" style="font-size:13px; margin-bottom:6px;">Email</span>
+                <input id="book-email" type="email" class="form-input" style="border-radius:8px;" placeholder="email@example.com">
+              </label>
+            </div>
+
+            <div>
+              <span class="form-label" style="font-size:13px; margin-bottom:6px;">Số lượng vé <span style="color:#C96B37;">*</span></span>
+              <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
+                <div class="inline-flex h-11 items-center rounded-full border border-[#E5CDBA] bg-white">
+                  <button type="button" onclick="adjustTickets(-1)" style="padding:0 16px; font-size:20px; font-weight:bold;">−</button>
+                  <span id="ticket-counter" style="min-width:44px; text-align:center; font-weight:700; font-size:16px;">1</span>
+                  <button type="button" onclick="adjustTickets(1)" style="padding:0 16px; font-size:20px; font-weight:bold;">+</button>
+                </div>
+                <p style="font-size:14px; color:#6A5D52; margin:0;">Còn <span id="ws-slots-available-label"></span> slot khả dụng</p>
+              </div>
+            </div>
+
+            <label>
+              <span class="form-label" style="font-size:13px; margin-bottom:6px;">Ghi chú (không bắt buộc)</span>
+              <textarea id="book-notes" class="form-textarea" style="min-height:80px; border-radius:8px;" placeholder="Yêu cầu đặc biệt, dị ứng, nhóm lớn..."></textarea>
+            </label>
+
+            <div style="border-top:1px solid #EFD8C7; padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+              <div>
+                <p style="font-size:13px; color:#6A5D52; margin:0;">Tổng</p>
+                <p id="total-booking-price" style="font-size:28px; font-weight:700; color:#643A2A; margin:0;"></p>
+                <small id="booking-price-details" style="font-size:12px; color:#8B765D; display:none;"></small>
+              </div>
+              <button type="submit" class="btn btn-primary" style="border-radius:9999px; padding:14px 28px; height:52px; font-size:16px; background:var(--olive); border-color:var(--olive); gap:6px;">
+                💳 Thanh toán ngay
+              </button>
+            </div>
+            
+          </form>
+
+          <!-- Secondary CTA: 3D Customizer -->
+          <a href="workshop-customizer.html" class="btn btn-outline" style="width:100%; border-radius:9999px; margin-top:16px; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; font-weight:700; color:var(--coffee);">
+            Tạo mẫu gốm thử 3D trước
+          </a>
+
+          <!-- Policies Box -->
+          <div style="margin-top:24px; border-radius:8px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
+            <h3 style="font-size:16px; font-weight:700; margin:0;">Chính sách giữ chỗ</h3>
+            <ul style="margin-top:12px; display:grid; gap:8px; font-size:13px; color:#6A5D52; padding:0; list-style:none;">
+              <li style="display:flex; gap:8px; align-items:start;"><span style="color:var(--olive);">✓</span> Slot được giữ 15 phút sau khi bạn mở thanh toán.</li>
+              <li style="display:flex; gap:8px; align-items:start;"><span style="color:var(--olive);">✓</span> Hủy thanh toán → slot được trả lại ngay cho workshop.</li>
+              <li style="display:flex; gap:8px; align-items:start;"><span style="color:var(--olive);">✓</span> Gốm sau workshop được đóng gói và giao theo chính sách vận chuyển riêng.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- You'll experience -->
+      <section style="margin-top:64px; border-top:1px solid #D9BFAE; padding-top:48px;">
+        <h2 style="font-size:30px; font-weight:700; color:#3B2118; margin-bottom:24px;">Bạn sẽ trải nghiệm</h2>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;" class="cols-3-grid">
+          <div style="border-radius:8px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px; font-size:18px; font-weight:700;">Làm quen chất đất và công cụ</div>
+          <div style="border-radius:8px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px; font-size:18px; font-weight:700;">Tạo hình hoặc trang trí theo gói</div>
+          <div style="border-radius:8px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px; font-size:18px; font-weight:700;">Nhận tracking thành phẩm sau workshop</div>
+        </div>
+
+        <!-- DatabaseConnectionViz -->
+        <div style="margin-top:64px; display:flex; flex-direction:column; align-items:center; border-radius:20px; border:1px solid #EFD8C7; background:#FFF8F2; padding:32px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+          <h3 style="margin-bottom:32px; font-size:18px; font-weight:700; color:#361F17; margin:0;">Hệ thống đồng bộ số lượng theo thời gian thực</h3>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:24px; margin-top:24px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="display:flex; height:64px; width:64px; align-items:center; justify-content:center; border-radius:16px; background:#EFE2D6; color:#716942; font-size:28px;">📱</div>
+              <span style="margin-top:12px; font-size:11px; font-weight:700; text-transform:uppercase; tracking:0.12em; color:#716942;">Thiết bị của bạn</span>
+            </div>
+            
+            <div style="display:flex; align-items:center; color:#C0AC8B; font-weight:bold; font-size:24px;">⇆</div>
+
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="display:flex; height:64px; width:64px; align-items:center; justify-content:center; border-radius:16px; background:#716942; color:#fff; font-size:28px; box-shadow:0 4px 10px rgba(113,105,66,0.2);">🖧</div>
+              <span style="margin-top:12px; font-size:11px; font-weight:700; text-transform:uppercase; tracking:0.12em; color:#716942;">THỔ Server</span>
+            </div>
+
+            <div style="display:flex; align-items:center; color:#C0AC8B; font-weight:bold; font-size:24px;">⇆</div>
+
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="display:flex; height:64px; width:64px; align-items:center; justify-content:center; border-radius:16px; background:#EFE2D6; color:#361F17; font-size:28px;">🛢</div>
+              <span style="margin-top:12px; font-size:11px; font-weight:700; text-transform:uppercase; tracking:0.12em; color:#361F17;">Database</span>
+            </div>
+          </div>
+          <p style="margin-top:24px; max-width:480px; font-size:14px; line-height:1.6; color:#6E4E3F; margin-bottom:0;">
+            Dữ liệu kho và slot workshop được kết nối trực tiếp đến hệ thống máy chủ, đảm bảo số lượng hiển thị luôn chính xác nhất.
+          </p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></div>
+      <div class="footer-section"><h3>Thông tin</h3><ul><li><a href="policy.html">Chính sách</a></li><li><a href="about.html">Về THỔ</a></li></ul></div>
+      <div class="footer-section"><h3>Dịch vụ</h3><ul><li><a href="tracking.html">Theo dõi đơn hàng</a></li><li><a href="workshop.html">Workshop</a></li></ul></div>
+      <div class="footer-section"><h3>Liên hệ</h3><div class="footer-social"><a href="#">Facebook</a></div></div>
+    </div>
+    <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    const packageScripts = {
+      basic: {
+        title: 'Bước đầu tiên trên hành trình gốm',
+        paragraphs: [
+          'Gói cơ bản là lựa chọn lý tưởng nếu bạn lần đầu chạm đất sét. Bạn sẽ được hướng dẫn từng bước: từ cách nhào đất, tạo dáng bằng tay, đến vuốt mép và để lại dấu vân tay riêng trên sản phẩm.',
+          'Không cần kinh nghiệm, không sợ "làm hỏng" — vì mỗi vết nứt, mỗi nét xiên đều là một phần của câu chuyện. Nghệ nhân sẽ đi cùng bạn cả buổi.'
+        ],
+        bestFor: 'Người mới bắt đầu, muốn thử cảm giác nặn gốm thủ công lần đầu.'
+      },
+      painting: {
+        title: 'Cho những ai yêu màu sắc',
+        paragraphs: [
+          'Nếu bạn thích vẽ, thích pha màu, thích sự bất ngờ khi men chảy trong lò nung — gói trang trí men màu dành cho bạn.',
+          'Bạn sẽ nhận phôi gốm đã nung mộc sẵn, chọn bảng men yêu thích, rồi thoải mái vẽ hoa văn, chữ viết hoặc hình tự do. Sau khi nung men, màu sắc sẽ "sống dậy" hoàn toàn khác — và đó chính là điều kỳ diệu của gốm.'
+        ],
+        bestFor: 'Người yêu nghệ thuật, thích trang trí, hoặc muốn tạo món quà cá nhân hóa.'
+      },
+      combo: {
+        title: 'Hai người, hai tác phẩm, một kỷ niệm',
+        paragraphs: [
+          'Gói combo dành cho hai người đi cùng — bạn thân, người yêu hoặc đồng nghiệp thân thiết. Mỗi người làm một sản phẩm riêng, nhưng cùng ngồi một bàn, cùng chia sẻ khoảng thời gian chậm lại giữa nhịp sống vội.',
+          'Workshop không chỉ là làm gốm — mà còn là lý do để hai bạn ngồi xuống, tập trung vào hiện tại, và tạo ra thứ gì đó bằng chính đôi tay mình.'
+        ],
+        bestFor: 'Cặp đôi, bạn thân, hoặc hai người muốn có trải nghiệm chung đáng nhớ.'
+      },
+      family: {
+        title: 'Khoảng lặng gia đình giữa thành phố',
+        paragraphs: [
+          'Workshop gia đình được thiết kế chậm hơn, có trợ giảng kèm trẻ nhỏ, và góc chụp ảnh thành phẩm cuối buổi. Bố mẹ và con cùng nhau nặn đất, cùng bẩn tay, cùng cười.',
+          'Thay vì một chủ nhật quanh quẩn với màn hình, hãy tặng gia đình một buổi chạm vào thứ gì đó thật — bằng đất, bằng nước, và bằng những đôi tay nhỏ xíu đang háo hức.'
+        ],
+        bestFor: 'Gia đình có trẻ em từ 5 tuổi, muốn hoạt động gắn kết thực tế.'
+      },
+      premium: {
+        title: 'Dành cho người muốn đi sâu hơn',
+        paragraphs: [
+          'Gói premium không chỉ là "làm gốm nâng cao". Bạn sẽ có bàn xoay riêng, thời lượng dài hơn, và nghệ nhân đi sát từng chi tiết: cách đặt tay, lực ấn, góc nghiêng khi vuốt dáng trên bàn xoay.',
+          'Đây là gói phù hợp nếu bạn đã thử qua gốm cơ bản và muốn thử thách bản thân, hoặc đơn giản là bạn thích sự tập trung cao độ, thích "flow state" khi đôi tay hoàn toàn chìm vào đất.'
+        ],
+        bestFor: 'Người đã có trải nghiệm gốm, hoặc muốn trải nghiệm bàn xoay chuyên nghiệp.'
+      },
+      tea: {
+        title: 'Nghệ thuật trong một chén trà nhỏ',
+        paragraphs: [
+          'Gói chén trà là sự kết hợp giữa thủ công và thiền: bạn nặn một chiếc chén vừa tay, học cách nhìn men sữa chảy tự nhiên, và hiểu vì sao mỗi chiếc chén trà thủ công không bao giờ giống nhau.',
+          'Sau buổi workshop, bạn sẽ không chỉ mang về một chiếc chén — mà còn mang về cách nhìn mới: bắt đầu cảm nhận đồ vật bằng tay trước khi bằng mắt.'
+        ],
+        bestFor: 'Người yêu trà, thích sự tối giản, hoặc muốn trải nghiệm mindfulness qua gốm.'
+      },
+      sculpture: {
+        title: 'Tạo hình tự do, không giới hạn',
+        paragraphs: [
+          'Gói tượng gốm mini dành cho những ai thích sáng tạo không theo khuôn mẫu. Bạn có thể nặn con vật nhỏ, mô hình nhà, đám mây, hoặc bất cứ ký hiệu nào có ý nghĩa riêng với bạn.',
+          'Nghệ nhân sẽ hướng dẫn kỹ thuật nặn chi tiết, cách tạo kết cấu bề mặt, và cách giữ tỷ lệ. Nhưng ý tưởng? Hoàn toàn thuộc về bạn.'
+        ],
+        bestFor: 'Người thích sáng tạo tự do, trẻ em lớn, hoặc muốn tạo vật phẩm kỷ niệm riêng.'
+      }
+    };
+
+    let currentWorkshop = null;
+    let selectedTickets = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      const loader = document.getElementById('ws-detail-loader');
+      const emptyBlock = document.getElementById('ws-detail-empty');
+      const content = document.getElementById('ws-detail-container');
+
+      if (!id) {
+        loader.style.display = 'none';
+        emptyBlock.style.display = 'block';
+        return;
+      }
+
+      currentWorkshop = workshops.find(ws => ws.id === id);
+
+      if (!currentWorkshop) {
+        loader.style.display = 'none';
+        emptyBlock.style.display = 'block';
+        return;
+      }
+
+      // Populate details
+      document.getElementById('ws-audience').textContent = currentWorkshop.audience.replace('_', ' ');
+      document.getElementById('ws-name').textContent = currentWorkshop.name;
+      document.getElementById('ws-desc').textContent = currentWorkshop.description;
+      document.getElementById('ws-date').textContent = currentWorkshop.fullDate;
+      document.getElementById('ws-time').textContent = currentWorkshop.time;
+      document.getElementById('ws-instructor').textContent = currentWorkshop.instructor;
+      document.getElementById('ws-slots-text').textContent = `${currentWorkshop.slots.available}/${currentWorkshop.slots.total}`;
+      document.getElementById('ws-slots-available-label').textContent = currentWorkshop.slots.available;
+      document.getElementById('ws-main-img').src = currentWorkshop.image;
+      document.getElementById('ws-main-img').alt = currentWorkshop.name;
+
+      // Handle slots urgency state
+      const isUrgent = currentWorkshop.slots.available <= 3;
+      if (isUrgent) {
+        document.getElementById('ws-urgent-badge').style.display = 'inline-block';
+        document.getElementById('ws-urgent-count').textContent = currentWorkshop.slots.available;
+        document.getElementById('ws-slots-card').style.borderColor = '#C96B37';
+        document.getElementById('ws-slots-card').style.background = 'rgba(201, 107, 55, 0.05)';
+      }
+
+      // Populate advisory box
+      const type = currentWorkshop.workshopType || 'basic';
+      const adv = packageScripts[type] || packageScripts.basic;
+      document.getElementById('adv-title').textContent = adv.title;
+      document.getElementById('adv-paragraphs').innerHTML = adv.paragraphs.map(p => `<p>${p}</p>`).join('');
+      document.getElementById('adv-bestfor').textContent = adv.bestFor;
+
+      updateTotalBookingPrice();
+
+      // Show content
+      loader.style.display = 'none';
+      content.style.display = 'block';
+    });
+
+    function adjustTickets(amount) {
+      const nextTickets = selectedTickets + amount;
+      if (nextTickets < 1) return;
+      if (nextTickets > currentWorkshop.slots.available) {
+        showToast(`Workshop chỉ còn ${currentWorkshop.slots.available} slot khả dụng.`, 'error');
+        return;
+      }
+      selectedTickets = nextTickets;
+      document.getElementById('ticket-counter').textContent = selectedTickets;
+      updateTotalBookingPrice();
+    }
+
+    function updateTotalBookingPrice() {
+      const total = currentWorkshop.price * selectedTickets;
+      document.getElementById('total-booking-price').textContent = formatVND(total);
+
+      const details = document.getElementById('booking-price-details');
+      if (selectedTickets > 1) {
+        details.style.display = 'block';
+        details.textContent = `${formatVND(currentWorkshop.price)} × ${selectedTickets} vé`;
+      } else {
+        details.style.display = 'none';
+      }
+    }
+
+    function handleBookingSubmit(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('book-name').value.trim();
+      const phone = document.getElementById('book-phone').value.trim();
+      const email = document.getElementById('book-email').value.trim();
+
+      if (!name) {
+        showToast('Vui lòng điền họ và tên.', 'error');
+        return;
+      }
+      if (!phone && !email) {
+        showToast('Vui lòng điền số điện thoại hoặc email liên hệ.', 'error');
+        return;
+      }
+
+      // Add to workshop cart
+      const bookingItem = {
+        id: currentWorkshop.id,
+        name: currentWorkshop.name,
+        date: currentWorkshop.fullDate,
+        time: currentWorkshop.time,
+        instructor: currentWorkshop.instructor,
+        price: currentWorkshop.price,
+        tickets: selectedTickets,
+        maxTickets: currentWorkshop.slots.available,
+        package: currentWorkshop.package
+      };
+
+      addWorkshopToCart(bookingItem);
+
+      // Save customer details temporary session
+      const customerSession = {
+        name, phone, email,
+        notes: document.getElementById('book-notes').value.trim()
+      };
+      sessionStorage.setItem('tho-checkout-customer', JSON.stringify(customerSession));
+
+      showToast('Đang chuyển hướng tới trang thanh toán...');
+      setTimeout(() => {
+        window.location.href = 'checkout.html';
+      }, 800);
+    }
+  </script>
+  <style>
+    @media (max-width: 767px) {
+      .cols-2-grid { grid-template-columns: 1fr !important; }
+      .cols-3-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</body>
+</html>

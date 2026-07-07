@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Đăng ký đặt chỗ Workshop">
+  <title>THỔ Studio - Đặt chỗ Workshop</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .booking-grid {
+      display: grid;
+      gap: 32px;
+      grid-template-columns: 400px 1fr;
+    }
+    @media (max-width: 1023px) {
+      .booking-grid { grid-template-columns: 1fr; }
+    }
+    .sticky-card {
+      position: sticky;
+      top: 112px;
+      border-radius: 8px;
+      border: 1px solid #EFD8C7;
+      background: #FFF8F2;
+      overflow: hidden;
+      height: fit-content;
+    }
+  </style>
+</head>
+<body class="checkout-shell">
+
+  <!-- Header -->
+  <header class="checkout-header">
+    <div class="checkout-header-inner">
+      <a href="index.html" class="checkout-header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <div class="checkout-stepper">
+        <div class="checkout-step">
+          <div class="checkout-step-circle active">1</div>
+          <span class="checkout-step-label">Giỏ hàng &amp; Đặt chỗ</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle inactive">2</div>
+          <span class="checkout-step-label" style="color:#BFA99E;">Thanh toán</span>
+        </div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step">
+          <div class="checkout-step-circle inactive">3</div>
+          <span class="checkout-step-label" style="color:#BFA99E;">Hoàn tất</span>
+        </div>
+      </div>
+      <div style="width:56px;"></div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-transition" style="max-width:1200px; margin:0 auto; padding:48px 24px 96px;">
+    <button onclick="history.back()" class="back-btn" style="margin-bottom:32px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      Quay lại
+    </button>
+
+    <div id="booking-loader" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px;">
+      <div class="btn-spinner" style="width:36px; height:36px; border-width:3px; border-top-color:var(--olive); border-left-color:rgba(0,0,0,0.1);"></div>
+      <p style="margin-top:16px; color:#7A6A58;">Đang tải thông tin workshop...</p>
+    </div>
+
+    <div id="booking-empty" style="display:none; text-align:center; padding:80px 20px;">
+      <p style="font-size:18px;">Không tìm thấy lịch trình đặt chỗ này.</p>
+      <a href="workshop.html" class="btn btn-outline" style="margin-top:20px; border-radius:9999px;">Xem danh sách workshop</a>
+    </div>
+
+    <!-- Booking Layout Content -->
+    <div id="booking-container" style="display:none;" class="booking-grid">
+      <!-- Left: Workshop Summary card -->
+      <aside class="sticky-card">
+        <div class="asset-img" style="aspect-ratio:4/3.8; width:100%;"><img id="ws-card-img" src="" alt="Workshop"></div>
+        <div style="padding:24px;">
+          <h2 id="ws-card-name" style="font-size:24px; font-weight:700; color:#2B211D; margin:0 0 20px;"></h2>
+          <div style="display:grid; gap:12px; font-size:14px; color:#7A6E62;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>📅</span> <span id="ws-card-date"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>🕒</span> <span id="ws-card-time"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>👤</span> <span id="ws-card-instructor"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>👥</span> <span id="ws-card-slots"></span>
+            </div>
+          </div>
+          <p id="ws-card-price" style="margin-top:24px; font-size:28px; font-weight:700; color:#643A2A;"></p>
+        </div>
+      </aside>
+
+      <!-- Right: Booking Form -->
+      <form onsubmit="handleBookingFormSubmit(event)" style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:32px; display:grid; gap:20px; height:fit-content;">
+        <h2 style="font-size:24px; font-weight:700; color:#3B2118; margin:0;">Thông tin đăng ký đặt chỗ</h2>
+        <p style="font-size:14px; color:#6A5D52; margin:0;">Điền thông tin liên hệ nhận vé. Slot của bạn sẽ được giữ trong 15 phút sau khi sang cổng thanh toán.</p>
+
+        <label>
+          <span class="form-label">Họ và tên khách hàng <span style="color:#C96B37;">*</span></span>
+          <input required id="book-name" type="text" class="form-input" style="border-radius:8px;" placeholder="Nhập tên người tham dự">
+        </label>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;" class="form-row-2">
+          <label>
+            <span class="form-label">Số điện thoại <span style="color:#C96B37;">*</span></span>
+            <input required id="book-phone" type="tel" class="form-input" style="border-radius:8px;" placeholder="09xxxxxxxx">
+          </label>
+          <label>
+            <span class="form-label">Địa chỉ email <span style="color:#C96B37;">*</span></span>
+            <input required id="book-email" type="email" class="form-input" style="border-radius:8px;" placeholder="email@example.com">
+          </label>
+        </div>
+
+        <div>
+          <span class="form-label">Số lượng vé tham dự <span style="color:#C96B37;">*</span></span>
+          <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
+            <div class="inline-flex h-11 items-center rounded-full border border-[#E5CDBA] bg-white">
+              <button type="button" onclick="adjustTickets(-1)" style="padding:0 16px; font-size:20px; font-weight:bold;">−</button>
+              <span id="ticket-counter" style="min-width:44px; text-align:center; font-weight:700; font-size:16px;">1</span>
+              <button type="button" onclick="adjustTickets(1)" style="padding:0 16px; font-size:20px; font-weight:bold;">+</button>
+            </div>
+            <p style="font-size:14px; color:#6A5D52; margin:0;">Còn <span id="ws-slots-label"></span> slot trống khả dụng</p>
+          </div>
+        </div>
+
+        <label>
+          <span class="form-label">Yêu cầu đặc biệt hoặc ghi chú</span>
+          <textarea id="book-notes" class="form-textarea" style="min-height:90px; border-radius:8px;" placeholder="Ví dụ: Nhóm đi chung, yêu cầu hỗ trợ riêng..."></textarea>
+        </label>
+
+        <div style="border-top:1px solid #EFD8C7; padding-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <p style="font-size:13px; color:#6A5D52; margin:0;">Tổng chi phí tạm tính</p>
+            <p id="total-price" style="font-size:32px; font-weight:700; color:#643A2A; margin:4px 0 0;"></p>
+            <small id="price-detail" style="font-size:12px; color:#8B765D; display:none;"></small>
+          </div>
+          <button type="submit" class="btn btn-primary" style="border-radius:9999px; padding:14px 36px; font-size:16px; background:var(--olive); border-color:var(--olive);">
+            Tiếp tục đặt chỗ
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></div>
+      <div class="footer-section"><h3>Thông tin</h3><ul><li><a href="policy.html">Chính sách</a></li><li><a href="about.html">Về THỔ</a></li></ul></div>
+      <div class="footer-section"><h3>Dịch vụ</h3><ul><li><a href="tracking.html">Theo dõi đơn hàng</a></li><li><a href="workshop.html">Workshop</a></li></ul></div>
+      <div class="footer-section"><h3>Liên hệ</h3><div class="footer-social"><a href="#">Facebook</a></div></div>
+    </div>
+    <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    let activeWorkshop = null;
+    let selectedTicketsCount = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      const loader = document.getElementById('booking-loader');
+      const emptyBlock = document.getElementById('booking-empty');
+      const container = document.getElementById('booking-container');
+
+      if (!id) {
+        loader.style.display = 'none';
+        emptyBlock.style.display = 'block';
+        return;
+      }
+
+      activeWorkshop = workshops.find(ws => ws.id === id);
+
+      if (!activeWorkshop) {
+        loader.style.display = 'none';
+        emptyBlock.style.display = 'block';
+        return;
+      }
+
+      // Populate layout
+      document.getElementById('ws-card-name').textContent = activeWorkshop.name;
+      document.getElementById('ws-card-date').textContent = activeWorkshop.fullDate;
+      document.getElementById('ws-card-time').textContent = activeWorkshop.time;
+      document.getElementById('ws-card-instructor').textContent = activeWorkshop.instructor;
+      document.getElementById('ws-card-slots').textContent = `${activeWorkshop.slots.available}/${activeWorkshop.slots.total} slot`;
+      document.getElementById('ws-card-price').textContent = formatVND(activeWorkshop.price);
+      document.getElementById('ws-card-img').src = activeWorkshop.image;
+      document.getElementById('ws-slots-label').textContent = activeWorkshop.slots.available;
+
+      updateTotalPriceDetails();
+
+      loader.style.display = 'none';
+      container.style.display = 'grid';
+    });
+
+    function adjustTickets(amount) {
+      const nextCount = selectedTicketsCount + amount;
+      if (nextCount < 1) return;
+      if (nextCount > activeWorkshop.slots.available) {
+        showToast(`Workshop chỉ còn ${activeWorkshop.slots.available} slot trống.`, 'error');
+        return;
+      }
+      selectedTicketsCount = nextCount;
+      document.getElementById('ticket-counter').textContent = selectedTicketsCount;
+      updateTotalPriceDetails();
+    }
+
+    function updateTotalPriceDetails() {
+      const total = activeWorkshop.price * selectedTicketsCount;
+      document.getElementById('total-price').textContent = formatVND(total);
+
+      const detail = document.getElementById('price-detail');
+      if (selectedTicketsCount > 1) {
+        detail.style.display = 'block';
+        detail.textContent = `${formatVND(activeWorkshop.price)} × ${selectedTicketsCount} vé`;
+      } else {
+        detail.style.display = 'none';
+      }
+    }
+
+    function handleBookingFormSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('book-name').value.trim();
+      const phone = document.getElementById('book-phone').value.trim();
+      const email = document.getElementById('book-email').value.trim();
+
+      const bookingItem = {
+        id: activeWorkshop.id,
+        name: activeWorkshop.name,
+        date: activeWorkshop.fullDate,
+        time: activeWorkshop.time,
+        instructor: activeWorkshop.instructor,
+        price: activeWorkshop.price,
+        tickets: selectedTicketsCount,
+        maxTickets: activeWorkshop.slots.available,
+        package: activeWorkshop.package
+      };
+
+      addWorkshopToCart(bookingItem);
+
+      // Save customer details temporary session
+      const customerSession = {
+        name, phone, email,
+        notes: document.getElementById('book-notes').value.trim()
+      };
+      sessionStorage.setItem('tho-checkout-customer', JSON.stringify(customerSession));
+
+      showToast('Đặt chỗ thành công! Đang chuyển hướng tới trang thanh toán...');
+      setTimeout(() => {
+        window.location.href = 'checkout.html';
+      }, 800);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+/* ===== Page Transitions ===== */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(22px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+.page-transition {
+  animation: pageEnter 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ===== Reveal on Scroll ===== */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition:
+    opacity 0.72s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 0.72s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    box-shadow 0.36s ease,
+    border-color 0.36s ease,
+    background-color 0.36s ease;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ===== Product / Workshop Card Hover ===== */
+.product-card,
+.workshop-card {
+  position: relative;
+  transition:
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.32s ease;
+  cursor: pointer;
+  will-change: transform;
+}
+
+.product-card:hover,
+.workshop-card:hover {
+  transform: translateY(-9px);
+  box-shadow: var(--shadow-hover);
+}
+
+.product-card img,
+.workshop-card img {
+  transition: transform 0.82s cubic-bezier(0.16, 1, 0.3, 1), filter 0.42s ease;
+}
+
+.product-card:hover img,
+.workshop-card:hover img {
+  filter: saturate(1.04) contrast(1.02);
+  transform: scale(1.08);
+}
+
+.product-card::after,
+.workshop-card::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(145deg, rgba(255, 248, 242, 0.3), transparent 42%),
+    radial-gradient(circle at 20% 0%, rgba(192, 172, 139, 0.22), transparent 28%);
+  transition: opacity 0.42s ease;
+}
+
+.product-card:hover::after,
+.workshop-card:hover::after {
+  opacity: 1;
+}
+
+/* ===== Cart Badge Pulse ===== */
+@keyframes badgePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.cart-badge-pulse {
+  animation: badgePulse 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===== Cart Item Remove ===== */
+@keyframes fadeSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 200px;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+
+.cart-item-removing {
+  animation: fadeSlideOut 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  overflow: hidden;
+}
+
+/* ===== Spinner ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.animate-spin {
+  animation: spin 0.7s linear infinite;
+}
+
+/* ===== Interactive Elements ===== */
+button,
+a {
+  transition: color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+}
+
+input, select, textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ===== Hero Float & Kinetic Sheen ===== */
+@keyframes softFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes claySheen {
+  0% { transform: translateX(-140%) skewX(-16deg); }
+  46%, 100% { transform: translateX(140%) skewX(-16deg); }
+}
+
+.hero-float {
+  animation: softFloat 7.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.kinetic-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.kinetic-sheen::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent, rgba(255, 248, 242, 0.32), transparent);
+  animation: claySheen 7.5s ease-in-out infinite;
+}
+
+/* ===== Hero Cinema Lighting ===== */
+@keyframes clayLightSweep {
+  0% { opacity: 0.16; transform: translate3d(-18%, 0, 0) rotate(0deg); }
+  50% { opacity: 0.36; transform: translate3d(18%, -4%, 0) rotate(5deg); }
+  100% { opacity: 0.16; transform: translate3d(-18%, 0, 0) rotate(0deg); }
+}
+
+.clay-cinema::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -20% -12%;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 68% 26%, rgba(251, 238, 229, 0.24), transparent 24%),
+    linear-gradient(115deg, transparent 18%, rgba(251, 238, 229, 0.16), transparent 52%);
+  mix-blend-mode: screen;
+  animation: clayLightSweep 10s ease-in-out infinite;
+}
+
+/* ===== Tracking Step Hover ===== */
+.tracking-step,
+.itinerary-step {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.tracking-step:hover,
+.itinerary-step:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 38px rgba(65, 48, 33, 0.12);
+}
+
+/* ===== Image Lazy Load ===== */
+@keyframes imgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+img[loading="lazy"] {
+  animation: imgFadeIn 0.3s ease both;
+}
+
+/* ===== Floating Chat ===== */
+@keyframes floatingChatEnter {
+  0% { opacity: 0; transform: translate3d(18px, 24px, 0) scale(0.96); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes chatButtonPulse {
+  0%, 100% { box-shadow: 0 18px 48px rgba(47, 95, 61, 0.38); }
+  50% { box-shadow: 0 18px 58px rgba(47, 95, 61, 0.58), 0 0 0 10px rgba(47, 95, 61, 0.1); }
+}
+
+@keyframes chatBubbleIn {
+  0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.floating-chat-panel {
+  animation: floatingChatEnter 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.floating-chat-button {
+  animation: chatButtonPulse 3.8s ease-in-out infinite;
+}
+
+.chat-bubble {
+  animation: chatBubbleIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.chat-bubble-bot {
+  animation-delay: 0.22s;
+}
+
+/* ===== Toast ===== */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(100%) scale(0.9); }
+}
+
+.toast-enter {
+  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.toast-exit {
+  animation: toastOut 0.3s ease-in both;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

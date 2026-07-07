@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Admin Dashboard">
+  <title>THỔ Studio - Admin Control Panel</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body style="background:#FBEEE5; color:#361F17; min-height:100vh; display:flex; flex-direction:column; margin:0;">
+
+  <!-- ADMIN HEADER -->
+  <header style="background:#2B211D; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #C0AC8B;">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="index.html" style="display:flex;"><img src="../image/logo/logo.jpg" alt="Logo" style="height:40px; border-radius:50%;"></a>
+      <h1 style="font-size:20px; font-weight:700; margin:0; color:#fff; letter-spacing:0.05em;">ADMIN PANEL 🛡️</h1>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <span style="font-size:14px; background:rgba(255,255,255,0.12); padding:6px 16px; border-radius:9999px; border:1px solid rgba(255,255,255,0.25);">Quản trị viên: <strong>Admin THỔ</strong></span>
+      <a href="index.html" style="color:#FFF8F2; text-decoration:none; font-size:14px; font-weight:700;">Đăng xuất ➔</a>
+    </div>
+  </header>
+
+  <!-- MAIN BODY LAYOUT -->
+  <div style="display:flex; flex:1;" class="admin-layout-grid">
+    <!-- Sidebar -->
+    <aside style="width:260px; background:#3B2118; color:#FBEEE5; padding:24px 16px; border-right:1px solid #C0AC8B; display:flex; flex-direction:column; gap:8px;" class="admin-sidebar">
+      <button onclick="switchTab('dashboard')" class="sidebar-tab active" id="tab-dashboard">📈 Tổng quan (Dashboard)</button>
+      <button onclick="switchTab('workshops')" class="sidebar-tab" id="tab-workshops">🏫 Quản lý Workshop</button>
+      <button onclick="switchTab('products')" class="sidebar-tab" id="tab-products">🏺 Sản phẩm & Đơn hàng</button>
+      <button onclick="switchTab('review-stats')" class="sidebar-tab" id="tab-review-stats">📊 Thống kê Đánh giá</button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main style="flex:1; padding:32px 40px;" id="main-content-panel">
+      <!-- DASHBOARD TAB -->
+      <section id="sect-dashboard" class="content-tab">
+        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Trung tâm điều hành doanh thu</h2>
+        
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:40px;" class="stats-grid">
+          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Doanh thu tháng này</p>
+            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0; color:#3F7D37;">48.2M đ</h3>
+          </div>
+          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Tổng số học viên</p>
+            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0;">180 người</h3>
+          </div>
+          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Đánh giá tích cực (4-5★)</p>
+            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0; color:#C96B37;">96.8%</h3>
+          </div>
+          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
+            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Tỷ lệ lấp đầy</p>
+            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0;">84%</h3>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORKSHOPS TAB -->
+      <section id="sect-workshops" class="content-tab" style="display:none;">
+        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Quản lý danh sách lớp học (Workshops)</h2>
+        <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; text-align:left;">
+            <thead>
+              <tr style="background:#EFE2D6; border-bottom:1px solid #EFD8C7;">
+                <th style="padding:16px;">Tên Workshop</th>
+                <th style="padding:16px;">Thời lượng</th>
+                <th style="padding:16px;">Đơn giá</th>
+                <th style="padding:16px;">Trạng thái lớp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #EFD8C7;">
+                <td style="padding:16px; font-weight:700;">Workshop làm gốm đôi cơ bản</td>
+                <td style="padding:16px;">2.5 giờ</td>
+                <td style="padding:16px;">490,000đ / cặp</td>
+                <td style="padding:16px;"><span style="background:#3F7D37; color:#fff; font-size:11px; padding:4px 8px; border-radius:4px;">Hoạt động</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid #EFD8C7;">
+                <td style="padding:16px; font-weight:700;">Workshop xoay gốm trên bàn xoay điện</td>
+                <td style="padding:16px;">3.0 giờ</td>
+                <td style="padding:16px;">380,000đ / khách</td>
+                <td style="padding:16px;"><span style="background:#3F7D37; color:#fff; font-size:11px; padding:4px 8px; border-radius:4px;">Hoạt động</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PRODUCTS TAB -->
+      <section id="sect-products" class="content-tab" style="display:none;">
+        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Quản lý Sản phẩm & Đơn hàng</h2>
+        <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; overflow:hidden; padding:24px;">
+          <p style="color:#6A5D52; margin:0;">Chức năng quản lý kho hàng và trạng thái vận đơn đang được phát triển...</p>
+        </div>
+      </section>
+
+      <!-- REVIEWS TAB -->
+      <section id="sect-review-stats" class="content-tab" style="display:none;">
+        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:8px;">Báo cáo thống kê Đánh giá</h2>
+        <p style="color:#6A5D52; margin-bottom:24px;">Phân tích chỉ số hài lòng của khách hàng và chất lượng dịch vụ.</p>
+        
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:28px;" class="review-stats-grid">
+          <!-- Left Column -->
+          <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; padding:24px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0 0 16px;">Biểu đồ hài lòng (Star distribution)</h3>
+            <div style="display:grid; gap:12px;">
+              <div>
+                <span style="font-size:13px; font-weight:700; color:#716942;">5 ★ (84%)</span>
+                <div style="height:12px; background:#E8EAD8; border-radius:9999px; overflow:hidden; margin-top:4px;">
+                  <div style="height:100%; width:84%; background:#716942;"></div>
+                </div>
+              </div>
+              <div>
+                <span style="font-size:13px; font-weight:700; color:#716942;">4 ★ (12%)</span>
+                <div style="height:12px; background:#E8EAD8; border-radius:9999px; overflow:hidden; margin-top:4px;">
+                  <div style="height:100%; width:12%; background:#716942;"></div>
+                </div>
+              </div>
+              <div>
+                <span style="font-size:13px; font-weight:700; color:#716942;">3 ★ (4%)</span>
+                <div style="height:12px; background:#E8EAD8; border-radius:9999px; overflow:hidden; margin-top:4px;">
+                  <div style="height:100%; width:4%; background:#716942;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; padding:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+            <div style="font-size:48px; font-weight:700; color:#716942;">4.8 ★</div>
+            <p style="font-size:13px; color:#8B765D; margin:8px 0 0;">Điểm số đánh giá trung bình từ 42 khách hàng đã gửi phản hồi.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.content-tab').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.sidebar-tab').forEach(el => el.classList.remove('active'));
+
+      const targetTab = document.getElementById(`sect-${tabId}`);
+      if (targetTab) targetTab.style.display = 'block';
+
+      const activeTab = document.getElementById(`tab-${tabId}`);
+      if (activeTab) activeTab.classList.add('active');
+    }
+  </script>
+
+  <style>
+    .sidebar-tab {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #FBEEE5;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .sidebar-tab:hover, .sidebar-tab.active {
+      background: #C0AC8B;
+      color: #361F17;
+    }
+    @media (max-width: 767px) {
+      .admin-layout-grid { flex-direction: column !important; }
+      .admin-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #C0AC8B; }
+      .review-stats-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</body>
+</html>

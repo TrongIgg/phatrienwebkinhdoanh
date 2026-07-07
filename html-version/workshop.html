@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THỔ Studio - Tất cả workshop làm gốm. Nặn gốm, trang trí men, combo đôi, gia đình.">
+  <title>THỔ Studio - Workshop</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo" aria-label="THỔ Studio"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <nav class="header-nav">
+        <a href="index.html">Trang chủ</a><a href="workshop.html" class="active">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a>
+      </nav>
+      <div class="header-actions">
+        <a href="cart.html" class="cart-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span id="cart-badge" class="cart-badge" style="display:none">0</span></a>
+        <a href="workshop.html" class="header-cta">Đặt lịch</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Mở menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" style="display:none"><a href="index.html">Trang chủ</a><a href="workshop.html" class="active">Workshop</a><a href="product.html">Sản phẩm</a><a href="tracking.html">Theo dõi</a><a href="about.html">Về THỔ</a><a href="review.html">Đánh giá</a><a href="workshop.html" class="mobile-cta">Đặt lịch</a></nav>
+    <div class="progress-rule"><div class="progress-rule-line"></div></div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-transition" style="min-height:100vh; background:#FBEEE5; color:#361F17;">
+    <!-- Hero -->
+    <section style="max-width:1440px; margin:0 auto; padding:64px 24px 32px;">
+      <h1 style="text-align:center; font-size:clamp(36px, 5vw, 56px); font-weight:700; line-height:1.2; color:#643A2A;">Workshop tại THỔ Studio</h1>
+      <p style="margin:16px auto 0; max-width:768px; text-align:center; font-size:20px; line-height:1.6; color:#3F3F35;">
+        Chọn trải nghiệm phù hợp, đặt lịch, và tự tay tạo nên một sản phẩm gốm mang dấu ấn cá nhân.
+      </p>
+    </section>
+
+    <!-- AI Chatbot Section -->
+    <section style="max-width:1440px; margin:0 auto; padding:0 24px 32px;" id="ai-chatbot-section">
+      <!-- Renders dynamically -->
+    </section>
+
+    <!-- Filter Bar -->
+    <section style="max-width:1440px; margin:0 auto; padding:0 24px 32px;">
+      <div class="filter-bar">
+        <div class="filter-grid">
+          <div class="filter-input-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="ws-search" type="text" class="form-input" placeholder="Tìm tên workshop..." style="padding-left:48px;">
+          </div>
+          <select id="ws-type" class="form-select">
+            <option value="all">Tất cả loại</option>
+            <option value="basic">Nặn gốm cơ bản</option>
+            <option value="painting">Trang trí men</option>
+            <option value="combo">Combo đôi</option>
+            <option value="family">Gia đình</option>
+            <option value="premium">Premium</option>
+            <option value="tea">Chén trà</option>
+            <option value="sculpture">Tượng mini</option>
+          </select>
+          <select id="ws-audience" class="form-select">
+            <option value="all">Tất cả đối tượng</option>
+            <option value="single_friendly">Đi một mình</option>
+            <option value="couple_friendly">Đôi / nhóm nhỏ</option>
+            <option value="family_friendly">Gia đình</option>
+          </select>
+          <select id="ws-price" class="form-select">
+            <option value="all">Tất cả giá</option>
+            <option value="low">Dưới 500K</option>
+            <option value="mid">500K - 1 triệu</option>
+            <option value="high">Trên 1 triệu</option>
+          </select>
+          <select id="ws-sort" class="form-select">
+            <option value="date_asc">Ngày gần nhất</option>
+            <option value="price_asc">Giá tăng dần</option>
+            <option value="price_desc">Giá giảm dần</option>
+            <option value="slots_desc">Slot còn nhiều</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workshop Grid -->
+    <section style="max-width:1440px; margin:0 auto; padding:0 24px 96px;">
+      <div id="workshop-grid" style="display:grid; gap:28px;" class="ws-grid"></div>
+      <div id="ws-empty" style="display:none; text-align:center; padding:80px 20px;">
+        <p style="font-size:22px; font-weight:700; color:#716942;">Không tìm thấy workshop phù hợp</p>
+        <p style="margin-top:12px; color:#8B765D;">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-logo" style="display:flex; justify-content:center;"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></div>
+      <div class="footer-section"><h3>Thông tin về chính sách</h3><ul><li><a href="policy.html">Mua hàng và thanh toán Online</a></li><li><a href="policy.html">Chính sách giao hàng</a></li><li><a href="policy.html">Chính sách đổi trả</a></li><li><a href="policy.html">Bảo hiểm hàng dễ vỡ</a></li></ul></div>
+      <div class="footer-section"><h3>Dịch vụ và thông tin khác</h3><ul><li><a href="tracking.html">Quy trình theo dõi đơn hàng</a></li><li><a href="about.html">Liên hệ và hợp tác kinh doanh</a></li><li><a href="about.html">Tuyển dụng</a></li><li><a href="about.html">Quy chế hoạt động</a></li><li><a href="about.html">Về chúng tôi</a></li></ul></div>
+      <div class="footer-section"><h3>Theo dõi THỔ trên mạng xã hội</h3><div class="footer-social"><a href="https://www.facebook.com/tho"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg><span>Facebook</span></a><a href="https://www.instagram.com/tho/"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span>Instagram</span></a></div></div>
+    </div>
+    <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ, cấp tại Sở KH &amp; ĐT TP. HCM.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/header.js"></script>
+  <script>
+    const audienceLabels = { single_friendly: 'Cá nhân', couple_friendly: 'Đôi / nhóm', family_friendly: 'Gia đình' };
+
+    function renderWorkshops() {
+      const search = document.getElementById('ws-search').value.toLowerCase().trim();
+      const typeFilter = document.getElementById('ws-type').value;
+      const audienceFilter = document.getElementById('ws-audience').value;
+      const priceFilter = document.getElementById('ws-price').value;
+      const sortBy = document.getElementById('ws-sort').value;
+
+      let filtered = workshops.filter(ws => {
+        if (search && !ws.name.toLowerCase().includes(search) && !ws.description.toLowerCase().includes(search)) return false;
+        if (typeFilter !== 'all' && ws.workshopType !== typeFilter) return false;
+        if (audienceFilter !== 'all' && ws.audience !== audienceFilter) return false;
+        if (priceFilter === 'low' && ws.price >= 500000) return false;
+        if (priceFilter === 'mid' && (ws.price < 500000 || ws.price > 1000000)) return false;
+        if (priceFilter === 'high' && ws.price <= 1000000) return false;
+        return true;
+      });
+
+      if (sortBy === 'price_asc') filtered.sort((a, b) => a.price - b.price);
+      else if (sortBy === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+      else if (sortBy === 'slots_desc') filtered.sort((a, b) => b.slots.available - a.slots.available);
+
+      const grid = document.getElementById('workshop-grid');
+      const empty = document.getElementById('ws-empty');
+
+      if (filtered.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      empty.style.display = 'none';
+
+      grid.innerHTML = filtered.map(ws => {
+        const slotsPercent = Math.round((ws.slots.available / ws.slots.total) * 100);
+        const urgentClass = ws.slots.available <= 3 ? 'color:#C96B37; font-weight:700;' : '';
+        const audienceText = audienceLabels[ws.audience] || 'Cá nhân';
+        const typeText = ws.workshopType === 'basic' ? 'Nặn gốm cơ bản' : ws.workshopType === 'painting' ? 'Trang trí men' : 'Chuyên sâu';
+        return `
+          <a href="workshop-detail.html?id=${ws.id}" class="workshop-card" style="display:flex; flex-direction:column; overflow:hidden; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; text-decoration:none; color:inherit; height:100%; box-shadow:0 6px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;">
+            <div class="asset-img" style="height:220px; width:100%; overflow:hidden;"><img src="${ws.image}" alt="${ws.name}" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div style="padding:20px; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+              <div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                  <span style="border-radius:9999px; background:#EFE2D6; padding:4px 12px; font-size:11px; font-weight:700; color:#643A2A;">
+                    ${audienceText}
+                  </span>
+                  <span style="border-radius:9999px; background:#F4E4D8; padding:4px 12px; font-size:11px; font-weight:700; color:#7A3E2D;">
+                    ${typeText}
+                  </span>
+                </div>
+                <h3 style="font-size:20px; font-weight:700; color:#2B211D; margin:0 0 8px; line-height:1.3; font-family:'Outfit', sans-serif;">${ws.name}</h3>
+                <p style="font-size:13px; line-height:1.6; color:#6A5D52; margin:0 0 16px; min-height:60px;">${ws.description}</p>
+                <div style="display:grid; gap:8px; font-size:13px; color:#6A5D52; margin-bottom:16px;">
+                  <div style="display:flex; align-items:center; gap:6px;">📅 ${ws.fullDate}</div>
+                  <div style="display:flex; align-items:center; gap:6px;">🕒 ${ws.time}</div>
+                  <div style="display:flex; align-items:center; gap:6px;">👥 ${ws.package} · còn ${ws.slots.available}/${ws.slots.total} slot</div>
+                </div>
+              </div>
+              <div style="border-top:1px dashed #E5D5C5; padding-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:auto;">
+                <span style="font-size:20px; font-weight:700; color:#643A2A;">${formatVND(ws.price)}</span>
+                <span class="btn btn-primary btn-sm" style="border-radius:9999px; background:var(--olive); border-color:var(--olive); padding:6px 18px; font-size:13px; font-weight:700;">Đặt chỗ</span>
+              </div>
+            </div>
+          </a>`;
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderWorkshops();
+      ['ws-search', 'ws-type', 'ws-audience', 'ws-price', 'ws-sort'].forEach(id => {
+        document.getElementById(id).addEventListener(id === 'ws-search' ? 'input' : 'change', renderWorkshops);
+      });
+
+      // Initialize AI chatbot
+      initChatbot();
+    });
+
+    // Chatbot Questions definitions
+    const chatbotQuestions = [
+      {
+        key: 'stylePreference',
+        prompt: 'Bạn muốn món gốm của mình có cảm giác như thế nào?',
+        options: [
+          { label: 'Tối giản', value: 'minimal', hint: 'Dáng gọn, men nhẹ, hợp bàn làm việc' },
+          { label: 'Màu nổi bật', value: 'colorful', hint: 'Vẽ men, họa tiết và bảng màu cá tính' },
+          { label: 'Tự nhiên', value: 'natural', hint: 'Đất mộc, vân tay, màu men ấm' },
+          { label: 'Chưa biết', value: 'unknown', hint: 'Để nghệ nhân gợi ý tại lớp' }
+        ]
+      },
+      {
+        key: 'experienceLevel',
+        prompt: 'Bạn đã từng làm gốm chưa?',
+        options: [
+          { label: 'Lần đầu', value: 'first_time', hint: 'Cần hướng dẫn chậm và rõ từng bước' },
+          { label: 'Đã thử 1-2 lần', value: 'some', hint: 'Có thể làm dáng nâng cao hơn một chút' },
+          { label: 'Có kinh nghiệm', value: 'experienced', hint: 'Phù hợp bàn xoay riêng hoặc premium' }
+        ]
+      },
+      {
+        key: 'purpose',
+        prompt: 'Mục đích chính của buổi workshop là gì?',
+        options: [
+          { label: 'Cho bản thân', value: 'self', hint: 'Một món gốm mang dấu tay riêng' },
+          { label: 'Làm quà tặng', value: 'gift', hint: 'Gợi ý cặp đôi, hộp quà và thiệp' },
+          { label: 'Trang trí nhà', value: 'home', hint: 'Ưu tiên bình, chén trà, đồ decor' },
+          { label: 'Thư giãn', value: 'relax', hint: 'Gợi ý buổi tối hoặc cuối tuần' }
+        ]
+      },
+      {
+        key: 'groupSize',
+        prompt: 'Bạn dự định đi mấy người?',
+        options: [
+          { label: '1 người', value: '1', hint: 'Trải nghiệm cá nhân, tập trung và sâu' },
+          { label: '2 người', value: '2', hint: 'Đi cùng bạn bè hoặc người thương' },
+          { label: '3–4 người', value: '3_4', hint: 'Nhóm nhỏ hoặc gia đình' },
+          { label: '5+ người', value: '5_plus', hint: 'Nhóm lớn, team building hoặc sự kiện' }
+        ]
+      }
+    ];
+
+    const chatbotOptionLabels = {
+      minimal: 'Tối giản, thanh lịch',
+      colorful: 'Màu sắc, nổi bật',
+      natural: 'Tự nhiên, thô mộc',
+      unknown: 'Chưa biết',
+      first_time: 'Lần đầu',
+      some: 'Đã thử 1-2 lần',
+      experienced: 'Có kinh nghiệm',
+      self: 'Cho bản thân',
+      gift: 'Làm quà tặng',
+      home: 'Trang trí nhà',
+      relax: 'Thư giãn / trải nghiệm',
+      '1': '1 người (cá nhân)',
+      '2': '2 người (đôi/bạn bè)',
+      '3_4': '3–4 người (nhóm/gia đình)',
+      '5_plus': '5+ người (nhóm lớn)'
+    };
+
+    let chatbotStep = 0;
+    let chatbotAnswers = {};
+
+    function initChatbot() {
+      // Check if session exists in localStorage
+      try {
+        const saved = JSON.parse(localStorage.getItem('tho-workshop-chatbot-session') || 'null');
+        if (saved && saved.recommendedWorkshopId) {
+          chatbotAnswers = saved;
+          chatbotStep = chatbotQuestions.length;
+        }
+      } catch {}
+
+      renderChatbot();
+    }
+
+    function chooseChatbotOption(key, value) {
+      chatbotAnswers[key] = value;
+      chatbotStep++;
+      renderChatbot();
+    }
+
+    function resetChatbot() {
+      chatbotStep = 0;
+      chatbotAnswers = {};
+      localStorage.removeItem('tho-workshop-chatbot-session');
+      renderChatbot();
+    }
+
+    function getRecommendedWorkshopId(answers) {
+      if (answers.groupSize === '3_4' || answers.groupSize === '5_plus') return '4';
+      if (answers.groupSize === '2') return '3';
+      if (answers.experienceLevel === 'experienced') return '5';
+      if (answers.purpose === 'gift') return '3';
+      if (answers.purpose === 'home' || answers.stylePreference === 'natural') return '6';
+      if (answers.stylePreference === 'colorful') return '2';
+      if (answers.purpose === 'relax') return '10';
+      return '1';
+    }
+
+    function saveChatbotBrief() {
+      const customRequest = document.getElementById('chat-custom-request')?.value || '';
+      const recId = getRecommendedWorkshopId(chatbotAnswers);
+      
+      const session = {
+        ...chatbotAnswers,
+        customRequest: customRequest.trim(),
+        recommendedWorkshopId: recId,
+        sessionId: `chat-${Date.now().toString(36)}`,
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('tho-workshop-chatbot-session', JSON.stringify(session));
+      showToast('Đã lưu gợi ý workshop và gửi ghi chú cho nghệ nhân!');
+      renderChatbot();
+    }
+
+    function renderChatbot() {
+      const container = document.getElementById('ai-chatbot-section');
+      const isComplete = chatbotStep >= chatbotQuestions.length;
+
+      if (!isComplete) {
+        const q = chatbotQuestions[chatbotStep];
+        container.innerHTML = `
+          <div class="chatbot-box">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="display:flex; height:44px; width:44px; align-items:center; justify-content:center; border-radius:50%; background:#361F17; color:#FBEEE5;">🤖</span>
+                <div>
+                  <p style="font-size:12px; font-weight:700; text-transform:uppercase; tracking:0.18em; color:#716942; margin:0;">Tư vấn workshop</p>
+                  <h2 style="font-size:24px; font-weight:700; color:#361F17; margin:4px 0 0;">Tìm buổi làm gốm hợp với câu chuyện của bạn</h2>
+                </div>
+              </div>
+              <button onclick="resetChatbot()" style="height:36px; width:36px; border-radius:50%; border:1px solid rgba(113,105,66,0.3); background:none; cursor:pointer;">↺</button>
+            </div>
+            
+            <div class="chatbot-grid">
+              <div>
+                <p style="font-size:18px; font-weight:700; color:#3F3F35; margin-bottom:16px;">${q.prompt}</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;" class="chatbot-options-grid">
+                  ${q.options.map(opt => `
+                    <button class="chatbot-option-btn" onclick="chooseChatbotOption('${q.key}', '${opt.value}')">
+                      <span style="display:block; font-weight:700; font-size:16px; color:#361F17;">${opt.label}</span>
+                      <span style="display:block; font-size:12px; color:#716942; margin-top:4px;">${opt.hint}</span>
+                    </button>`).join('')}
+                </div>
+              </div>
+              
+              <div style="border-radius:8px; background:#3F3F35; color:#FBEEE5; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                  <span style="color:#C0AC8B; font-size:24px;">✨</span>
+                  <p style="font-size:11px; font-weight:700; text-transform:uppercase; tracking:0.18em; color:#C0AC8B; margin-top:8px;">Đang hiểu bạn</p>
+                  <div style="margin-top:16px; display:grid; gap:8px; font-size:13px;">
+                    ${chatbotQuestions.slice(0, chatbotStep).map(question => `
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="color:#C0AC8B;">✓</span>
+                        <span>${chatbotOptionLabels[chatbotAnswers[question.key]]}</span>
+                      </div>`).join('')}
+                    ${chatbotStep === 0 ? '<p style="color:rgba(251,238,229,0.75); line-height:1.6; margin:0;">Chọn vài tín hiệu nhỏ, THỔ sẽ gợi ý workshop phù hợp nhất.</p>' : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      } else {
+        const recId = getRecommendedWorkshopId(chatbotAnswers);
+        const recommendedWS = workshops.find(ws => ws.id === recId) || workshops[0];
+
+        container.innerHTML = `
+          <div class="chatbot-box">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="display:flex; height:44px; width:44px; align-items:center; justify-content:center; border-radius:50%; background:#361F17; color:#FBEEE5;">🤖</span>
+                <div>
+                  <p style="font-size:12px; font-weight:700; text-transform:uppercase; tracking:0.18em; color:#716942; margin:0;">Gợi ý từ Studio</p>
+                  <h2 style="font-size:24px; font-weight:700; color:#361F17; margin:4px 0 0;">Buổi học dành riêng cho bạn</h2>
+                </div>
+              </div>
+              <button onclick="resetChatbot()" style="height:36px; width:36px; border-radius:50%; border:1px solid rgba(113,105,66,0.3); background:none; cursor:pointer;">↺</button>
+            </div>
+            
+            <div class="chatbot-grid">
+              <div>
+                <label style="display:block;">
+                  <span class="form-label" style="font-size:16px;">Bạn muốn làm sản phẩm cụ thể nào?</span>
+                  <textarea id="chat-custom-request" class="form-textarea" style="min-height:90px; border-radius:8px; margin-top:8px;" placeholder="Ví dụ: một chiếc ly cho người yêu, bình hoa để bàn...">${chatbotAnswers.customRequest || ''}</textarea>
+                </label>
+                <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+                  <button onclick="saveChatbotBrief()" class="btn btn-dark" style="border-radius:9999px; height:44px; padding:0 24px; font-size:14px;">Lưu gợi ý</button>
+                  <a href="booking.html?id=${recommendedWS.id}" class="btn btn-outline" style="border-radius:9999px; height:44px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:var(--coffee);">Đặt chỗ ngay</a>
+                </div>
+                
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-top:20px;" class="chatbot-summary-grid">
+                  ${chatbotQuestions.map(q => `
+                    <div style="background:#F4E4D8; border-radius:8px; padding:10px; font-size:12px;">
+                      <span style="font-weight:700; display:block; color:#361F17;">${q.prompt.split('?')[0]}</span>
+                      <span style="margin-top:4px; display:block; color:#716942;">${chatbotOptionLabels[chatbotAnswers[q.key]]}</span>
+                    </div>`).join('')}
+                </div>
+              </div>
+              
+              <article class="workshop-card" style="border:1px solid #EFD8C7; border-radius:8px; overflow:hidden; background:#fff;">
+                <div class="asset-img" style="height:150px; width:100%;"><img src="${recommendedWS.image}" alt="${recommendedWS.name}" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="padding:16px;">
+                  <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700;">GỢI Ý PHÙ HỢP</span>
+                  <h3 style="font-size:16px; font-weight:700; color:#361F17; margin:8px 0 4px;">${recommendedWS.name}</h3>
+                  <p style="font-size:12px; color:#6A6A6A; margin:0; min-height:36px; line-height:1.5;">${recommendedWS.description}</p>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                    <span style="font-size:16px; font-weight:700; color:#643A2A;">${formatVND(recommendedWS.price)}</span>
+                    <span style="font-size:11px; color:#716942; background:#EFE7E1; border-radius:4px; padding:2px 6px;">còn ${recommendedWS.slots.available}/${recommendedWS.slots.total} slot</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>`;
+      }
+    }
+  </script>
+
+  <style>
+    .ws-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .workshop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(54, 31, 23, 0.09) !important;
+    }
+    .chatbot-box {
+      margin-top: 10px;
+      margin-bottom: 40px;
+      border-radius: 18px;
+      border: 1px solid #C0AC8B;
+      background: #FFF8F2;
+      padding: 24px;
+      box-shadow: 0 18px 46px rgba(54, 31, 23, 0.08);
+    }
+    .chatbot-grid {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 1fr 280px;
+    }
+    .chatbot-option-btn {
+      border-radius: 8px;
+      border: 1px solid #C0AC8B;
+      background: #fff;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chatbot-option-btn:hover {
+      border-color: #361F17;
+      box-shadow: 0 10px 24px rgba(54, 31, 23, 0.08);
+    }
+    @media (max-width: 1023px) {
+      .ws-grid { grid-template-columns: 1fr 1fr; }
+      .chatbot-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .ws-grid { grid-template-columns: 1fr; }
+      .chatbot-options-grid { grid-template-columns: 1fr !important; }
+      .chatbot-summary-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+  </style>
+</body>
+</html>
