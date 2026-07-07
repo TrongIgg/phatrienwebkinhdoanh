@@ -4,136 +4,805 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="THỔ Studio - Staff Control Panel">
-  <title>THỔ Studio - Staff Panel</title>
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
+  <title>THỔ Studio - Staff Workspace</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #361F17;
+      --secondary: #716942;
+      --bg: #F5F1ED;
+      --border: #EFD8C7;
+      --text: #3F3F35;
+      --white: #FFFFFF;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, .font-outfit {
+      font-family: 'Outfit', sans-serif;
+    }
+    
+    /* Header & Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 241, 237, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(113, 105, 66, 0.2);
+    }
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+    .logo-text {
+      font-size: 40px;
+      font-weight: 300;
+      line-height: 1;
+      text-decoration: none;
+      color: var(--primary);
+      margin-right: 12px;
+    }
+    .workspace-info {
+      margin-right: auto;
+    }
+    .workspace-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--secondary);
+      margin: 0;
+    }
+    .workspace-desc {
+      font-weight: 700;
+      color: var(--primary);
+      margin: 2px 0 0;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 12px;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      min-width: 124px;
+      border-radius: 9999px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 0 20px;
+      transition: all 0.2s ease;
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .role-badge {
+      background: var(--white);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      border-radius: 9999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+      border-radius: 9999px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      font-weight: 700;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+
+    /* Sub-header search bar */
+    .sub-search-bar {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.3);
+      border-top: 1px solid rgba(113,105,66,0.1);
+    }
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+    }
+    .search-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .search-input::placeholder {
+      color: rgba(63, 63, 53, 0.55);
+    }
+
+    /* Layout framework */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 20px;
+    }
+    .content-tab {
+      display: none;
+    }
+    .content-tab.active {
+      display: block;
+    }
+
+    /* Grid systems */
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 1024px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards and Elements */
+    .white-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(54, 31, 23, 0.06);
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 16px;
+    }
+
+    /* Tables */
+    .table-container {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--white);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      background: #2B211D;
+      color: var(--white);
+      padding: 16px;
+      font-size: 13px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(113, 105, 66, 0.1);
+      font-size: 14px;
+      color: var(--text);
+    }
+    .tr-interactive {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .tr-interactive:hover, .tr-interactive.selected {
+      background: #FAF8F6;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+    .badge-confirmed { background: #F0F3E3; color: #59612E; }
+    .badge-completed { background: #EFF4D8; color: #59612E; }
+    .badge-pending { background: #FFF3D7; color: #A76020; }
+    .badge-cancelled { background: #FFE3E1; color: #A33A2F; }
+
+    /* Inputs and Buttons */
+    .form-input {
+      width: 100%;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 0 16px;
+      font-size: 14px;
+      box-sizing: border-box;
+      background: #FFFDFB;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #23130E;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-danger {
+      background: #FFE3E1;
+      color: #A33A2F;
+    }
+
+    /* Toast system */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--primary);
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Login Screen style matching Screenshot 4 */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      padding: 20px;
+    }
+    .login-container {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      max-width: 1050px;
+      width: 100%;
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(54, 31, 23, 0.08);
+      border: 1px solid var(--border);
+    }
+    .login-sidebar {
+      padding: 56px;
+      background: linear-gradient(135deg, #FFF8F2 0%, #FBEEE5 100%);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .login-form-area {
+      padding: 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .role-select-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .role-option {
+      background: var(--white);
+      border: 1px solid rgba(113, 105, 66, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .role-option.active {
+      border-color: var(--primary);
+      box-shadow: 0 10px 25px rgba(54, 31, 23, 0.05);
+    }
+    .role-option-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 6px;
+    }
+    .role-option-desc {
+      font-size: 13px;
+      color: rgba(63, 63, 53, 0.75);
+      margin: 0;
+      line-height: 1.4;
+    }
+    @media (max-width: 768px) {
+      .login-container {
+        grid-template-columns: 1fr;
+      }
+      .login-sidebar {
+        display: none;
+      }
+    }
+  </style>
 </head>
-<body style="background:#FFF8F2; color:#361F17; min-height:100vh; display:flex; flex-direction:column; margin:0;">
+<body>
 
-  <!-- STAFF HEADER -->
-  <header style="background:#3B2118; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #716942;">
-    <div style="display:flex; align-items:center; gap:16px;">
-      <a href="index.html" style="display:flex;"><img src="image/logo/logo.jpg" alt="Logo" style="height:40px; border-radius:50%;"></a>
-      <h1 style="font-size:20px; font-weight:700; margin:0; color:#fff; letter-spacing:0.05em;">STAFF PANEL</h1>
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- LOGIN WALL (Rendered dynamically if no session) -->
+  <div id="login-wall" class="login-wrapper" style="display:none;">
+    <div class="login-container">
+      <div class="login-sidebar">
+        <p style="font-size:12px; font-weight:700; uppercase; tracking:0.2em; color:var(--secondary); margin:0 0 12px;">Không xuất hiện trên web customer</p>
+        <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0 0 16px; line-height:1.1;">Khu quản trị cho staff và admin</h2>
+        <p style="font-size:16px; line-height:1.6; color:rgba(63,63,53,0.8); margin:0 0 28px;">
+          Cổng này chỉ mở qua route hoặc domain riêng như <strong>/staff</strong> hoặc <strong>/admin</strong>. Staff xử lý tracker và upload ảnh sản phẩm, admin quản lý toàn bộ dashboard, booking, product và tracking.
+        </p>
+        <div class="role-select-box">
+          <div class="role-option active" id="role-opt-staff" onclick="selectLoginRole('staff')">
+            <h4 class="role-option-title">Staff</h4>
+            <p class="role-option-desc">Check-in khách, cập nhật tracker, upload ảnh và gửi thông báo.</p>
+          </div>
+          <div class="role-option" id="role-opt-admin" onclick="selectLoginRole('admin')">
+            <h4 class="role-option-title">Admin</h4>
+            <p class="role-option-desc">Quản lý toàn bộ booking, product, tracker và luồng vận hành.</p>
+          </div>
+        </div>
+      </div>
+      <div class="login-form-area">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px;">
+          <span style="width:48px; height:48px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px;">🔑</span>
+          <div>
+            <h3 style="font-size:24px; font-weight:700; margin:0; color:var(--primary);">Đăng nhập</h3>
+            <p style="font-size:13px; color:var(--secondary); margin:2px 0 0;">Demo chấp nhận tài khoản nội bộ mẫu.</p>
+          </div>
+        </div>
+
+        <form onsubmit="handleLoginSubmit(event)" style="display:flex; flex-direction:column; gap:20px;">
+          <div>
+            <label style="display:block; font-size:14px; font-weight:700; margin-bottom:6px; color:var(--primary);">Role</label>
+            <select id="login-role" class="form-input" style="height:48px;" onchange="syncSelectedRoleDropdown(this.value)">
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:14px; font-weight:700; margin-bottom:6px; color:var(--primary);">Email / Username</label>
+            <input id="login-email" type="text" class="form-input" style="height:48px;" value="staff@tho.vn" required>
+          </div>
+          <div>
+            <label style="display:block; font-size:14px; font-weight:700; margin-bottom:6px; color:var(--primary);">Mật khẩu</label>
+            <input id="login-password" type="password" class="form-input" style="height:48px;" value="123456" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="height:48px; border-radius:8px; font-size:16px;">
+            Vào Staff tracker
+          </button>
+        </form>
+      </div>
     </div>
-    <div style="display:flex; align-items:center; gap:20px;">
-      <span style="font-size:14px; background:rgba(255,255,255,0.15); padding:6px 16px; border-radius:9999px;">Nghệ nhân phụ trách: <strong>Anh Quân</strong></span>
-      <a href="index.html" style="color:#FFF8F2; text-decoration:none; font-size:14px; font-weight:700;">Đăng xuất ➔</a>
-    </div>
-  </header>
+  </div>
 
-  <!-- MAIN BODY LAYOUT -->
-  <div style="display:flex; flex:1;" class="staff-layout-grid">
-    <!-- Sidebar -->
-    <aside style="width:260px; background:#2B211D; color:#FBEEE5; padding:24px 16px; border-right:1px solid #EFD8C7; display:flex; flex-direction:column; gap:8px;" class="staff-sidebar">
-      <button onclick="switchTab('dashboard')" class="sidebar-tab active" id="tab-dashboard">📊 Dashboard</button>
-      <button onclick="switchTab('booking')" class="sidebar-tab" id="tab-booking">📅 Đặt chỗ (Booking)</button>
-      <button onclick="switchTab('products')" class="sidebar-tab" id="tab-products">🏺 Hàng chế tác xưởng</button>
-      <button onclick="switchTab('tracking')" class="sidebar-tab" id="tab-tracking">🚚 Quản lý lò nung</button>
-      <button onclick="switchTab('reviews')" class="sidebar-tab" id="tab-reviews">💬 Review & CSKH</button>
-    </aside>
+  <!-- APP CONTAINER -->
+  <div id="app-container" style="display:none;">
+    <!-- HEADER -->
+    <header>
+      <div class="header-container">
+        <a href="index.html" class="logo-text">THỔ</a>
+        <div class="workspace-info">
+          <p class="workspace-title">Private workspace</p>
+          <p class="workspace-desc" id="header-role-desc">Staff tracking & upload ảnh</p>
+        </div>
+        <nav class="nav-tabs" id="header-tabs">
+          <!-- Populated by JS based on role -->
+        </nav>
+        <span class="role-badge" id="role-badge-text">STAFF</span>
+        <button onclick="handleLogout()" class="logout-btn">
+          <span>➔</span> Logout
+        </button>
+      </div>
 
-    <!-- Main Content Area -->
-    <main style="flex:1; padding:32px 40px;" id="main-content-panel">
-      <!-- DASHBOARD TAB -->
-      <section id="sect-dashboard" class="content-tab">
-        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Tổng quan ngày hôm nay</h2>
-        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:40px;" class="stats-grid">
-          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Số vé hôm nay</p>
-            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0;">18 vé</h3>
+      <!-- Quick Search Bar -->
+      <div class="sub-search-bar">
+        <div class="search-wrapper">
+          <span style="font-size:20px; color:#1E1E1E;">🔍</span>
+          <input id="global-search-input" oninput="handleGlobalSearch(this.value)" class="search-input" placeholder="Tìm booking, tracker, khách hàng hoặc sản phẩm..." />
+        </div>
+      </div>
+    </header>
+
+    <main class="main-container">
+      
+      <!-- TRACKER TAB (Staff core) -->
+      <section id="sect-tracking" class="content-tab">
+        <div style="margin-bottom:28px;">
+          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">QUẢN LÝ LÒ NUNG (CERAMIC TRACKERS)</h2>
+          <p style="color:var(--secondary); margin:4px 0 0;">Cập nhật tiến độ xoay gốm, sấy mộc, tráng men và đăng tải hình ảnh cho học viên.</p>
+        </div>
+
+        <div class="layout-grid">
+          <!-- Table -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:24px;">Mã Tracker</th>
+                  <th>Học viên</th>
+                  <th>Tác phẩm</th>
+                  <th>Giai đoạn</th>
+                  <th>Lò nung phụ trách</th>
+                </tr>
+              </thead>
+              <tbody id="tracker-table-body">
+                <!-- JS filled -->
+              </tbody>
+            </table>
           </div>
-          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Sản phẩm đang nung</p>
-            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0; color:#C96B37;">42 cái</h3>
-          </div>
-          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Đánh giá chưa phản hồi</p>
-            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0; color:#DC2626;">3 đánh giá</h3>
-          </div>
-          <div style="border-radius:12px; background:#FFF; border:1px solid #EFD8C7; padding:24px;">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942;">Doanh thu tuần</p>
-            <h3 style="font-size:36px; font-weight:700; margin:12px 0 0;">12.4M đ</h3>
+
+          <!-- Detail Panel -->
+          <div class="white-card" id="tracker-detail-panel">
+            <!-- Selected details or placeholder -->
           </div>
         </div>
       </section>
 
-      <!-- BOOKINGS TAB -->
-      <section id="sect-booking" class="content-tab" style="display:none;">
-        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Quản lý đăng ký Workshop</h2>
-        <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; overflow:hidden;">
-          <table style="width:100%; border-collapse:collapse; text-align:left;">
-            <thead>
-              <tr style="background:#EFE2D6; border-bottom:1px solid #EFD8C7;">
-                <th style="padding:16px;">Mã vé</th>
-                <th style="padding:16px;">Học viên</th>
-                <th style="padding:16px;">Workshop</th>
-                <th style="padding:16px;">Thời gian</th>
-                <th style="padding:16px;">Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #EFD8C7;">
-                <td style="padding:16px; font-family:monospace; font-weight:700;">WS-67157855</td>
-                <td style="padding:16px;">Trần Minh Tuấn<br><small style="color:#8B765D;">0912 345 678</small></td>
-                <td style="padding:16px;">Workshop nặn cốc mộc</td>
-                <td style="padding:16px;">09:00 - 11:30 (Thứ 7)</td>
-                <td style="padding:16px;"><span style="background:#3F7D37; color:#fff; font-size:11px; padding:4px 8px; border-radius:4px;">checked_in</span></td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- REVIEWS TAB (Staff CSKH) -->
+      <section id="sect-reviews" class="content-tab">
+        <div style="margin-bottom:28px;">
+          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">QUẢN LÝ REVIEW & CSKH</h2>
+          <p style="color:var(--secondary); margin:4px 0 0;">Phản hồi đánh giá của học viên chính thức với vai trò THỔ Studio.</p>
         </div>
-      </section>
 
-      <!-- PRODUCTS TAB -->
-      <section id="sect-products" class="content-tab" style="display:none;">
-        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Hàng chế tác xưởng</h2>
-        <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; overflow:hidden; padding:24px;">
-          <p style="color:#6A5D52; margin:0;">Chức năng cập nhật tồn kho hàng hóa gốm chế tác mộc đang tải dữ liệu...</p>
-        </div>
-      </section>
-
-      <!-- TRACKING TAB -->
-      <section id="sect-tracking" class="content-tab" style="display:none;">
-        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:24px;">Trạng thái lò nung & Giao nhận thành phẩm</h2>
-        <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; overflow:hidden; padding:24px;">
-          <p style="color:#6A5D52; margin:0;">Danh sách 42 sản phẩm đang sấy khô / nung mộc đang nạp tiến độ...</p>
-        </div>
-      </section>
-
-      <!-- REVIEWS TAB -->
-      <section id="sect-reviews" class="content-tab" style="display:none;">
-        <h2 style="font-size:28px; font-weight:700; color:#3B2118; margin-bottom:8px;">Hồi đáp & CSKH</h2>
-        <p style="color:#6A5D52; margin-bottom:24px;">Nhân viên CSKH có thể phản hồi ý kiến đóng góp của học viên ngay tại đây.</p>
-        
-        <div id="staff-reviews-container" style="display:grid; gap:20px;">
+        <div id="reviews-list-container" style="display:grid; gap:20px;">
           <!-- Filled by JS -->
         </div>
       </section>
+
     </main>
   </div>
 
   <script src="js/data.js"></script>
   <script src="js/utils.js"></script>
   <script>
+    const SESSION_KEY = 'tho_staff_session';
     const REVIEWS_KEY = 'tho-reviews';
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.content-tab').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.sidebar-tab').forEach(el => el.classList.remove('active'));
+    let currentRole = 'staff';
+    let selectedTrackerId = null;
 
-      const targetTab = document.getElementById(`sect-${tabId}`);
-      if (targetTab) targetTab.style.display = 'block';
+    const demoTrackers = [
+      { id: 'TR-DEMO-1', booking_id: 'BK-DEMO-1', customer: 'Minh Anh', product: 'Ly men rêu', workshop: 'Nặn gốm cơ bản', stage: 'glazing', qc: 'need_photo', updated_at: '04/06/2026 15:20', owner: 'Chị Linh', kiln: 'Lò A2', tracking_code: 'THO-DEMO-001' },
+      { id: 'TR-DEMO-2', booking_id: 'BK-DEMO-2', customer: 'Linh Nguyễn', product: 'Bình celadon', workshop: 'Workshop cặp đôi', stage: 'ready', qc: 'normal', updated_at: '04/06/2026 10:45', owner: 'Anh Quân', kiln: 'Lò B1', tracking_code: 'THO-DEMO-002' },
+      { id: 'TR-DEMO-3', booking_id: 'BK-DEMO-3', customer: 'Quỳnh Chi', product: 'DIY kit', workshop: 'Tô men thư giãn', stage: 'drying', qc: 'normal', updated_at: '03/06/2026 17:05', owner: 'Chị Hạnh', kiln: 'Kệ phơi C', tracking_code: 'THO-DEMO-003' }
+    ];
 
-      const activeTab = document.getElementById(`tab-${tabId}`);
-      if (activeTab) activeTab.classList.add('active');
+    const stageLabels = {
+      created: 'Đã tạo phôi',
+      drying: 'Phơi khô',
+      bisque_firing: 'Nung sơ (Bisque)',
+      glazing: 'Tráng men',
+      final_firing: 'Nung hoàn thiện',
+      ready: 'Sẵn sàng nhận',
+      done: 'Đã nhận thành phẩm'
+    };
 
-      if (tabId === 'reviews') {
-        renderStaffReviews();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Validate session
+      const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+      if (!session) {
+        document.getElementById('login-wall').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none';
+      } else {
+        if (session.role === 'admin') {
+          // Admin redirected to admin.html
+          window.location.href = 'admin.html';
+          return;
+        }
+        document.getElementById('login-wall').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        initLocalStorage();
+        setupNavigation();
+        switchTab('tracking');
+      }
+    });
+
+    function initLocalStorage() {
+      if (!localStorage.getItem('tho-trackers')) {
+        localStorage.setItem('tho-trackers', JSON.stringify(demoTrackers));
+      }
+      if (!localStorage.getItem('tho-tracking-media')) {
+        localStorage.setItem('tho-tracking-media', JSON.stringify([]));
+      }
+      if (!localStorage.getItem('tho-persistent-tracking-records')) {
+        const records = [
+          { code: 'THO-DEMO-001', tracking_type: 'ceramic', status: 'glazing', title: 'Ly men rêu của Minh Anh', customer_name: 'Minh Anh', manager_name: 'Chị Linh', timeline: [] },
+          { code: 'THO-DEMO-002', tracking_type: 'ceramic', status: 'ready', title: 'Bình celadon của Linh Nguyễn', customer_name: 'Linh Nguyễn', manager_name: 'Anh Quân', timeline: [] }
+        ];
+        localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
       }
     }
 
+    function selectLoginRole(role) {
+      currentRole = role;
+      document.getElementById('role-opt-staff').classList.toggle('active', role === 'staff');
+      document.getElementById('role-opt-admin').classList.toggle('active', role === 'admin');
+      
+      document.getElementById('login-role').value = role;
+      document.getElementById('login-email').value = role === 'admin' ? 'admin@tho.vn' : 'staff@tho.vn';
+    }
+
+    function syncSelectedRoleDropdown(val) {
+      currentRole = val;
+      document.getElementById('role-opt-staff').classList.toggle('active', val === 'staff');
+      document.getElementById('role-opt-admin').classList.toggle('active', val === 'admin');
+      document.getElementById('login-email').value = val === 'admin' ? 'admin@tho.vn' : 'staff@tho.vn';
+    }
+
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const role = document.getElementById('login-role').value;
+      const email = document.getElementById('login-email').value;
+
+      const session = {
+        role: role,
+        name: role === 'admin' ? 'Admin THỔ' : 'Nghệ nhân Anh Quân'
+      };
+      
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
+      if (role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.reload();
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.reload();
+    }
+
+    function setupNavigation() {
+      const tabsContainer = document.getElementById('header-tabs');
+      // Staff tabs: Tracker, Review & CSKH
+      tabsContainer.innerHTML = `
+        <button onclick="switchTab('tracking')" class="nav-btn active" id="btn-nav-tracking">Tracker</button>
+        <button onclick="switchTab('reviews')" class="nav-btn" id="btn-nav-reviews">Review & CSKH</button>
+      `;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.content-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(`sect-${tabId}`);
+      if (target) target.classList.add('active');
+
+      const navBtn = document.getElementById(`btn-nav-${tabId}`);
+      if (navBtn) navBtn.classList.add('active');
+
+      if (tabId === 'tracking') renderTrackerTab();
+      else if (tabId === 'reviews') renderReviewsTab();
+    }
+
+    // Tracker management rendering
+    function renderTrackerTab(searchQuery = '') {
+      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
+      const filtered = trackers.filter(t => {
+        const query = searchQuery.toLowerCase();
+        return t.customer.toLowerCase().includes(query) ||
+               t.id.toLowerCase().includes(query) ||
+               t.tracking_code.toLowerCase().includes(query) ||
+               t.product.toLowerCase().includes(query);
+      });
+
+      const tbody = document.getElementById('tracker-table-body');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--secondary);">Không tìm thấy mã tracker nào.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => {
+        const isSelected = t.id === selectedTrackerId;
+        return `
+          <tr class="tr-interactive ${isSelected ? 'selected' : ''}" onclick="selectTracker('${t.id}')">
+            <td style="padding-left:24px; font-weight:700;">${t.id}</td>
+            <td><strong>${t.customer}</strong><br><small style="color:var(--secondary); font-family:monospace;">${t.tracking_code}</small></td>
+            <td>${t.product}</td>
+            <td><span class="badge badge-pending">${stageLabels[t.stage] || t.stage}</span></td>
+            <td>${t.kiln}</td>
+          </tr>
+        `;
+      }).join('');
+
+      renderTrackerDetailPanel();
+    }
+
+    function selectTracker(id) {
+      selectedTrackerId = id;
+      renderTrackerTab(document.getElementById('global-search-input').value);
+    }
+
+    function renderTrackerDetailPanel() {
+      const panel = document.getElementById('tracker-detail-panel');
+      if (!selectedTrackerId) {
+        panel.innerHTML = `
+          <div style="text-align:center; padding:56px 0; color:var(--secondary);">
+            <span style="font-size:48px; display:block; margin-bottom:12px;">🏺</span>
+            <p>Chọn một tracker ở bảng bên trái để tiến hành cập nhật lò nung và upload hình ảnh tiến độ.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
+      const t = trackers.find(item => item.id === selectedTrackerId);
+      if (!t) return;
+
+      const mediaList = JSON.parse(localStorage.getItem('tho-tracking-media') || '[]');
+      const trackerMedia = mediaList.filter(m => m.tracking_code === t.tracking_code);
+
+      panel.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px; border-bottom:1px dashed var(--border); padding-bottom:16px;">
+          <div>
+            <h3 style="font-size:24px; font-weight:700; margin:0; color:var(--primary);">${t.id}</h3>
+            <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Mã khách: <strong style="font-family:monospace;">${t.tracking_code}</strong></p>
+          </div>
+          <span class="badge badge-confirmed">${stageLabels[t.stage] || t.stage}</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:20px;">
+          <div><span style="color:var(--secondary);">Học viên:</span> <strong>${t.customer}</strong></div>
+          <div><span style="color:var(--secondary);">Tác phẩm:</span> <strong>${t.product}</strong></div>
+          <div><span style="color:var(--secondary);">Trợ giảng phụ trách:</span> <strong>${t.owner}</strong></div>
+          <div><span style="color:var(--secondary);">Lò nung phụ trách:</span> <strong>${t.kiln}</strong></div>
+          <div><span style="color:var(--secondary);">Trạng thái QC:</span> <strong>${t.qc === 'need_photo' ? '⚠️ Chờ bổ sung hình ảnh' : '✓ Đạt yêu cầu'}</strong></div>
+        </div>
+
+        <div style="border-top:1px dashed var(--border); padding-top:16px; margin-bottom:20px;">
+          <label style="display:block; font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin-bottom:8px;">Cập nhật tiến độ lò nung</label>
+          <select class="form-input" onchange="updateTrackerStage('${t.id}', this.value)">
+            <option value="">-- Chọn giai đoạn mới --</option>
+            <option value="created" ${t.stage === 'created' ? 'selected' : ''}>Đã tạo phôi</option>
+            <option value="drying" ${t.stage === 'drying' ? 'selected' : ''}>Phơi khô</option>
+            <option value="bisque_firing" ${t.stage === 'bisque_firing' ? 'selected' : ''}>Nung mộc (Bisque)</option>
+            <option value="glazing" ${t.stage === 'glazing' ? 'selected' : ''}>Tráng men</option>
+            <option value="final_firing" ${t.stage === 'final_firing' ? 'selected' : ''}>Nung hoàn thiện</option>
+            <option value="ready" ${t.stage === 'ready' ? 'selected' : ''}>Sẵn sàng giao / nhận</option>
+            <option value="done" ${t.stage === 'done' ? 'selected' : ''}>Đã nhận thành phẩm</option>
+          </select>
+        </div>
+
+        <div style="border-top:1px dashed var(--border); padding-top:16px;">
+          <label style="display:block; font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin-bottom:12px;">Đăng tải ảnh/vlog thực tế (${trackerMedia.length} file)</label>
+          <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+            <button onclick="triggerMockUpload('image', 'Workshop', 'Ảnh phôi tạo hình tại lớp học')" class="btn btn-secondary" style="height:36px; font-size:13px;">📸 Upload ảnh Workshop</button>
+            <button onclick="triggerMockUpload('image', 'Lò nung', 'Ảnh mộc trong lò nung sơ')" class="btn btn-secondary" style="height:36px; font-size:13px;">🖼️ Upload ảnh Lò nung</button>
+            <button onclick="triggerMockUpload('video', 'Mini vlog', 'Vlog xoay gốm của học viên')" class="btn btn-secondary" style="height:36px; font-size:13px;">📹 Upload Mini Vlog</button>
+          </div>
+          ${trackerMedia.length > 0 ? `
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:16px;">
+              ${trackerMedia.map(m => `
+                <div style="position:relative; aspect-ratio:1; border-radius:6px; overflow:hidden; border:1px solid var(--border);">
+                  <img src="${m.url}" style="width:100%; height:100%; object-fit:cover;">
+                  <span style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:8px; padding:2px 4px; border-radius:3px;">${m.stage}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function updateTrackerStage(id, stage) {
+      if (!stage) return;
+      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
+      const idx = trackers.findIndex(t => t.id === id);
+      if (idx !== -1) {
+        trackers[idx].stage = stage;
+        trackers[idx].updated_at = new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        localStorage.setItem('tho-trackers', JSON.stringify(trackers));
+
+        // Sync to persistent customer view
+        const trackingCode = trackers[idx].tracking_code;
+        const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
+        const records = persistent.records || [];
+        const pIdx = records.findIndex(r => r.code === trackingCode);
+        if (pIdx !== -1) {
+          records[pIdx].status = stage;
+          records[pIdx].timeline.push({
+            stage: stage,
+            label: stageLabels[stage] || stage,
+            state: 'done'
+          });
+          localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
+        }
+
+        showToast(`Đã chuyển trạng thái sang: ${stageLabels[stage]}`, 'success');
+        renderTrackerTab(document.getElementById('global-search-input').value);
+      }
+    }
+
+    function triggerMockUpload(type, stage, title) {
+      if (!selectedTrackerId) return;
+      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
+      const t = trackers.find(item => item.id === selectedTrackerId);
+      if (!t) return;
+
+      const media = JSON.parse(localStorage.getItem('tho-tracking-media') || '[]');
+      media.push({
+        id: `${t.tracking_code}-${type}-${Date.now()}`,
+        tracking_code: t.tracking_code,
+        media_type: type,
+        stage: stage,
+        title: title,
+        description: type === 'video' ? 'Mini vlog ghi lại quá trình tạo hình xoay của học viên.' : 'Ảnh chụp sản phẩm trong lò nung thực tế.',
+        url: type === 'video' ? workshopImages.wheelBw : productImages.tealVase,
+        uploaded_by: 'Nghệ nhân Anh Quân',
+        created_at: new Date().toISOString(),
+        is_new: true
+      });
+      localStorage.setItem('tho-tracking-media', JSON.stringify(media));
+
+      showToast(`Đã upload thành công ${type === 'video' ? 'video vlog' : 'hình ảnh'} stage ${stage}!`, 'success');
+      renderTrackerDetailPanel();
+    }
+
+    // Reviews management
     function getReviews() {
       try {
         const stored = localStorage.getItem(REVIEWS_KEY);
@@ -142,94 +811,85 @@
       return [];
     }
 
-    function renderStaffReviews() {
-      const allReviews = getReviews();
-      const container = document.getElementById('staff-reviews-container');
-      if (allReviews.length === 0) {
-        container.innerHTML = `<p style="color:#8B765D;">Chưa có review nào được tải.</p>`;
+    function renderReviewsTab() {
+      const reviews = getReviews();
+      const container = document.getElementById('reviews-list-container');
+      if (reviews.length === 0) {
+        container.innerHTML = `<div class="white-card" style="text-align:center; padding:48px; color:var(--secondary);">Chưa có đánh giá nào của khách hàng.</div>`;
         return;
       }
 
-      container.innerHTML = allReviews.map(r => {
+      container.innerHTML = reviews.map(r => {
         const repliesHtml = (r.replies || []).map(rep => `
-          <div style="background:#F3EBE3; padding:12px; border-radius:8px; margin-top:8px; font-size:13px; text-align:left;">
-            <strong>${rep.name}</strong> ${rep.role === 'staff' ? '<span style="background:#716942; color:#fff; font-size:9px; padding:2px 4px; border-radius:4px;">STAFF</span>' : ''} <small style="color:#8B765D; float:right;">${rep.date}</small>
-            <p style="margin:4px 0 0; color:#3F3F35;">${rep.comment}</p>
+          <div style="background:#F5F1ED; padding:12px; border-radius:8px; margin-top:8px;">
+            <strong>${rep.name}</strong> ${rep.role === 'staff' ? '<span style="background:var(--primary); color:#fff; font-size:9px; padding:2px 4px; border-radius:4px; margin-left:4px;">STAFF</span>' : ''}
+            <span style="color:var(--secondary); font-size:11px; float:right;">${rep.date}</span>
+            <p style="margin:4px 0 0; color:var(--text); font-size:13px;">${rep.comment}</p>
           </div>
         `).join('');
 
         return `
-          <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:12px; text-align:left;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="white-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <div>
-                <strong>${r.name}</strong> <small style="color:#8B765D; font-family:monospace; margin-left:12px;">Mã: ${r.code || 'Chưa liên kết'}</small>
-                <div style="color:#716942; font-size:12px; margin-top:2px;">Đánh giá: ${'★'.repeat(r.rating)}</div>
+                <strong style="font-size:16px;">${r.name}</strong>
+                <span style="font-family:monospace; font-size:12px; color:var(--secondary); margin-left:8px;">Mã: ${r.code || 'không'}</span>
+                <div style="color:var(--secondary); font-size:12px; margin-top:2px;">Đánh giá: ${'★'.repeat(r.rating)}</div>
               </div>
-              <span style="font-size:11px; background:#EFE2D6; padding:4px 8px; border-radius:4px; font-weight:700; text-transform:uppercase;">${r.targetType}</span>
+              <span class="badge badge-confirmed">${r.targetType || 'workshop'}</span>
             </div>
-            <p style="font-size:14px; color:#361F17; margin:0; line-height:1.5;">"${r.comment}"</p>
+            <p style="font-size:14px; margin:0 0 16px; line-height:1.5;">"${r.comment}"</p>
             
-            <div id="replies-box-${r.id}" style="border-top:1px dashed #EFD8C7; padding-top:8px; margin-top:8px;">
+            <div id="replies-${r.id}">
               ${repliesHtml}
             </div>
 
-            <!-- Reply Box Form -->
-            <div style="display:flex; gap:10px; margin-top:12px;">
-              <input id="staff-reply-text-${r.id}" type="text" placeholder="Phản hồi từ THỔ..." class="form-input" style="flex:1; border-color:#E5CDBA; height:36px; font-size:13px; border-radius:8px;">
-              <button onclick="postStaffReply('${r.id}')" class="btn btn-primary" style="height:36px; padding:0 16px; font-size:13px; border-radius:8px;">Gửi phản hồi</button>
+            <div style="display:flex; gap:12px; margin-top:16px; border-top:1px dashed var(--border); padding-top:16px;">
+              <input id="reply-input-${r.id}" type="text" placeholder="Nhập câu trả lời từ THỔ Studio..." class="form-input" style="flex:1;">
+              <button onclick="submitReply('${r.id}')" class="btn btn-primary" style="height:44px;">Gửi phản hồi</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function postStaffReply(id) {
-      const input = document.getElementById(`staff-reply-text-${id}`);
-      const text = input.value.trim();
-      if (!text) return;
+    function submitReply(id) {
+      const input = document.getElementById(`reply-input-${id}`);
+      const comment = input.value.trim();
+      if (!comment) return;
 
-      const stored = getReviews();
-      const idx = stored.findIndex(r => r.id === id);
+      const reviews = getReviews();
+      const idx = reviews.findIndex(r => r.id === id);
       if (idx !== -1) {
-        if (!stored[idx].replies) stored[idx].replies = [];
-        const today = new Date();
-        const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
-        stored[idx].replies.push({
+        if (!reviews[idx].replies) reviews[idx].replies = [];
+        reviews[idx].replies.push({
           name: 'THỔ Studio',
           role: 'staff',
-          date: dateStr,
-          comment: text
+          date: new Date().toLocaleDateString('vi-VN'),
+          comment: comment
         });
-        localStorage.setItem(REVIEWS_KEY, JSON.stringify(stored));
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
         input.value = '';
-        renderStaffReviews();
+        showToast('Đã gửi phản hồi ý kiến đánh giá!', 'success');
+        renderReviewsTab();
       }
     }
-  </script>
 
-  <style>
-    .sidebar-tab {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: #FBEEE5;
-      text-align: left;
-      padding: 12px 16px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s;
+    function handleGlobalSearch(val) {
+      renderTrackerTab(val);
     }
-    .sidebar-tab:hover, .sidebar-tab.active {
-      background: #716942;
-      color: #FFF;
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
     }
-    @media (max-width: 767px) {
-      .staff-layout-grid { flex-direction: column !important; }
-      .staff-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #EFD8C7; }
-    }
-  </style>
+  </script>
 </body>
 </html>
-

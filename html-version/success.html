@@ -256,6 +256,7 @@
         if (tBox) tBox.style.display = 'block';
         const ticketsContainer = document.getElementById('tickets-list');
         if (ticketsContainer) {
+          const ordCode = activeOrder.orderCode || 'ORD-0000';
           ticketsContainer.innerHTML = workshops.map((ws, index) => `
             <div>
               <h3 style="font-size:14px; font-weight:700; color:#3B2118; margin:0;">${ws.name}</h3>
@@ -265,7 +266,7 @@
                 <!-- Simulated QR code icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#361F17" stroke-width="1.5"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
                 <div>
-                  <p style="font-family:monospace; font-size:15px; font-weight:700; color:#361F17; margin:0;">WS-${activeOrder.orderCode.slice(-4)}-0${index + 1}</p>
+                  <p style="font-family:monospace; font-size:15px; font-weight:700; color:#361F17; margin:0;">WS-${ordCode.slice(-4)}-0${index + 1}</p>
                   <p style="font-size:11px; color:#6A4A3D; margin:4px 0 0;">Xuất trình khi đến studio</p>
                 </div>
               </div>
@@ -276,14 +277,15 @@
       // Shipping info
       if (productsList.length > 0) {
         document.getElementById('shipping-info-box').style.display = 'block';
-        const addrText = `${activeOrder.customer.name} · ${activeOrder.customer.phone}<br>${activeOrder.customer.address}, ${activeOrder.customer.ward}, ${activeOrder.customer.district}, ${activeOrder.customer.city}`;
+        const cust = activeOrder.customer || {};
+        const addrText = `${cust.name || ''} · ${cust.phone || ''}<br>${cust.address || ''}, ${cust.ward || ''}, ${cust.district || ''}, ${cust.city || ''}`;
         document.getElementById('shipping-address-text').innerHTML = addrText;
 
         const prContainer = document.getElementById('shipping-products-list');
         prContainer.innerHTML = productsList.map(p => `
           <div style="display:flex; align-items:center; gap:12px;">
-            <div class="asset-img" style="height:48px; width:48px; border-radius:50%;"><img src="${p.image}" alt="${p.name}"></div>
-            <p style="font-size:14px; font-weight:700; margin:0;">${p.name} · x${p.quantity}</p>
+            <div class="asset-img" style="height:48px; width:48px; border-radius:50%;"><img src="${p.image || 'image/workshop/workshop_20_aVXIc03K.jpg'}" alt="${p.name || ''}"></div>
+            <p style="font-size:14px; font-weight:700; margin:0;">${p.name || ''} · x${p.quantity || 1}</p>
           </div>`).join('');
       }
     });

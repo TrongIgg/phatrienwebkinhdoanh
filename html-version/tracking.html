@@ -9,6 +9,222 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <!-- Import Outfit and Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, .outfit-font {
+      font-family: 'Outfit', sans-serif;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-completed {
+      background: #D8EFD1;
+      color: #3F7D37;
+    }
+    .badge-pending {
+      background: #FFF3D7;
+      color: #A76020;
+    }
+    .badge-cancelled {
+      background: #FFE3E1;
+      color: #A33A2F;
+    }
+    .badge-default {
+      background: #EFE2D6;
+      color: #643A2A;
+    }
+    .info-card {
+      background: #FFF8F2;
+      border: 2px solid #EFD8C7;
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+    .info-card:hover {
+      border-color: #C0AC8B;
+      transform: translateY(-2px);
+    }
+    .timeline-vertical {
+      position: relative;
+      padding-left: 36px;
+    }
+    .timeline-vertical::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      bottom: 12px;
+      width: 2px;
+      background: #EFD8C7;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-marker {
+      position: absolute;
+      left: -36px;
+      top: 2px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+    .marker-done {
+      background: #716942;
+      color: #fff;
+    }
+    .marker-current {
+      background: #FFF;
+      border: 3px solid #C96B37;
+      color: #C96B37;
+    }
+    .marker-waiting {
+      background: #EFE2D6;
+      color: #8B765D;
+      border: 1px solid #EFD8C7;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .gallery-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #EFD8C7;
+      background: #fff;
+      transition: all 0.3s ease;
+    }
+    .gallery-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(54,31,23,0.08);
+      border-color: #C0AC8B;
+    }
+    .gallery-image-wrapper {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: #eae0d5;
+    }
+    .gallery-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .gallery-card:hover .gallery-image-wrapper img {
+      transform: scale(1.06);
+    }
+    /* Modal styles */
+    .custom-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .custom-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: #FFF8F2;
+      border: 2px solid #E2CDBD;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(54,31,23,0.15);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .custom-modal.show .modal-content {
+      transform: scale(1);
+    }
+    .input-pill {
+      height: 48px;
+      border-radius: 9999px;
+      border: 2px solid #EFD8C7;
+      background: #fff;
+      padding: 0 20px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input-pill:focus {
+      border-color: #716942;
+      box-shadow: 0 0 0 3px rgba(113, 105, 66, 0.15);
+    }
+    .btn-pill {
+      height: 48px;
+      border-radius: 9999px;
+      padding: 0 24px;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary-pill {
+      background: #716942;
+      color: #fff;
+    }
+    .btn-primary-pill:hover {
+      background: #5a5332;
+      transform: translateY(-1px);
+    }
+    .btn-secondary-pill {
+      background: transparent;
+      border: 2px solid #716942;
+      color: #716942;
+    }
+    .btn-secondary-pill:hover {
+      background: #EFE2D6;
+    }
+    .btn-danger-pill {
+      background: transparent;
+      border: 2px solid #DC2626;
+      color: #DC2626;
+    }
+    .btn-danger-pill:hover {
+      background: #FEE2E2;
+    }
+    .custom-checkout-modal-content {
+      max-width: 600px;
+    }
+  </style>
 </head>
 <body>
 
@@ -29,7 +245,7 @@
 
   <main class="page-transition" style="min-height:100vh; background:#FBEEE5; color:#361F17;">
     <!-- 2-Column Search Header (Matches React Screenshot layout) -->
-    <section style="max-width:1440px; margin:0 auto; padding:64px 24px; display:grid; grid-template-columns: 1.2fr 1fr; gap:40px; align-items: start;" class="tracking-search-header-grid">
+    <section style="max-width:1140px; margin:0 auto; padding:48px 24px; display:grid; grid-template-columns: 1.2fr 1fr; gap:40px; align-items: start;" class="tracking-search-header-grid">
       <!-- Left Column: Title -->
       <div>
         <p style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; color:#716942; margin-bottom:8px;">Tra cứu THỔ</p>
@@ -43,8 +259,8 @@
       <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
         <h3 style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#716942; margin:0 0 12px;">Mã tra cứu</h3>
         <div style="display:flex; gap:12px;">
-          <input id="tracking-code" type="text" class="form-input" placeholder="VD: THO 2024 0847" style="font-family:monospace; font-size:15px; flex:1;">
-          <button onclick="lookupTracking()" class="btn btn-primary" style="white-space:nowrap; background:#716942; border-color:#716942; padding:12px 24px; font-weight:700;">🔍 Tra cứu</button>
+          <input id="tracking-code" type="text" class="form-input" placeholder="VD: THO-2024-0847" style="font-family:monospace; font-size:15px; flex:1; border-radius:8px; border:1px solid #EFD8C7; padding:0 12px; outline:none;">
+          <button onclick="lookupTracking()" class="btn btn-primary" style="white-space:nowrap; background:#716942; border-color:#716942; padding:12px 24px; font-weight:700; border-radius:8px; color:white; border:none; cursor:pointer;">Tra cứu</button>
         </div>
         <p style="margin-top:12px; font-size:11px; color:#8B765D; line-height:1.5; margin-bottom:0;">
           Gợi ý: 'ORD-' cho đơn sản phẩm, 'WS-' cho vé workshop, 'CER/THO-' cho hành trình thành phẩm gốm.
@@ -60,8 +276,8 @@
       </div>
     </section>
 
-    <!-- Initial State Placeholder (visible by default, hidden when result shown) -->
-    <section id="tracking-initial-state" style="max-width:980px; margin:0 auto; padding:0 24px 64px;">
+    <!-- Initial State Placeholder -->
+    <section id="tracking-initial-state" style="max-width:1140px; margin:0 auto; padding:0 24px 64px;">
       <div style="text-align:center; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:64px 24px;">
         <div style="font-size:48px; margin-bottom:16px; opacity:0.65;">🔍</div>
         <h3 style="font-size:20px; font-weight:700; color:#3B2118; margin:0 0 8px;">Nhập mã để xem kết quả</h3>
@@ -70,22 +286,92 @@
     </section>
 
     <!-- Result Area -->
-    <section id="tracking-result" style="display:none; max-width:980px; margin:0 auto; padding:0 24px 96px;">
+    <section id="tracking-result" style="display:none; max-width:1140px; margin:0 auto; padding:0 24px 96px;">
       <div id="tracking-content"></div>
     </section>
 
     <!-- Demo data info -->
-    <section style="max-width:980px; margin:0 auto; padding:0 24px 64px;">
+    <section style="max-width:1140px; margin:0 auto; padding:0 24px 64px;">
       <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:24px;">
         <h3 style="font-size:16px; font-weight:700; color:#716942;">Mã demo để thử</h3>
-        <p style="margin-top:8px; font-size:14px; line-height:1.7; color:#6A5D52; margin-bottom:0;">
-          <strong>ORD-66470040</strong> — Đơn hàng sản phẩm (đang giao)<br>
-          <strong>WS-67157855</strong> — Vé workshop (đang nung)<br>
-          <strong>CER-55219382</strong> — Chứng nhận workshop (hoàn tất)
-        </p>
+        <div style="margin-top:8px; font-size:14px; line-height:1.8; color:#6A5D52;" class="demo-links-list">
+          <a href="javascript:void(0)" onclick="setTrackCode('ORD-DELIVERED')" style="color:#C96B37; font-weight:700; text-decoration:underline;">ORD-DELIVERED</a> — Đơn sản phẩm (giao thành công)<br>
+          <a href="javascript:void(0)" onclick="setTrackCode('WS-COMPLETED')" style="color:#C96B37; font-weight:700; text-decoration:underline;">WS-COMPLETED</a> — Vé workshop (hoàn thành check-in)<br>
+          <a href="javascript:void(0)" onclick="setTrackCode('CER-READY')" style="color:#C96B37; font-weight:700; text-decoration:underline;">CER-READY</a> — Thành phẩm (nung xong, sẵn sàng nhận)<br>
+          <a href="javascript:void(0)" onclick="setTrackCode('ORD-66470040')" style="color:#C96B37; font-weight:700; text-decoration:underline;">ORD-66470040</a> — Ly gốm mộc (Screenshot 1)<br>
+          <a href="javascript:void(0)" onclick="setTrackCode('WS-67157855')" style="color:#C96B37; font-weight:700; text-decoration:underline;">WS-67157855</a> — Lớp nặn cốc (Screenshot 2)
+        </div>
       </div>
     </section>
   </main>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="custom-modal">
+    <div class="modal-content">
+      <div style="text-align:center;">
+        <div style="width:56px; height:56px; border-radius:50%; background:#FFF1E8; border:1px solid #EFD8C7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#716942" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <h3 style="font-size:22px; font-weight:700; color:#361F17; margin:0 0 8px;">🔐 Đăng nhập để hủy đơn</h3>
+        <p style="font-size:14px; color:#716942; line-height:1.6; margin:0 0 24px;">
+          Để bảo mật thông tin và tránh nhầm lẫn, vui lòng đăng nhập trước khi thực hiện hủy đơn hàng hoặc đặt chỗ tại THỔ Studio.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button onclick="confirmLogin('google')" class="btn-pill" style="background:#fff; border:1px solid #E2CDBD; color:#361F17; width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">
+            <span style="color:#EA4335; font-weight:bold;">G</span> Đăng nhập bằng Google
+          </button>
+          <button onclick="confirmLogin('facebook')" class="btn-pill" style="background:#fff; border:1px solid #E2CDBD; color:#361F17; width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">
+            <span style="color:#1877F2; font-weight:bold;">F</span> Đăng nhập bằng Facebook
+          </button>
+          <button onclick="closeModal('login-modal')" class="btn-pill btn-secondary-pill" style="width:100%;">Quay lại</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div id="cancel-modal" class="custom-modal">
+    <div class="modal-content">
+      <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
+        ⚠️ Xác nhận hủy đặt chỗ/đơn
+      </h3>
+      <div style="background:#fff; border:1px solid #EFD8C7; border-radius:12px; padding:16px; margin-bottom:16px;" id="cancel-details-box">
+        <!-- Content injected by JS -->
+      </div>
+      <div style="background:#FFF1E8; border:1px solid #EFD8C7; border-radius:12px; padding:16px; text-align:center; margin-bottom:24px;">
+        <p style="font-size:13px; color:#8B765D; margin:0;">Tỷ lệ hoàn tiền dự kiến:</p>
+        <p style="font-size:32px; font-weight:900; color:#C96B37; margin:4px 0;" id="refund-percentage-text">100%</p>
+        <p style="font-size:11px; color:#716942; margin:0;">Số tiền hoàn sẽ được chuyển lại qua tài khoản thanh toán ban đầu.</p>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeModal('cancel-modal')" class="btn-pill btn-secondary-pill" style="flex:1;">Đóng</button>
+        <button onclick="executeCancel()" class="btn-pill" style="flex:1; background:#DC2626; color:white;">Xác nhận hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="custom-modal">
+    <div class="modal-content custom-checkout-modal-content">
+      <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 16px;">💳 Thanh toán đơn hàng custom</h3>
+      <div id="checkout-modal-details" style="margin-bottom:20px;"></div>
+      <div style="border-top:1px dashed #EFD8C7; padding-top:16px; margin-bottom:24px;">
+        <label style="display:block; font-size:12px; font-weight:700; text-transform:uppercase; color:#716942; margin-bottom:8px;">Chọn phương thức thanh toán</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="border:2px solid #716942; border-radius:12px; padding:12px; cursor:pointer; background:#fff; text-align:center;" onclick="selectPaymentMethod('atm')">
+            <span style="font-weight:700; color:#716942;">ATM / Internet Banking</span>
+          </div>
+          <div style="border:1px solid #EFD8C7; border-radius:12px; padding:12px; cursor:pointer; background:#fff; text-align:center;" onclick="selectPaymentMethod('momo')">
+            <span style="font-weight:700; color:#A76020;">Ví MoMo / ZaloPay</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeModal('checkout-modal')" class="btn-pill btn-secondary-pill" style="flex:1;">Quay lại</button>
+        <button onclick="processCheckoutPayment()" class="btn-pill btn-primary-pill" style="flex:1;">Xác nhận thanh toán</button>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer class="site-footer">
@@ -103,81 +389,135 @@
   <script src="js/utils.js"></script>
   <script src="js/header.js"></script>
   <script>
-    // Mock tracking data
-    const trackingRecords = {
-      'ORD-66470040': {
-        title: 'Bình gốm men celadon - Dáng oval S',
-        type: 'product',
-        customer_name: 'Nguyễn Văn A',
-        manager_name: 'Nghệ nhân Minh Châu',
-        status: 'shipping',
-        steps: [
-          { label: 'Đơn hàng đã xác nhận', date: '28/05/2026', done: true },
-          { label: 'Đang đóng gói', date: '29/05/2026', done: true },
-          { label: 'Đang giao hàng', date: '30/05/2026', done: true },
-          { label: 'Giao thành công', date: '', done: false },
+    // Mock tracking data synchronized with React
+    const MOCK_COMPLETED_RECORDS = {
+      'ORD-DELIVERED': {
+        code: 'ORD-DELIVERED',
+        tracking_type: 'order',
+        status: 'delivered',
+        title: 'Đơn hàng bộ ấm chén gốm mộc THỔ',
+        message: 'Đơn hàng đã được giao thành công đến bạn vào ngày 28/06/2026. Cảm ơn bạn đã lựa chọn THỔ!',
+        customer_name: 'Nguyễn Thu Hà',
+        manager_name: 'Trần Minh Hoàng',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+          { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+          { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+        ],
+        items: [
+          { id: 'item-d1', name: 'Bộ ấm chén gốm mộc sơn trà', type: 'product', price: 850000, quantity: 1, image: 'image/product/products_15_15yTrDMi.jpg' }
         ]
+      },
+      'WS-COMPLETED': {
+        code: 'WS-COMPLETED',
+        tracking_type: 'workshop',
+        status: 'completed',
+        title: 'Vé Workshop Nặn Gốm Căn Bản',
+        message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 25/06/2026. Hy vọng bạn đã có khoảng thời gian ý nghĩa chạm đất!',
+        customer_name: 'Trần Minh Tuấn',
+        manager_name: 'Nguyễn Thanh Linh',
+        participant_count: 2,
+        checkin_status: 'checked_in',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'qr_sent', label: 'Đã gửi mã check-in', state: 'done' },
+          { stage: 'checked_in', label: 'Đã check-in & hoàn thành', state: 'done' }
+        ],
+        items: [
+          { id: 'item-d2', name: 'Vé Workshop Nặn Gốm Căn Bản', type: 'workshop', date: '25/06/2026', time: '14:00', tickets: 2, price: 450000, image: 'image/workshop/workshop_06_-aebrWVm.jpg' }
+        ]
+      },
+      'CER-READY': {
+        code: 'CER-READY',
+        tracking_type: 'ceramic',
+        status: 'ready',
+        title: 'Cốc gốm men hỏa biến & Bình hoa nhỏ',
+        message: 'Thành phẩm gốm của bạn đã hoàn thành tráng men và nung xong. Bạn có thể ghé Studio để nhận hoặc đăng ký giao hàng tận nhà.',
+        customer_name: 'Phạm Quốc Anh',
+        manager_name: 'Phạm Quốc Anh',
+        timeline: [
+          { stage: 'forming', label: 'Tạo hình', state: 'done' },
+          { stage: 'drying', label: 'Phơi khô', state: 'done' },
+          { stage: 'bisque_firing', label: 'Nung sơ', state: 'done' },
+          { stage: 'glazing', label: 'Tráng men', state: 'done' },
+          { stage: 'final_firing', label: 'Nung hoàn thiện', state: 'done' },
+          { stage: 'ready', label: 'Sẵn sàng nhận', state: 'done' }
+        ],
+        items: []
       },
       'WS-67157855': {
-        title: 'Workshop nặn gốm cơ bản',
-        type: 'workshop',
-        customer_name: 'Trần Minh Tuấn',
-        manager_name: 'Nghệ nhân Minh Châu',
-        status: 'firing',
-        steps: [
-          { label: 'Tham gia workshop', date: '31/05/2026', done: true },
-          { label: 'Phơi khô sản phẩm', date: '01/06/2026', done: true },
-          { label: 'Nung sơ (bisque)', date: '03/06/2026', done: true },
-          { label: 'Tráng men', date: '05/06/2026', done: false },
-          { label: 'Nung hoàn thiện', date: '', done: false },
-          { label: 'Sẵn sàng giao', date: '', done: false },
+        code: 'WS-67157855',
+        tracking_type: 'workshop',
+        status: 'completed',
+        title: 'Vé Workshop Xoay Gốm Trải Nghiệm',
+        message: 'Bạn đã hoàn tất tham gia lớp học làm gốm ngày 28/06/2026. Cảm ơn bạn đã ghé thăm THỔ Studio!',
+        customer_name: 'Anh Quân',
+        manager_name: 'Anh Quân',
+        participant_count: 1,
+        checkin_status: 'checked_in',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'qr_sent', label: 'Đã gửi mã check-in', state: 'done' },
+          { stage: 'checked_in', label: 'Đã check-in & hoàn thành', state: 'done' }
+        ],
+        items: [
+          { id: 'item-ws1', name: 'Vé Workshop Xoay Gốm Trải Nghiệm', type: 'workshop', date: '28/06/2026', time: '09:00', tickets: 1, price: 450000, image: 'image/workshop/workshop_06_-aebrWVm.jpg' }
         ]
       },
-      'CER-55219382': {
-        title: 'Chứng nhận Workshop "Combo có đôi có cặp"',
-        type: 'workshop',
-        customer_name: 'Lê Phương Anh',
-        manager_name: 'Nghệ nhân Hoài An',
-        status: 'completed',
-        steps: [
-          { label: 'Tham gia workshop', date: '10/05/2026', done: true },
-          { label: 'Phơi khô', date: '11/05/2026', done: true },
-          { label: 'Nung sơ', date: '13/05/2026', done: true },
-          { label: 'Tráng men', date: '15/05/2026', done: true },
-          { label: 'Nung hoàn thiện', date: '17/05/2026', done: true },
-          { label: 'Đã giao thành công', date: '20/05/2026', done: true },
+      'ORD-66470040': {
+        code: 'ORD-66470040',
+        tracking_type: 'order',
+        status: 'delivered',
+        title: 'Đơn hàng Ly gốm mộc & Đĩa lót gốm',
+        message: 'Đơn hàng đã giao thành công vào ngày 27/06/2026.',
+        customer_name: 'Chị Linh',
+        manager_name: 'Chị Linh',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+          { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+          { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+        ],
+        items: [
+          { id: 'item-p1', name: 'Ly gốm mộc THỔ', type: 'product', price: 180000, quantity: 1, image: 'image/product/products_22_BQ7UG7wM.jpg' }
+        ]
+      },
+      'ORD-42710995': {
+        code: 'ORD-42710995',
+        tracking_type: 'order',
+        status: 'delivered',
+        title: 'Đơn hàng Chậu cây cảnh mini',
+        message: 'Đơn hàng đã giao thành công vào ngày 26/06/2026.',
+        customer_name: 'Chị Linh',
+        manager_name: 'Chị Linh',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'packing', label: 'Chờ đóng gói', state: 'done' },
+          { stage: 'shipping', label: 'Đang vận chuyển', state: 'done' },
+          { stage: 'delivered', label: 'Đã giao thành công', state: 'done' }
+        ],
+        items: [
+          { id: 'item-p2', name: 'Chậu cây cảnh mini gốm nung', type: 'product', price: 120000, quantity: 1, image: 'image/product/products_26_S2DsBnRc.jpg' }
         ]
       }
     };
 
-    // Auto-fill from URL params & load recently created codes
-    document.addEventListener('DOMContentLoaded', () => {
-      let localRecords = [];
-      try {
-        const storedStr = localStorage.getItem('tho-persistent-tracking-records');
-        if (storedStr) {
-          const parsed = JSON.parse(storedStr);
-          localRecords = Array.isArray(parsed) ? parsed : (parsed.records || []);
-        } else {
-          // Fallback to tho-tracking-records
-          const fallbackStr = localStorage.getItem('tho-tracking-records');
-          if (fallbackStr) {
-            localRecords = JSON.parse(fallbackStr) || [];
-          }
-        }
-      } catch (err) {
-        console.warn('Failed to parse local records:', err);
-      }
+    const ceramicStages = [
+      { stage: 'workshop_done', label: 'Đã tham gia workshop', staff: 'Chị Linh', note: 'Khách đã check-in, chọn form và hoàn tất phần tạo dáng ban đầu.' },
+      { stage: 'forming', label: 'Tạo hình', staff: 'Anh Quân', note: 'Thành phẩm đã được chỉnh mép và đánh dấu mã xưởng.' },
+      { stage: 'drying', label: 'Phơi khô', staff: 'Chị Linh', note: 'Đất đang ổn định độ ẩm trước khi vào lò nung sơ.' },
+      { stage: 'bisque_firing', label: 'Nung sơ', staff: 'Anh Quân', note: 'Lò nung sơ đang chạy, studio sẽ kiểm tra bề mặt sau khi nguội.' },
+      { stage: 'glazing', label: 'Tráng men', staff: 'Chị Hạnh', note: 'Màu men được chọn theo ghi chú workshop và ảnh mẫu của khách.' },
+      { stage: 'final_firing', label: 'Nung hoàn thiện', staff: 'Anh Quân', note: 'Lò men hoàn thiện cần nguội tự nhiên trước khi lấy sản phẩm.' },
+      { stage: 'ready', label: 'Sẵn sàng nhận / giao hàng', staff: 'THỔ Studio', note: 'Studio sẽ nhắn lịch nhận hoặc giao hàng sau khi QC cuối cùng.' }
+    ];
 
-      if (localRecords && localRecords.length > 0) {
-        document.getElementById('recent-track-container').style.display = 'block';
-        const listDiv = document.getElementById('recent-track-list');
-        listDiv.innerHTML = localRecords.slice(-4).reverse().map(r => `
-          <button onclick="setTrackCode('${r.code}')" style="background:#EFE2D6; border:1px solid #C0AC8B; border-radius:6px; padding:6px 12px; font-family:monospace; font-size:12px; font-weight:700; color:#643A2A; cursor:pointer; transition:all 0.2s;">
-            ${r.code}
-          </button>
-        `).join('');
-      }
+    let currentSelectedRecord = null;
+    let selectedPaymentMethodName = 'atm';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRecentTrackers();
 
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
@@ -187,19 +527,7 @@
       }
     });
 
-    function setTrackCode(code) {
-      document.getElementById('tracking-code').value = code;
-      lookupTracking();
-    }
-
-    function lookupTracking() {
-      const code = document.getElementById('tracking-code').value.trim().toUpperCase();
-      if (!code) {
-        showToast('Vui lòng nhập mã đơn hàng.', 'error');
-        return;
-      }
-
-      // Check localStorage first
+    function getLocalRecords() {
       let localRecords = [];
       try {
         const storedStr = localStorage.getItem('tho-persistent-tracking-records');
@@ -212,35 +540,725 @@
             localRecords = JSON.parse(fallbackStr) || [];
           }
         }
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to parse local records:', err);
+      }
+      return localRecords;
+    }
 
-      const record = localRecords.find(r => r.code === code);
-      if (record) {
-        renderRecordData(code, record);
-      } else if (trackingRecords[code]) {
-        renderRecordData(code, trackingRecords[code]);
+    function saveLocalRecords(records) {
+      localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({
+        savedAt: Date.now(),
+        records: records
+      }));
+      // Backwards compatibility
+      localStorage.setItem('tho-tracking-records', JSON.stringify(records));
+      loadRecentTrackers();
+    }
+
+    function loadRecentTrackers() {
+      const records = getLocalRecords();
+      if (records && records.length > 0) {
+        document.getElementById('recent-track-container').style.display = 'block';
+        const listDiv = document.getElementById('recent-track-list');
+        
+        // Take unique last 4 codes
+        const uniqueCodes = [];
+        const uniqueRecords = [];
+        for (let i = records.length - 1; i >= 0; i--) {
+          if (!uniqueCodes.includes(records[i].code)) {
+            uniqueCodes.push(records[i].code);
+            uniqueRecords.push(records[i]);
+          }
+          if (uniqueRecords.length >= 4) break;
+        }
+
+        listDiv.innerHTML = uniqueRecords.map(r => `
+          <button onclick="setTrackCode('${r.code}')" style="background:#EFE2D6; border:1px solid #C0AC8B; border-radius:6px; padding:6px 12px; font-family:monospace; font-size:12px; font-weight:700; color:#643A2A; cursor:pointer; transition:all 0.2s;">
+            ${r.code}
+          </button>
+        `).join('');
       } else {
-        // Fallback: fetch from local FastAPI docker backend
+        document.getElementById('recent-track-container').style.display = 'none';
+      }
+    }
+
+    function setTrackCode(code) {
+      document.getElementById('tracking-code').value = code;
+      lookupTracking();
+    }
+
+    function inferType(code) {
+      const normalized = code.trim().toUpperCase();
+      if (normalized.startsWith('WS')) return 'workshop';
+      if (normalized.startsWith('ORD')) return 'order';
+      if (normalized.startsWith('CUS')) return 'custom';
+      return 'ceramic';
+    }
+
+    function lookupTracking() {
+      const code = document.getElementById('tracking-code').value.trim().toUpperCase();
+      if (!code) {
+        showToast('Vui lòng nhập mã tra cứu.', 'error');
+        return;
+      }
+
+      // Check MOCK_COMPLETED_RECORDS first
+      let record = MOCK_COMPLETED_RECORDS[code];
+
+      // If not in static mock, check localStorage
+      if (!record) {
+        const localRecords = getLocalRecords();
+        record = localRecords.find(r => r.code === code);
+      }
+
+      if (record) {
+        renderTrackingResult(code, record);
+      } else {
+        // Mock fallback query from backend
         fetch(`http://127.0.0.1:8000/api/v1/tracking/${encodeURIComponent(code)}`)
           .then(res => {
             if (!res.ok) throw new Error('Not found');
             return res.json();
           })
           .then(data => {
-            renderRecordData(code, data);
+            renderTrackingResult(code, data);
           })
           .catch(err => {
-            console.warn('Backend lookup failed or server is offline, showing fallback error state:', err);
-            showErrorState(code);
+            console.warn('Backend lookup failed, rendering mockup empty/create state:', err);
+            // If it is CUS, auto initialize it to mock custom brief
+            if (code.startsWith('CUS')) {
+              const mockBrief = {
+                code: code,
+                tracking_type: 'custom',
+                status: 'artist_reviewed',
+                title: 'Brief custom ' + code,
+                message: 'Nghệ nhân đã phản hồi brief của bạn. Hãy xem báo giá và thanh toán để thực hiện.',
+                customer_name: 'Khách hàng THỔ',
+                manager_name: 'Nghệ nhân Hạnh',
+                timeline: [
+                  { stage: 'brief_saved', label: 'Đã lưu brief custom', state: 'done' },
+                  { stage: 'artist_review', label: 'Nghệ nhân đã phản hồi', state: 'done' },
+                  { stage: 'payment', label: 'Chờ khách xác nhận thanh toán', state: 'current' },
+                  { stage: 'production', label: 'Tiến hành làm sản phẩm', state: 'waiting' }
+                ],
+                custom_request: {
+                  shape: 'Ly gốm mộc',
+                  glaze: 'Men sữa bóng',
+                  features: ['Chấm men rêu cổ', 'Dấu ký hiệu xưởng THỔ'],
+                  engraving: 'THỔ 2026',
+                  brief: 'Men chảy nhẹ tự nhiên ở viền cốc, tạo cảm giác thô mộc làm quà tặng.',
+                  basePrice: 420000,
+                  multiplier: 1.75,
+                  estimatedPrice: 740000,
+                  artisanFeedback: 'Mẫu ly gốm với men sữa này hoàn toàn khả thi. Nên giữ độ mỏng vừa phải để giữ nhiệt tốt và nét mộc. Cần 3 ngày chế tác.',
+                  artisanName: 'Nghệ nhân Hạnh',
+                  artisanLeadDays: 3,
+                  paymentReady: true
+                }
+              };
+              // Add to local
+              const local = getLocalRecords();
+              local.push(mockBrief);
+              saveLocalRecords(local);
+              renderTrackingResult(code, mockBrief);
+            } else {
+              showErrorState(code);
+            }
           });
       }
     }
 
-    window.cancelBooking = function(code) {
-      if (confirm(`Bạn có chắc chắn muốn hủy đặt chỗ cho vé ${code}?`)) {
-        showToast('Yêu cầu hủy đặt chỗ đã được gửi. Nhân viên hỗ trợ THỔ Studio sẽ liên hệ với bạn để hoàn trả phí.', 'info');
+    function renderTrackingResult(code, record) {
+      document.getElementById('tracking-initial-state').style.display = 'none';
+      const resultSection = document.getElementById('tracking-result');
+      const content = document.getElementById('tracking-content');
+      resultSection.style.display = 'block';
+
+      currentSelectedRecord = record;
+
+      const type = record.tracking_type || record.type || inferType(code);
+      const isCancelled = record.status === 'cancelled';
+
+      if (type === 'custom') {
+        renderCustomResult(content, code, record);
+      } else if (type === 'ceramic') {
+        renderCeramicResult(content, code, record);
+      } else {
+        renderSimpleResult(content, type, code, record);
       }
-    };
+    }
+
+    function renderSimpleResult(container, type, code, record) {
+      const isOrder = type === 'order';
+      const isCancelled = record.status === 'cancelled';
+      
+      const timelineText = record.timeline && record.timeline.length > 0
+        ? record.timeline.map(s => s.label).join(' → ')
+        : isOrder
+          ? 'Đã thanh toán → Chờ đóng gói → Đang vận chuyển → Đã giao thành công'
+          : 'Đã thanh toán → Đã gửi mã check-in → Đã check-in & hoàn thành';
+
+      const statusLabels = {
+        shipping: 'Đang giao',
+        delivered: 'Đã giao',
+        completed: 'Hoàn tất',
+        cancelled: 'Đã hủy',
+        confirmed: 'Đã xác nhận',
+        pending: 'Chờ xác nhận'
+      };
+
+      const statusClassMap = isCancelled
+        ? 'badge-cancelled'
+        : (record.status === 'delivered' || record.status === 'completed') ? 'badge-completed' : 'badge-default';
+
+      // Item list
+      const itemsHtml = record.items && record.items.length > 0
+        ? record.items.map(item => `
+          <div style="display:flex; align-items:center; gap:16px; background:#fff; padding:12px 16px; border-radius:12px; border:1px solid #EFD8C7;">
+            <img src="${item.image || (item.type === 'workshop' ? 'image/workshop/workshop_06_-aebrWVm.jpg' : 'image/product/products_20_jpxDBK5P.jpg')}" alt="${item.name}" style="width:64px; height:64px; object-fit:cover; border-radius:8px;">
+            <div style="flex:1;">
+              <h4 style="font-size:15px; font-weight:700; margin:0 0 4px;">${item.name}</h4>
+              <p style="font-size:13px; color:#8B765D; margin:0;">
+                ${item.type === 'workshop' ? `${item.date} · ${item.time} · ${item.tickets} vé` : `${item.price.toLocaleString('vi-VN')}đ · SL: ${item.quantity || 1}`}
+              </p>
+            </div>
+          </div>
+        `).join('')
+        : `<p style="font-size:13px; color:#8B765D; margin:0;">Không có chi tiết sản phẩm / vé.</p>`;
+
+      const displayStatus = isCancelled ? 'Đã hủy đơn' : (statusLabels[record.status] || record.status || 'Hoạt động');
+
+      container.innerHTML = `
+        <div class="info-card">
+          <div style="display:flex; align-items:start; gap:16px; flex-direction:column; md-flex-direction:row;">
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%; border-bottom:1px solid #EFD8C7; padding-bottom:16px; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:48px; height:48px; border-radius:10px; background:rgba(113, 105, 66, 0.1); display:flex; align-items:center; justify-content:center; color:#716942;">
+                  ${isOrder ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="8 14 10 16 16 10"></polyline></svg>'}
+                </div>
+                <div>
+                  <h2 style="font-size:22px; font-weight:700; margin:0;">${record.title || (isOrder ? 'Thông tin đơn hàng' : 'Thông tin vé')}</h2>
+                  <p style="font-size:13px; color:#8B765D; margin:4px 0 0;">Mã tra cứu: <span style="font-family:monospace; font-weight:700;">${code}</span></p>
+                  ${record.manager_name ? `<p style="font-size:13px; color:#716942; margin:4px 0 0;">Nhân viên phụ trách: <strong>${record.manager_name}</strong></p>` : ''}
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:end; gap:8px;">
+                <span class="badge ${statusClassMap}">${displayStatus}</span>
+                ${!isCancelled ? `
+                  <div style="display:flex; gap:8px;">
+                    ${(record.status === 'delivered' || record.status === 'completed' || code === 'ORD-DELIVERED' || code === 'WS-COMPLETED') ? `
+                      <a href="review.html?code=${code}&targetType=${isOrder ? 'product' : 'workshop'}" class="btn" style="background:#716942; color:#fff; border-radius:9999px; padding:6px 14px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                        ✍️ Đánh giá trải nghiệm
+                      </a>
+                    ` : `
+                      <button onclick="handleCancelClick()" class="btn-pill btn-danger-pill" style="height:32px; font-size:11px; padding:0 12px;">
+                        ${isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
+                      </button>
+                    `}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr; md-grid-template-columns:3fr 1fr; gap:24px; width:100%;">
+              <div style="display:flex; flex-direction:column; gap:20px;">
+                <!-- 3 Columns details -->
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">
+                  <div style="background:${isOrder ? '#FFF' : '#F5EFEB'}; border:1px solid #EFD8C7; border-radius:10px; padding:12px;">
+                    <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">📦 Đơn sản phẩm</p>
+                    <p style="font-size:13px; margin:0; color:${isOrder ? '#361F17' : '#8B765D'};">${isOrder ? (record.message || 'Đơn hàng đang giao.') : 'Không có sản phẩm trong mã đặt chỗ này.'}</p>
+                  </div>
+                  <div style="background:${!isOrder ? '#FFF' : '#F5EFEB'}; border:1px solid #EFD8C7; border-radius:10px; padding:12px;">
+                    <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">📅 Workshop</p>
+                    <p style="font-size:13px; margin:0; color:${!isOrder ? '#361F17' : '#8B765D'};">${!isOrder ? `${record.participant_count || 1} người · ${record.checkin_status || 'chưa checkin'}` : 'Không có vé workshop trong đơn này.'}</p>
+                  </div>
+                  <div style="background:#F5EFEB; border:1px solid #EFD8C7; border-radius:10px; padding:12px;">
+                    <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">✨ Tracking gốm</p>
+                    <p style="font-size:13px; margin:0; color:#8B765D;">Mã CER sẽ được tạo sau workshop.</p>
+                  </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                  <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin-bottom:8px;">Chi tiết sản phẩm & vé</p>
+                  <div style="display:grid; grid-template-columns:1fr; sm-grid-template-columns:1fr 1fr; gap:12px;">
+                    ${itemsHtml}
+                  </div>
+                </div>
+
+                <!-- Timeline -->
+                <div style="background:#fff; border:1px solid #EFD8C7; border-radius:12px; padding:16px;">
+                  <p style="font-size:12px; color:#8B765D; margin:0 0 6px; display:flex; align-items:center; gap:6px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timeline trạng thái
+                  </p>
+                  <p style="font-size:15px; font-weight:600; margin:0; color:#361F17;">${timelineText}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCeramicResult(container, code, record) {
+      // Build stages progress
+      const localMedia = JSON.parse(localStorage.getItem('tho-tracking-media') || '[]');
+      const customerMedia = localMedia.filter(m => m.tracking_code === code);
+      
+      const defaultMedia = [
+        { id: '1', title: 'Bàn xoay buổi workshop', stage: 'Workshop', url: workshopImages.handsWarm, uploaded_by: 'Chị Linh', description: 'Khoảnh khắc xoay phôi gốm mộc đầu tiên của bạn.' },
+        { id: '2', title: 'Sản phẩm sau khi ổn định dáng', stage: 'Phơi khô', url: workshopImages.largePot, uploaded_by: 'Anh Quân', description: 'Phôi gốm se lại, sẵn sàng chuyển vào lò nung sơ.' },
+        { id: '3', title: 'Thử lớp men đầu tiên', stage: 'Tráng men', url: workshopImages.detailBw, uploaded_by: 'Chị Hạnh', description: 'Lớp men loang mộc tự nhiên phủ đều bề mặt.' },
+        { id: '4', title: 'Thành phẩm sau nung', stage: 'Thành phẩm', url: productImages.tealVase, uploaded_by: 'THỔ Studio', description: 'Nung hoàn thiện ở nhiệt độ 1250 độ C, bóng mịn.' }
+      ];
+
+      // Merge local uploads
+      const displayMedia = [...customerMedia, ...defaultMedia.filter(d => !customerMedia.some(m => m.stage === d.stage))];
+      
+      // Calculate current stage
+      let currentStageIdx = 3; // bisque
+      if (record.status === 'forming') currentStageIdx = 1;
+      else if (record.status === 'drying') currentStageIdx = 2;
+      else if (record.status === 'bisque_firing') currentStageIdx = 3;
+      else if (record.status === 'glazing') currentStageIdx = 4;
+      else if (record.status === 'final_firing') currentStageIdx = 5;
+      else if (record.status === 'ready' || record.status === 'completed') currentStageIdx = 6;
+
+      const timelineItemsHtml = ceramicStages.map((s, index) => {
+        let state = 'waiting';
+        if (index < currentStageIdx) state = 'done';
+        else if (index === currentStageIdx) state = 'current';
+
+        const markerClass = state === 'done' ? 'marker-done' : state === 'current' ? 'marker-current' : 'marker-waiting';
+        const markerContent = state === 'done'
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+          : (index + 1);
+
+        const dateStr = state === 'waiting' ? 'Đang chờ' : `0${2 + index}/06/2026`;
+
+        return `
+          <div class="timeline-item">
+            <div class="timeline-marker ${markerClass}">${markerContent}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="margin:0; font-size:15px; font-weight:700; color:${state === 'waiting' ? '#8B765D' : '#361F17'}">${s.label}</h4>
+              <span style="font-size:11px; font-weight:700; color:#8B765D; text-transform:uppercase;">${dateStr}</span>
+            </div>
+            <p style="font-size:13px; color:#8B765D; margin:4px 0 0;">${s.note}</p>
+            <p style="font-size:11px; color:#716942; margin:2px 0 0; font-weight:500;">Phụ trách: ${s.staff}</p>
+          </div>
+        `;
+      }).join('');
+
+      // Media gallery html
+      const galleryHtml = displayMedia.map(m => `
+        <article class="gallery-card">
+          <div class="gallery-image-wrapper">
+            <img src="${m.url}" alt="${m.title}">
+            <span style="position:absolute; left:12px; top:12px; background:rgba(255,255,255,0.9); border-radius:20px; padding:4px 10px; font-size:11px; font-weight:700; color:#361F17;">${m.stage}</span>
+            ${m.is_new ? '<span style="position:absolute; right:12px; top:12px; background:#643A2A; border-radius:20px; padding:4px 10px; font-size:11px; font-weight:700; color:#fff;">Mới</span>' : ''}
+          </div>
+          <div style="padding:16px;">
+            <h4 style="font-size:15px; font-weight:700; margin:0 0 6px;">${m.title}</h4>
+            <p style="font-size:12px; color:#8B765D; margin:0 0 10px; min-height:36px; line-height:1.5;">${m.description}</p>
+            <p style="font-size:11px; color:#716942; margin:0 0 12px;">Đăng bởi ${m.uploaded_by}</p>
+            <button onclick="saveMomentRecord('${m.id}', '${m.title}', '${m.url}', '${m.stage}')" class="btn-pill btn-secondary-pill" style="height:36px; font-size:12px; width:100%;">
+              Lưu khoảnh khắc
+            </button>
+          </div>
+        </article>
+      `).join('');
+
+      // Saved moments html
+      const savedMoments = JSON.parse(localStorage.getItem('tho-saved-moments') || '[]');
+      const savedHtml = savedMoments.length > 0
+        ? `
+          <div class="info-card" style="margin-top:28px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0 0 16px;">Khoảnh khắc đã lưu của bạn</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px;">
+              ${savedMoments.map(m => `
+                <div style="display:flex; gap:10px; background:#fff; padding:8px; border-radius:8px; border:1px solid #EFD8C7;">
+                  <img src="${m.url}" style="width:48px; height:48px; object-fit:cover; border-radius:6px;">
+                  <div style="min-width:0; flex:1;">
+                    <p style="font-size:13px; font-weight:700; margin:0; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${m.title}</p>
+                    <p style="font-size:11px; color:#8B765D; margin:2px 0 0;">${m.stage}</p>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `
+        : '';
+
+      const isFinished = (record.status === 'ready' || record.status === 'completed' || code === 'CER-READY');
+      const actionBtn = isFinished ? `
+        <a href="review.html?code=${code}&targetType=workshop" class="btn-pill btn-primary-pill" style="height:32px; font-size:12px; text-decoration:none;">
+          ✍️ Đánh giá trải nghiệm
+        </a>
+      ` : `
+        <button onclick="handleCancelClick()" class="btn-pill btn-danger-pill" style="height:32px; font-size:11px; padding:0 12px;">
+          Hủy đặt chỗ
+        </button>
+      `;
+
+      container.innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr; lg-grid-template-columns:2.5fr 1fr; gap:28px;" class="tracking-main-grid">
+          <div style="display:flex; flex-direction:column; gap:28px;">
+            <!-- Main card -->
+            <div class="info-card">
+              <div style="display:flex; justify-content:space-between; align-items:start; border-bottom:1px solid #EFD8C7; padding-bottom:16px; margin-bottom:16px;">
+                <div>
+                  <span style="font-family:monospace; font-size:13px; font-weight:700; background:#EFE2D6; padding:4px 8px; border-radius:4px;">${code}</span>
+                  <h2 style="font-size:24px; font-weight:700; margin:8px 0 0;">${record.title || 'Thành phẩm gốm của bạn'}</h2>
+                  <p style="font-size:14px; color:#6A5D52; margin:6px 0 0;">Khách hàng: <strong>${record.customer_name}</strong> · Phụ trách: <strong>${record.manager_name}</strong></p>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:end; gap:8px;">
+                  <span class="badge badge-default">● ${record.status || 'Đang sấy/nung'}</span>
+                  ${actionBtn}
+                </div>
+              </div>
+              <p style="font-size:15px; line-height:1.7; color:#361F17; margin:0;">${record.message || 'Studio đang chăm sóc thành phần của bạn qua các công đoạn nung.'}</p>
+            </div>
+
+            <!-- Stage Progress -->
+            <div class="info-card">
+              <h3 style="font-size:18px; font-weight:700; margin:0 0 20px;">Hành trình tại xưởng</h3>
+              <div class="timeline-vertical">
+                ${timelineItemsHtml}
+              </div>
+            </div>
+
+            <!-- Gallery -->
+            <div class="info-card">
+              <h3 style="font-size:18px; font-weight:700; margin:0 0 6px;">Khoảnh khắc tại THỔ của bạn</h3>
+              <p style="font-size:13px; color:#8B765D; margin:0 0 20px;">Hình ảnh trực tiếp quá trình tạo tác và hoàn thiện tại lò nung.</p>
+              <div class="gallery-grid">
+                ${galleryHtml}
+              </div>
+            </div>
+
+            <!-- Mini Vlog Card -->
+            <div class="info-card" style="display:grid; grid-template-columns: 240px 1fr; gap:20px;" class="vlog-card-grid">
+              <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:16/10; background:#000;">
+                <img src="${workshopImages.wheelBw}" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="showToast('Đang phát mini vlog workshop...', 'info')">
+                  <span style="font-size:32px; color:#fff; background:rgba(113,105,66,0.85); width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding-left:4px;">▶</span>
+                </div>
+              </div>
+              <div>
+                <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700; text-transform:uppercase;">Mini Vlog</span>
+                <h4 style="font-size:18px; font-weight:700; color:#361F17; margin:8px 0 4px;">Khoảnh khắc xoay gốm tại bàn xoay</h4>
+                <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0 0 12px;">Đoạn video ngắn ghi lại chuyển động bàn tay và nhịp điều khiển bàn xoay của bạn lúc tạo dáng phôi.</p>
+                <div style="display:flex; gap:8px;">
+                  <button onclick="saveMomentRecord('${code}-vlog', 'Vlog xoay gốm', '${workshopImages.wheelBw}', 'Vlog')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
+                    Lưu khoảnh khắc
+                  </button>
+                  <button onclick="showToast('Link chia sẻ đã được sao chép!', 'success')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
+                    Chia sẻ
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saved Moments Grid -->
+            ${savedHtml}
+          </div>
+
+          <!-- Sidebar -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
+              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px;">📦 Đơn sản phẩm</h4>
+              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Mã theo dõi này thuộc loại thành phẩm học viên sau workshop.</p>
+            </div>
+            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
+              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px;">📅 Workshop & Lớp học</h4>
+              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Vết dấu tay và dáng phôi sẽ được giữ nguyên vẹn. Trải nghiệm nung củi và nung ga tùy thuộc gói lựa chọn.</p>
+            </div>
+            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px; font-size:13px; line-height:1.6; color:#716942;">
+              💡 <strong>Hướng dẫn bảo quản:</strong> Hạn chế sử dụng máy rửa bát nhiệt độ cao cho gốm tráng men mỏng thủ công. Tránh va đập mạnh.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCustomResult(container, code, record) {
+      const request = record.custom_request;
+      if (!request) {
+        container.innerHTML = `
+          <div class="info-card" style="text-align:center; padding:48px;">
+            <p style="font-size:16px; color:#8B765D;">Mã brief custom chưa được cập nhật dữ liệu phản hồi.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const isPaid = record.status === 'paid' || record.status === 'production';
+
+      const timelineHtml = record.timeline.map((step, idx) => {
+        let stateClass = 'marker-waiting';
+        if (step.state === 'done') stateClass = 'marker-done';
+        else if (step.state === 'current') stateClass = 'marker-current';
+
+        return `
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <div class="timeline-marker ${stateClass}" style="position:static; width:24px; height:24px; font-size:11px;">
+              ${step.state === 'done' ? '✓' : idx + 1}
+            </div>
+            <div>
+              <p style="margin:0; font-size:13px; font-weight:700; color:${step.state === 'waiting' ? '#8B765D' : '#361F17'}">${step.label}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 340px; gap:28px;" class="tracking-main-grid">
+          <!-- Left Column -->
+          <div style="display:flex; flex-direction:column; gap:24px;">
+            <div class="info-card">
+              <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-family:monospace; font-size:13px; font-weight:700; background:#EFE2D6; padding:4px 8px; border-radius:4px;">${code}</span>
+                <span class="badge ${isPaid ? 'badge-completed' : 'badge-pending'}">${isPaid ? 'ĐÃ THANH TOÁN' : 'ĐANG CHỜ DUYỆT'}</span>
+              </div>
+              <h2 style="font-size:26px; font-weight:700; margin:0 0 12px;">Brief Custom: ${request.shape}</h2>
+              <p style="font-size:14px; color:#6A5D52; line-height:1.6; margin:0 0 20px;">${record.message}</p>
+              
+              <div style="background:#FFFDFB; border:1.5px solid #EFD8C7; border-radius:12px; padding:16px; margin-bottom:20px;">
+                <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#C96B37; margin:0 0 8px; letter-spacing:0.1em;">Phản hồi từ nghệ nhân</p>
+                <p style="font-size:14px; color:#6E4E3F; line-height:1.6; margin:0 0 8px;">"${request.artisanFeedback}"</p>
+                <p style="font-size:12px; font-weight:700; color:#716942; margin:0;">
+                  Nghệ nhân phụ trách: <strong>${request.artisanName}</strong> · Dự kiến hoàn thành mẫu sau ${request.artisanLeadDays} ngày sản xuất.
+                </p>
+              </div>
+            </div>
+
+            <!-- Custom brief progress -->
+            <div class="info-card">
+              <h3 style="font-size:18px; font-weight:700; margin:0 0 16px;">Tiến độ brief custom</h3>
+              <div>
+                ${timelineHtml}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <!-- Brief details -->
+            <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
+              <h4 style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 12px; letter-spacing:0.1em;">Thông tin brief gửi</h4>
+              <h3 style="font-size:18px; font-weight:700; margin:0 0 12px;">${request.shape} · ${request.glaze}</h3>
+              <div style="font-size:13px; color:#8B765D; display:flex; flex-direction:column; gap:8px;">
+                <p><strong>Chi tiết đặc điểm:</strong> ${request.features.join(', ')}</p>
+                ${request.engraving ? `<p><strong>Chữ khắc:</strong> ${request.engraving}</p>` : ''}
+                ${request.brief ? `<p><strong>Ghi chú:</strong> "${request.brief}"</p>` : ''}
+              </div>
+            </div>
+
+            <!-- Pricing & Checkout -->
+            <div style="background:#FFF; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
+              <h4 style="font-size:12px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 12px; letter-spacing:0.1em;">Báo giá thiết kế</h4>
+              <div style="font-size:13px; display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between;"><span>Giá phôi cơ bản:</span><span>${request.basePrice.toLocaleString('vi-VN')}đ</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Hệ số phức tạp:</span><span>x${request.multiplier}</span></div>
+                <div style="display:flex; justify-content:space-between; border-top:1px dashed #EFD8C7; padding-top:12px; font-size:18px; font-weight:700; color:#C96B37;">
+                  <span>Tổng tiền:</span><span>${request.estimatedPrice.toLocaleString('vi-VN')}đ</span>
+                </div>
+              </div>
+              
+              ${isPaid ? `
+                <button class="btn-pill" style="width:100%; background:#3F7D37; color:#fff; cursor:default;" disabled>
+                  ✓ Đã thanh toán đơn custom
+                </button>
+              ` : `
+                <button onclick="triggerCheckoutModal()" class="btn-pill btn-primary-pill" style="width:100%;" ${request.paymentReady ? '' : 'disabled'}>
+                  Thanh toán nếu vừa ý
+                </button>
+                <button onclick="handleCancelClick()" class="btn-pill btn-danger-pill" style="width:100%; margin-top:8px; height:40px; font-size:13px; font-weight:700;">
+                  Hủy brief custom
+                </button>
+                <p style="font-size:11px; color:#8B765D; margin-top:8px; line-height:1.4; text-align:center;">
+                  Sau khi thanh toán, brief sẽ chính thức được chuyển thành đơn sản xuất của xưởng THỔ.
+                </p>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveMomentRecord(id, title, url, stage) {
+      const savedMoments = JSON.parse(localStorage.getItem('tho-saved-moments') || '[]');
+      if (savedMoments.some(m => m.id === id)) {
+        showToast('Khoảnh khắc này đã được lưu trước đó!', 'info');
+        return;
+      }
+      savedMoments.push({ id, title, url, stage, savedAt: Date.now() });
+      localStorage.setItem('tho-saved-moments', JSON.stringify(savedMoments));
+      showToast('Đã lưu khoảnh khắc thành công!', 'success');
+      
+      // Re-render
+      if (currentSelectedRecord) {
+        renderTrackingResult(currentSelectedRecord.code, currentSelectedRecord);
+      }
+    }
+
+    // Modal helpers
+    function triggerCheckoutModal() {
+      if (!currentSelectedRecord) return;
+      const request = currentSelectedRecord.custom_request;
+      const detailsDiv = document.getElementById('checkout-modal-details');
+      detailsDiv.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:14px; background:#fff; padding:16px; border-radius:10px; border:1px solid #EFD8C7;">
+          <div style="display:flex; justify-content:space-between;"><strong>Mẫu mã:</strong><span>${request.shape}</span></div>
+          <div style="display:flex; justify-content:space-between;"><strong>Men loang:</strong><span>${request.glaze}</span></div>
+          <div style="display:flex; justify-content:space-between;"><strong>Ký hiệu khắc:</strong><span>${request.engraving || 'Không'}</span></div>
+          <div style="display:flex; justify-content:space-between; border-top:1px dashed #EFD8C7; padding-top:8px; font-size:16px; font-weight:700; color:#C96B37;">
+            <strong>Thanh toán:</strong><span>${request.estimatedPrice.toLocaleString('vi-VN')}đ</span>
+          </div>
+        </div>
+      `;
+      openModal('checkout-modal');
+    }
+
+    function selectPaymentMethod(method) {
+      selectedPaymentMethodName = method;
+      showToast(`Đã chọn phương thức thanh toán qua ${method.toUpperCase()}`, 'info');
+    }
+
+    function processCheckoutPayment() {
+      if (!currentSelectedRecord) return;
+      
+      // Update record status to production / paid
+      const localRecords = getLocalRecords();
+      const code = currentSelectedRecord.code;
+      const idx = localRecords.findIndex(r => r.code === code);
+      
+      const updatedRecord = {
+        ...currentSelectedRecord,
+        status: 'production',
+        message: 'Đơn hàng custom đã được thanh toán thành công và đang được nghệ nhân THỔ thực hiện.',
+        timeline: [
+          { stage: 'brief_saved', label: 'Đã lưu brief custom', state: 'done' },
+          { stage: 'artist_review', label: 'Nghệ nhân đã phản hồi', state: 'done' },
+          { stage: 'payment', label: 'Đã xác nhận thanh toán', state: 'done' },
+          { stage: 'production', label: 'Đang làm sản phẩm', state: 'current' }
+        ]
+      };
+
+      if (idx !== -1) {
+        localRecords[idx] = updatedRecord;
+      } else {
+        localRecords.push(updatedRecord);
+      }
+      saveLocalRecords(localRecords);
+      currentSelectedRecord = updatedRecord;
+
+      closeModal('checkout-modal');
+      showToast('Thanh toán thành công! Brief đã chuyển thành đơn sản xuất.', 'success');
+      renderTrackingResult(code, updatedRecord);
+    }
+
+    function handleCancelClick() {
+      // Check customer session
+      const session = localStorage.getItem('tho-customer-session');
+      if (!session) {
+        openModal('login-modal');
+      } else {
+        triggerCancelConfirmation();
+      }
+    }
+
+    function confirmLogin(provider) {
+      const mockSession = {
+        provider: provider,
+        display_name: provider === 'google' ? 'Nguyễn Anh Tuấn' : 'Linh Trần',
+        email: 'customer@demo.vn',
+        loggedInAt: Date.now()
+      };
+      localStorage.setItem('tho-customer-session', JSON.stringify(mockSession));
+      closeModal('login-modal');
+      showToast(`Chào mừng ${mockSession.display_name}! Đăng nhập thành công.`, 'success');
+      
+      // Trigger cancel confirmation immediately
+      triggerCancelConfirmation();
+    }
+
+    function triggerCancelConfirmation() {
+      if (!currentSelectedRecord) return;
+      const record = currentSelectedRecord;
+      const isOrder = record.tracking_type === 'order' || record.code.startsWith('ORD');
+
+      const detailsBox = document.getElementById('cancel-details-box');
+      const refundPercentText = document.getElementById('refund-percentage-text');
+
+      let refundPercent = 100;
+      let targetDateStr = 'Trước khi giao hàng';
+      let policyMessage = '';
+
+      if (isOrder) {
+        const isShipped = record.status === 'delivering' || record.status === 'received' || record.status === 'delivered';
+        if (isShipped) {
+          refundPercent = 0;
+          policyMessage = 'Đơn hàng vật lý đã bàn giao vận chuyển. Không hỗ trợ hủy hoàn tiền.';
+        } else {
+          refundPercent = 100;
+          policyMessage = 'Đơn hàng chưa giao cho ĐVVC. Được hủy hoàn tiền 100%.';
+        }
+      } else {
+        // Workshop cancel rules
+        // Simulate a date 2 days in the future
+        refundPercent = 100;
+        targetDateStr = 'Workshop thứ Bảy, 31/05/2026';
+        policyMessage = 'Hủy trước 48h diễn ra lớp học: Hoàn trả 100% học phí đặt lịch.';
+      }
+
+      detailsBox.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between;"><strong>Mã hủy:</strong><span style="font-family:monospace; font-weight:700;">${record.code}</span></div>
+          <div style="display:flex; justify-content:space-between;"><strong>Thời gian:</strong><span>${targetDateStr}</span></div>
+          <div style="border-top:1px dashed #EFD8C7; padding-top:8px; margin-top:8px;">
+            <p style="font-weight:700; color:#716942; text-transform:uppercase; font-size:10px; margin:0 0 4px;">Chính sách hoàn tiền</p>
+            <p style="margin:0; line-height:1.4; color:#6E4E3F;">${policyMessage}</p>
+          </div>
+        </div>
+      `;
+
+      refundPercentText.innerText = `${refundPercent}%`;
+      openModal('cancel-modal');
+    }
+
+    function executeCancel() {
+      if (!currentSelectedRecord) return;
+      const code = currentSelectedRecord.code;
+
+      const localRecords = getLocalRecords();
+      const idx = localRecords.findIndex(r => r.code === code);
+
+      const isOrder = code.startsWith('ORD');
+
+      const updatedRecord = {
+        ...(localRecords.find(r => r.code === code) || currentSelectedRecord),
+        status: 'cancelled',
+        message: 'Đơn hàng/Vé đặt chỗ đã được hủy thành công. Số tiền hoàn đang được xử lý chuyển khoản lại cho quý khách.',
+        timeline: [
+          { stage: 'paid', label: 'Đã thanh toán', state: 'done' },
+          { stage: 'cancelled', label: 'Đã hủy thành công', state: 'done' }
+        ]
+      };
+
+      if (idx !== -1) {
+        localRecords[idx] = updatedRecord;
+      } else {
+        localRecords.push(updatedRecord);
+      }
+      saveLocalRecords(localRecords);
+      currentSelectedRecord = updatedRecord;
+
+      closeModal('cancel-modal');
+      showToast('Đã thực hiện yêu cầu hủy đơn hàng thành công!', 'success');
+      renderTrackingResult(code, updatedRecord);
+    }
 
     function showErrorState(code) {
       document.getElementById('tracking-initial-state').style.display = 'none';
@@ -251,236 +1269,18 @@
         <div style="text-align:center; padding:48px 20px; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; width: 100%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C96B37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <h2 style="margin-top:16px; font-size:24px; font-weight:700; color:#C96B37;">Không tìm thấy mã "${code}"</h2>
-          <p style="margin-top:12px; color:#6A5D52; margin-bottom:0;">Hãy kiểm tra lại mã đơn hàng hoặc mã vé workshop của bạn hoặc bật Docker Backend để truy vấn trực tiếp.</p>
+          <p style="margin-top:12px; color:#6A5D52; margin-bottom:0;">Hãy kiểm tra lại mã đơn hàng hoặc mã vé workshop của bạn (VD: ORD-66470040, WS-67157855, CER-READY).</p>
         </div>`;
     }
 
-    function renderRecordData(code, record) {
-      // Normalize values
-      const type = record.type || record.tracking_type || 'order';
-      const status = record.status || 'confirmed';
-      const customerName = record.customer_name || (record.customer ? record.customer.name : 'Khách hàng THỔ');
-      const managerName = record.manager_name || 'Nghệ nhân Minh Châu';
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('show');
+    }
 
-      // Ensure steps timeline is parsed/generated
-      if (!record.steps || record.steps.length === 0) {
-        if (record.timeline && record.timeline.length > 0) {
-          record.steps = record.timeline.map(t => ({
-            label: t.label,
-            date: t.state === 'done' ? 'Cập nhật xưởng' : '',
-            done: t.state === 'done' || t.state === 'current'
-          }));
-        } else {
-          // Generate default steps
-          if (type === 'order') {
-            const isDone = (s) => {
-              const stages = ['confirmed', 'paid', 'paid_waiting_pack', 'shipping', 'completed'];
-              return stages.indexOf(status) >= stages.indexOf(s);
-            };
-            record.steps = [
-              { label: 'Đơn hàng đã xác nhận', date: isDone('confirmed') ? 'Hôm nay' : '', done: isDone('confirmed') },
-              { label: 'Đang đóng gói', date: isDone('paid_waiting_pack') ? 'Hôm nay' : '', done: isDone('paid_waiting_pack') },
-              { label: 'Đang giao hàng', date: isDone('shipping') ? 'Hôm nay' : '', done: isDone('shipping') },
-              { label: 'Giao thành công', date: isDone('completed') ? 'Hôm nay' : '', done: isDone('completed') },
-            ];
-          } else {
-            const stages = ['confirmed', 'forming', 'drying', 'bisque_firing', 'glazing', 'final_firing', 'completed'];
-            const idx = stages.indexOf(status);
-            record.steps = [
-              { label: 'Tạo hình tại workshop', date: idx >= 1 ? 'Cập nhật xưởng' : '', done: idx >= 1 },
-              { label: 'Phơi khô tự nhiên', date: idx >= 2 ? 'Cập nhật xưởng' : '', done: idx >= 2 },
-              { label: 'Nung mộc (Bisque)', date: idx >= 3 ? 'Cập nhật xưởng' : '', done: idx >= 3 },
-              { label: 'Tráng men màu', date: idx >= 4 ? 'Cập nhật xưởng' : '', done: idx >= 4 },
-              { label: 'Nung men hoàn thiện', date: idx >= 5 ? 'Cập nhật xưởng' : '', done: idx >= 5 },
-              { label: 'Thành phẩm sẵn sàng', date: idx >= 6 ? 'Cập nhật xưởng' : '', done: idx >= 6 },
-            ];
-          }
-        }
-      }
-
-      const completedSteps = record.steps.filter(s => s.done).length;
-      const progress = Math.round((completedSteps / record.steps.length) * 100);
-      const statusLabels = {
-        shipping: 'Đang giao',
-        firing: 'Đang nung',
-        completed: 'Hoàn tất',
-        forming: 'Tạo hình',
-        drying: 'Phơi khô',
-        bisque_firing: 'Nung sơ',
-        glazing: 'Tráng men',
-        confirmed: 'Đã xác nhận',
-        paid_waiting_pack: 'Chờ đóng gói'
-      };
-
-      document.getElementById('tracking-initial-state').style.display = 'none';
-      const resultSection = document.getElementById('tracking-result');
-      const content = document.getElementById('tracking-content');
-      resultSection.style.display = 'block';
-
-      const isWorkshopOrCeramic = type === 'workshop' || type === 'ceramic' || code.startsWith('WS') || code.startsWith('CER');
-
-      content.innerHTML = `
-        <div style="display:grid; gap:28px; grid-template-columns: 1fr 340px;" class="tracking-main-grid">
-          
-          <!-- Left Column -->
-          <div style="display:grid; gap:24px;">
-            <!-- Header card -->
-            <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
-              <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;">
-                <div>
-                  <span style="font-family:monospace; font-size:14px; font-weight:700; color:#716942; background:#EFE2D6; padding:4px 10px; border-radius:4px;">${code}</span>
-                  <h2 style="margin-top:12px; font-size:28px; font-weight:700; color:#2B211D; margin-bottom:0;">${record.title}</h2>
-                  <p style="margin-top:8px; font-size:14px; color:#6A5D52; margin-bottom:0;">Khách hàng: <strong>${record.customer_name}</strong> · Phụ trách: <strong>${record.manager_name}</strong></p>
-                </div>
-                <span style="display:inline-flex; align-items:center; gap:6px; border-radius:9999px; background:${record.status === 'completed' ? '#D8EFD1' : '#EFE2D6'}; padding:8px 20px; font-size:14px; font-weight:700; color:${record.status === 'completed' ? '#3F7D37' : '#716942'};">
-                  ● ${statusLabels[record.status] || record.status}
-                </span>
-              </div>
-              <div style="margin-top:24px; height:8px; border-radius:9999px; background:#EFE2D6; overflow:hidden;">
-                <div style="height:100%; width:${progress}%; border-radius:9999px; background:${record.status === 'completed' ? '#3F7D37' : '#716942'}; transition:width 0.6s ease;"></div>
-              </div>
-              <p style="margin-top:8px; font-size:13px; color:#8B765D; text-align:right; margin-bottom:0;">${progress}% hoàn tất quy trình</p>
-
-              <!-- Actions (Đánh giá trải nghiệm & Hủy đặt chỗ) -->
-              <div style="margin-top:24px; display:flex; gap:12px; justify-content:flex-end; border-top:1px dashed #EFD8C7; padding-top:16px;">
-                <a href="review.html?code=${code}" class="btn" style="background:#716942; color:#fff; border-radius:9999px; padding:10px 20px; font-size:14px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
-                  ✍️ Đánh giá trải nghiệm
-                </a>
-                <button onclick="cancelBooking('${code}')" class="btn" style="border:1px solid #DC2626; color:#DC2626; background:transparent; border-radius:9999px; padding:10px 20px; font-size:14px; font-weight:700; cursor:pointer;">
-                  Hủy đặt chỗ
-                </button>
-              </div>
-            </div>
-
-            <!-- Timeline Steps card -->
-            <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
-              <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 24px; border-bottom:1px solid #EFD8C7; padding-bottom:12px;">Hành trình sản phẩm</h3>
-              <div style="display:grid; gap:0;">
-                ${record.steps.map((step, i) => `
-                  <div class="tracking-step" style="display:grid; grid-template-columns:32px 1fr; gap:16px; padding:16px 0; ${i < record.steps.length - 1 ? 'border-bottom:1px solid #EFD8C7;' : ''}">
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-                      <div style="display:flex; height:32px; width:32px; align-items:center; justify-content:center; border-radius:50%; ${step.done ? 'background:#716942; color:#fff;' : 'background:#EFE2D6; color:#8B765D;'} font-weight:700;">
-                        ${step.done
-                          ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
-                          : `<span style="font-size:12px;">${i + 1}</span>`}
-                      </div>
-                      ${i < record.steps.length - 1 ? '<div style="flex:1; width:2px; background:#EFD8C7; min-height:30px;"></div>' : ''}
-                    </div>
-                    <div>
-                      <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <p style="font-size:16px; font-weight:${step.done ? '700' : '400'}; color:${step.done ? '#2B211D' : '#8B765D'}; margin:0;">${step.label}</p>
-                        ${step.date ? `<span style="font-size:12px; color:#8B765D; font-weight:700;">${step.date}</span>` : ''}
-                      </div>
-                      <p style="font-size:13px; color:#8B765D; margin-top:4px; margin-bottom:0;">
-                        ${step.done ? 'Quy trình đã hoàn tất và lưu đệm trên hệ thống xưởng.' : 'Đang chờ cập nhật công đoạn tiếp theo.'}
-                      </p>
-                    </div>
-                  </div>`).join('')}
-              </div>
-            </div>
-
-            ${isWorkshopOrCeramic ? `
-              <!-- Moment Gallery -->
-              <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
-                <h3 style="font-size:20px; font-weight:700; color:#361F17; margin:0 0 4px;">Khoảnh khắc tại THỔ của bạn</h3>
-                <p style="font-size:13px; color:#6A5D52; margin:0 0 24px;">Hình ảnh thực tế quá trình xoay gốm và nung mộc sản phẩm của bạn.</p>
-                <div style="display:grid; gap:16px;" class="moment-gallery-grid">
-                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
-                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.handsWarm}" style="width:100%; height:100%; object-fit:cover;"></div>
-                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">1. Tạo hình</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Chị Linh</p></div>
-                  </div>
-                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
-                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.largePot}" style="width:100%; height:100%; object-fit:cover;"></div>
-                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">2. Phơi khô</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Anh Quân</p></div>
-                  </div>
-                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
-                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${workshopImages.detailBw}" style="width:100%; height:100%; object-fit:cover;"></div>
-                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">3. Trang trí</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Chị Hạnh</p></div>
-                  </div>
-                  <div style="border-radius:8px; overflow:hidden; border:1px solid #EFD8C7; background:#fff;">
-                    <div style="aspect-ratio:4/3; overflow:hidden;"><img src="${productImages.tealVase}" style="width:100%; height:100%; object-fit:cover;"></div>
-                    <div style="padding:12px;"><h4 style="font-size:14px; font-weight:700; margin:0;">4. Nung men</h4><p style="font-size:11px; color:#8B765D; margin:4px 0 0;">Cập nhật bởi: Studio QC</p></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Mini Vlog Card -->
-              <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px; display:grid; grid-template-columns: 240px 1fr; gap:20px;" class="vlog-card-grid">
-                <div style="position:relative; border-radius:8px; overflow:hidden; aspect-ratio:16/10; height:150px; background:#000;">
-                  <img src="${workshopImages.wheelBw}" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
-                  <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <span style="font-size:40px; color:#fff; background:rgba(113,105,66,0.85); width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding-left:4px;">▶</span>
-                  </div>
-                </div>
-                <div>
-                  <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700; text-transform:uppercase;">Mini Vlog</span>
-                  <h4 style="font-size:18px; font-weight:700; color:#361F17; margin:8px 0 4px;">Khoảnh khắc xoay gốm tại bàn xoay</h4>
-                  <p style="font-size:14px; color:#6A5D52; line-height:1.5;">Đoạn video ngắn ghi lại chuyển động bàn tay và nhịp điều khiển bàn xoay của bạn lúc tạo dáng phôi.</p>
-                  <p style="font-size:11px; color:#8B765D; margin-top:8px;">Quay bởi trợ giảng xưởng THỔ</p>
-                </div>
-              </div>` : ''}
-
-            ${record.status === 'completed' ? `
-              <div style="text-align:center;">
-                <a href="review.html?code=${code}" class="btn btn-primary" style="border-radius:9999px; padding:12px 36px;">Viết đánh giá trải nghiệm</a>
-              </div>` : ''}
-          </div>
-
-          <!-- Right Column (Sidebar panels) -->
-          <div style="display:grid; gap:20px; height:fit-content;">
-            
-            <!-- Panel: Đơn hàng -->
-            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
-              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">📦 Đơn hàng</h4>
-              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
-                ${record.type === 'order' ? 'Đơn hàng chứa sản phẩm vật lý đặt qua website. Sẵn sàng giao sau khi đóng gói bảo hiểm.' : 'Mã theo dõi này thuộc loại vé/thành phẩm học viên sau workshop.'}
-              </p>
-            </div>
-
-            <!-- Panel: Workshop -->
-            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
-              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">📅 Lớp học & Thành phẩm</h4>
-              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
-                ${isWorkshopOrCeramic ? 'Vết dấu tay và dáng phôi sẽ được giữ nguyên vẹn. Trải nghiệm nung củi và nung ga tùy thuộc gói lựa chọn.' : 'Đơn hàng gốm chế tác sẵn từ bộ sưu tập của studio.'}
-              </p>
-            </div>
-
-            <!-- Panel: Nhân viên phụ trách -->
-            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px;">
-              <h4 style="font-size:15px; font-weight:700; color:#3B2118; margin:0 0 12px; display:flex; align-items:center; gap:8px;">👤 Nhân sự xưởng</h4>
-              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0;">
-                Nghệ nhân phụ trách: <strong>${record.manager_name}</strong><br>
-                Tiếp nhận thắc mắc qua hỗ trợ trực tuyến của THỔ Studio.
-              </p>
-            </div>
-
-            <!-- Panel: Hướng dẫn bảo quản -->
-            <div style="border-radius:12px; border:1px solid #EFD8C7; background:#FFF8F2; padding:20px; font-size:13px; color:#716942; line-height:1.6; background:#FFFDFB;">
-              💡 <strong>Hướng dẫn bảo quản:</strong> Hạn chế sử dụng máy rửa bát nhiệt độ cao cho gốm tráng men mỏng thủ công. Tránh va đập mạnh.
-            </div>
-
-          </div>
-
-        </div>`;
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
     }
   </script>
 
-
-  <style>
-    .moment-gallery-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-    @media (max-width: 1023px) {
-      .tracking-main-grid { grid-template-columns: 1fr !important; }
-      .tracking-search-header-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-    }
-    @media (max-width: 767px) {
-      .moment-gallery-grid { grid-template-columns: 1fr 1fr !important; }
-      .vlog-card-grid { grid-template-columns: 1fr !important; }
-      .vlog-card-grid img { height: 140px !important; }
-      #floating-chat-window { width: 310px !important; right: -10px !important; }
-    }
-  </style>
 </body>
 </html>
-
