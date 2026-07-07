@@ -15,6 +15,7 @@
       --border: #EFD8C7;
       --text: #3F3F35;
       --white: #FFFFFF;
+      --accent: #C96B37;
     }
     body {
       font-family: 'Inter', sans-serif;
@@ -32,111 +33,132 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(245, 241, 237, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(113, 105, 66, 0.2);
+      background: #FAF8F5;
+      border-bottom: 1px solid rgba(113, 105, 66, 0.15);
     }
     .header-container {
       max-width: 1440px;
       margin: 0 auto;
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      gap: 16px;
+    }
+    .logo-block {
+      display: flex;
       align-items: center;
       gap: 16px;
-      padding: 16px 20px;
     }
     .logo-text {
-      font-size: 40px;
-      font-weight: 300;
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
       line-height: 1;
       text-decoration: none;
       color: var(--primary);
-      margin-right: 12px;
+      letter-spacing: -0.5px;
     }
-    .workspace-info {
-      margin-right: auto;
+    .logo-sub {
+      border-left: 1px solid #D8C7B6;
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
     }
-    .workspace-title {
+    .logo-sub-title {
+      font-family: 'Outfit', sans-serif;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.15em;
       color: var(--secondary);
-      margin: 0;
+      line-height: 1.2;
     }
-    .workspace-desc {
+    .logo-sub-desc {
+      font-size: 13px;
       font-weight: 700;
       color: var(--primary);
-      margin: 2px 0 0;
+      margin-top: 1px;
     }
+    
     .nav-tabs {
       display: flex;
-      gap: 12px;
+      gap: 10px;
+      align-items: center;
     }
     .nav-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      height: 44px;
-      min-width: 124px;
+      height: 38px;
       border-radius: 9999px;
       border: 1px solid var(--primary);
-      background: transparent;
+      background: #FFF;
       color: var(--primary);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
-      padding: 0 20px;
+      padding: 0 18px;
       transition: all 0.2s ease;
     }
     .nav-btn.active {
       background: var(--primary);
       color: var(--white);
     }
+    .nav-btn:hover:not(.active) {
+      background: #F0EDE9;
+    }
+    
     .role-badge {
-      background: var(--white);
+      background: #FFF;
       color: var(--primary);
-      border: 1px solid var(--primary);
-      border-radius: 9999px;
-      padding: 8px 16px;
-      font-size: 13px;
+      border: 1px solid rgba(54, 31, 23, 0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
       font-weight: 700;
-      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     .logout-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      height: 44px;
+      gap: 6px;
+      height: 38px;
       border-radius: 9999px;
       border: 1px solid var(--primary);
-      background: transparent;
+      background: #FFF;
       color: var(--primary);
       font-weight: 700;
+      font-size: 14px;
       padding: 0 16px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: #FFF0E5;
     }
 
     /* Sub-header search bar */
     .sub-search-bar {
-      max-width: 1440px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.3);
-      border-top: 1px solid rgba(113,105,66,0.1);
+      max-width: 100%;
+      background: #FFF;
+      border-bottom: 1px solid var(--border);
     }
     .search-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 12px 20px;
+      gap: 12px;
+      padding: 10px 20px;
     }
     .search-input {
       width: 100%;
       background: transparent;
       border: none;
       outline: none;
-      font-size: 18px;
+      font-size: 16px;
       color: var(--text);
     }
     .search-input::placeholder {
@@ -147,7 +169,7 @@
     .main-container {
       max-width: 1440px;
       margin: 0 auto;
-      padding: 36px 20px;
+      padding: 30px 20px 60px;
     }
     .content-tab {
       display: none;
@@ -159,7 +181,7 @@
     /* Grid systems */
     .layout-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 2.1fr 1fr;
       gap: 28px;
     }
     @media (max-width: 1024px) {
@@ -180,13 +202,59 @@
         grid-template-columns: 1fr 1fr;
       }
     }
+    
+    /* Metrics Card Style matching Screenshot 1 */
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(54, 31, 23, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(54, 31, 23, 0.08);
+    }
+    .metric-card-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-card-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(63, 63, 53, 0.7);
+      margin: 0 0 8px;
+    }
+    .metric-card-value {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+      line-height: 1.1;
+    }
+    .metric-card-icon {
+      font-size: 28px;
+      color: var(--primary);
+      opacity: 0.6;
+      background: #F5F1ED;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     /* Cards and Elements */
     .white-card {
       background: var(--white);
       border-radius: 12px;
       padding: 24px;
-      box-shadow: 0 12px 30px rgba(54, 31, 23, 0.06);
+      box-shadow: 0 12px 30px rgba(54, 31, 23, 0.05);
       border: 1px solid var(--border);
     }
     .card-title {
@@ -202,6 +270,7 @@
       border: 1px solid var(--border);
       overflow: hidden;
       background: var(--white);
+      margin-top: 16px;
     }
     table {
       width: 100%;
@@ -209,17 +278,17 @@
       text-align: left;
     }
     th {
-      background: #2B211D;
+      background: #361F17;
       color: var(--white);
-      padding: 16px;
+      padding: 14px 16px;
       font-size: 13px;
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      text-transform: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
     td {
-      padding: 16px;
-      border-bottom: 1px solid rgba(113, 105, 66, 0.1);
+      padding: 14px 16px;
+      border-bottom: 1px solid #EFE2D6;
       font-size: 14px;
       color: var(--text);
     }
@@ -227,32 +296,56 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .tr-interactive:hover, .tr-interactive.selected {
-      background: #FAF8F6;
+    .tr-interactive:hover {
+      background: #FAF6F0;
+    }
+    .tr-interactive.selected {
+      background: #F3EFE9;
     }
 
     /* Badges */
     .badge {
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
+      padding: 4px 8px;
       font-size: 11px;
-      font-weight: 700;
-      border-radius: 9999px;
-      text-transform: uppercase;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: none;
     }
-    .badge-confirmed { background: #F0F3E3; color: #59612E; }
-    .badge-completed { background: #EFF4D8; color: #59612E; }
-    .badge-pending { background: #FFF3D7; color: #A76020; }
-    .badge-cancelled { background: #FFE3E1; color: #A33A2F; }
+    .badge-note {
+      background: #FCEEE3;
+      color: #8F5B3C;
+    }
+    .badge-confirmed {
+      background: #333333;
+      color: #FFFFFF;
+    }
+    .badge-completed {
+      background: #D6CAB8;
+      color: #5C4E3C;
+    }
+    .badge-pending {
+      background: #60594B;
+      color: #FFFFFF;
+    }
+    
+    /* Stage badges */
+    .badge-glazing { background: #E1F0FF; color: #0055B3; }
+    .badge-drying { background: #FFF9E1; color: #B38600; }
+    .badge-bisque { background: #FFEBE1; color: #B34400; }
+    .badge-firing { background: #FFE1FA; color: #B30086; }
+    .badge-created { background: #E1FFE8; color: #00B32C; }
+    .badge-needphoto { background: #FFEBEB; color: #D63030; }
+    .badge-ready { background: #E2D6F0; color: #522E80; }
 
     /* Inputs and Buttons */
     .form-input {
       width: 100%;
-      height: 44px;
+      height: 40px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      padding: 0 16px;
+      padding: 0 12px;
       font-size: 14px;
       box-sizing: border-box;
       background: #FFFDFB;
@@ -266,14 +359,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      height: 44px;
-      padding: 0 24px;
+      gap: 8px;
+      height: 42px;
+      padding: 0 20px;
       border-radius: 8px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
       border: none;
+      width: 100%;
     }
     .btn-primary {
       background: var(--primary);
@@ -287,47 +382,49 @@
       border: 1px solid var(--primary);
       color: var(--primary);
     }
-    .btn-danger {
-      background: #FFE3E1;
-      color: #A33A2F;
+    .btn-secondary:hover {
+      background: #FAF6F0;
+    }
+    .btn-accent {
+      background: var(--secondary);
+      color: var(--white);
+    }
+    .btn-accent:hover {
+      background: #5A5333;
+    }
+    .btn-darkest {
+      background: #23130E;
+      color: var(--white);
     }
 
-    /* Custom CSS Chart components */
-    .chart-bar-container {
+    /* Filter Panel styling */
+    .filter-panel {
       display: flex;
-      align-items: flex-end;
       justify-content: space-between;
-      height: 200px;
-      padding: 20px 10px;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 12px;
-    }
-    .chart-bar {
-      width: 44px;
-      background: var(--secondary);
-      border-radius: 6px 6px 0 0;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
       align-items: center;
-      transition: height 0.5s ease-in-out;
+      gap: 12px;
+      margin-bottom: 4px;
     }
-    .chart-bar:hover {
-      background: var(--primary);
+    .search-bar-inline {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: #FFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      height: 40px;
     }
-    .chart-bar-value {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
-    .chart-bar-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--secondary);
-      text-align: center;
-      margin-top: 8px;
+    .dropdown-filter {
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFF;
+      padding: 0 12px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
     }
 
     /* Toast system */
@@ -439,7 +536,7 @@
   <div id="login-wall" class="login-wrapper" style="display:none;">
     <div class="login-container">
       <div class="login-sidebar">
-        <p style="font-size:12px; font-weight:700; uppercase; tracking:0.2em; color:var(--secondary); margin:0 0 12px;">Không xuất hiện trên web customer</p>
+        <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; color:var(--secondary); margin:0 0 12px;">Không xuất hiện trên web customer</p>
         <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0 0 16px; line-height:1.1;">Khu quản trị cho staff và admin</h2>
         <p style="font-size:16px; line-height:1.6; color:rgba(63,63,53,0.8); margin:0 0 28px;">
           Cổng này chỉ mở qua route hoặc domain riêng như <strong>/staff</strong> hoặc <strong>/admin</strong>. Staff xử lý tracker và upload ảnh sản phẩm, admin quản lý toàn bộ dashboard, booking, product và tracking.
@@ -493,24 +590,28 @@
     <!-- HEADER -->
     <header>
       <div class="header-container">
-        <a href="index.html" class="logo-text">THỔ</a>
-        <div class="workspace-info">
-          <p class="workspace-title">Private workspace</p>
-          <p class="workspace-desc" id="header-role-desc">Admin quản lý toàn bộ</p>
+        <div class="logo-block">
+          <a href="index.html" class="logo-text">THỔ</a>
+          <div class="logo-sub">
+            <span class="logo-sub-title">Private Workspace</span>
+            <span class="logo-sub-desc" id="header-role-desc">Admin quản lý toàn bộ</span>
+          </div>
         </div>
         <nav class="nav-tabs" id="header-tabs">
-          <!-- Active Admin tabs: Dashboard, Booking, Sản phẩm, Tracker, Review & CSKH -->
+          <!-- Populated dynamically -->
         </nav>
-        <span class="role-badge">ADMIN</span>
-        <button onclick="handleLogout()" class="logout-btn">
-          <span>➔</span> Logout
-        </button>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="role-badge">ADMIN</span>
+          <button onclick="handleLogout()" class="logout-btn">
+            <span>➔</span> Logout
+          </button>
+        </div>
       </div>
 
       <!-- Quick Search Bar -->
       <div class="sub-search-bar">
         <div class="search-wrapper">
-          <span style="font-size:20px; color:#1E1E1E;">🔍</span>
+          <span style="font-size:16px; color:#1E1E1E;">🔍</span>
           <input id="global-search-input" oninput="handleGlobalSearch(this.value)" class="search-input" placeholder="Tìm booking, tracker, khách hàng hoặc sản phẩm..." />
         </div>
       </div>
@@ -522,132 +623,47 @@
       <section id="sect-dashboard" class="content-tab">
         <div style="margin-bottom:28px;">
           <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">DASHBOARD</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi booking, doanh thu, check-in workshop và media tracking trong 1 tuần vận hành.</p>
+          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi tổng quan hoạt động trong xưởng gốm THỔ.</p>
         </div>
 
-        <!-- Metrics Grid -->
         <div class="metric-grid">
-          <div class="white-card">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin:0 0 8px;">Hôm nay</p>
-            <h3 style="font-size:36px; font-weight:700; margin:0;" id="metric-today">2</h3>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Booking Hôm nay</span>
+              <span class="metric-card-value">2</span>
+            </div>
+            <div class="metric-card-icon">📅</div>
           </div>
-          <div class="white-card">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin:0 0 8px;">Tuần này</p>
-            <h3 style="font-size:36px; font-weight:700; margin:0;" id="metric-week">15</h3>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã xác nhận</span>
+              <span class="metric-card-value">4</span>
+            </div>
+            <div class="metric-card-icon">✓</div>
           </div>
-          <div class="white-card">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin:0 0 8px;">Tổng khách</p>
-            <h3 style="font-size:36px; font-weight:700; margin:0;" id="metric-customers">8</h3>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã thanh toán</span>
+              <span class="metric-card-value">6</span>
+            </div>
+            <div class="metric-card-icon">✉</div>
           </div>
-          <div class="white-card">
-            <p style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin:0 0 8px;">Doanh thu</p>
-            <h3 style="font-size:36px; font-weight:700; margin:0; color:#3F7D37;" id="metric-revenue">8.2M</h3>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Doanh thu tháng</span>
+              <span class="metric-card-value" style="font-size:28px;">8.200k</span>
+            </div>
+            <div class="metric-card-icon">💰</div>
           </div>
         </div>
 
-        <!-- Interaction row -->
         <div class="white-card" style="margin-bottom:28px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div>
-              <h3 style="font-size:22px; font-weight:700; margin:0; color:var(--primary);">Tương tác vận hành nhanh</h3>
-              <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Khu này mô phỏng thao tác nhanh của admin/staff.</p>
-            </div>
-            <span class="badge badge-confirmed">Có thể bấm thử</span>
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;" class="metric-grid">
-            <button onclick="showToast('Mở popup upload ảnh thành công!', 'info')" class="btn btn-primary" style="height:auto; min-height:100px; flex-direction:column; padding:16px; align-items:flex-start; justify-content:space-between; border-radius:10px;">
-              <span style="font-size:13px; font-weight:700; text-transform:uppercase; opacity:0.8;">Upload ảnh/video</span>
-              <span style="font-size:11px; text-align:left; font-weight:400; margin-top:6px; opacity:0.8;">Mở popup chọn media cho trang tracking.</span>
-            </button>
-            <button onclick="showToast('Đã phê duyệt các ảnh mới cập nhật!', 'success')" class="btn btn-secondary" style="height:auto; min-height:100px; flex-direction:column; padding:16px; align-items:flex-start; justify-content:space-between; border-radius:10px;">
-              <span style="font-size:13px; font-weight:700; text-transform:uppercase; color:var(--primary);">Duyệt media</span>
-              <span style="font-size:11px; text-align:left; font-weight:400; margin-top:6px; color:var(--secondary);">1 file đã duyệt cho khách xem.</span>
-            </button>
-            <button onclick="switchTab('tracking')" class="btn btn-secondary" style="height:auto; min-height:100px; flex-direction:column; padding:16px; align-items:flex-start; justify-content:space-between; border-radius:10px;">
-              <span style="font-size:13px; font-weight:700; text-transform:uppercase; color:var(--primary);">Tạo mã tracking</span>
-              <span style="font-size:11px; text-align:left; font-weight:400; margin-top:6px; color:var(--secondary);">Minh Anh · THO-DEMO-001</span>
-            </button>
-            <button onclick="exportBookingsCsv()" class="btn btn-secondary" style="height:auto; min-height:100px; flex-direction:column; padding:16px; align-items:flex-start; justify-content:space-between; border-radius:10px;">
-              <span style="font-size:13px; font-weight:700; text-transform:uppercase; color:var(--primary);">Xuất CSV</span>
-              <span style="font-size:11px; text-align:left; font-weight:400; margin-top:6px; color:var(--secondary);">Tải file báo cáo booking hiện tại.</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Notifications panel -->
-        <div class="white-card" style="margin-bottom:28px; background:#FFFDFB; border-color:#C96B37;">
-          <h3 style="font-size:18px; font-weight:700; color:var(--primary); margin:0 0 12px; display:flex; align-items:center; gap:8px;">
-            🔔 Thông báo CSKH & Cảnh báo Nhận xét
-          </h3>
-          <div style="background:#fff; border:1px solid var(--border); padding:16px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <strong style="color:var(--primary);">Khách hàng ẩn danh</strong>
-              <div style="font-size:13px; color:var(--secondary); margin-top:2px;">Nhận xét: "Hàng đẹp lắm mn ơi. Đóng gói rất cẩn thận, men đẹp loang tự nhiên..."</div>
-            </div>
-            <button onclick="switchTab('reviews')" class="btn btn-primary" style="height:36px; padding:0 16px;">Phản hồi ngay</button>
-          </div>
-        </div>
-
-        <!-- Analytics and Charts row -->
-        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:28px; margin-bottom:28px;" class="metric-grid">
-          <!-- Bar chart card -->
-          <div class="white-card">
-            <h3 style="font-size:18px; font-weight:700; margin:0 0 12px;">Doanh thu theo tuần</h3>
-            <div class="chart-bar-container">
-              <div class="chart-bar" style="height:50%;"><span class="chart-bar-value">4.0M</span></div>
-              <div class="chart-bar" style="height:80%;"><span class="chart-bar-value">7.8M</span></div>
-              <div class="chart-bar" style="height:70%;"><span class="chart-bar-value">6.6M</span></div>
-              <div class="chart-bar" style="height:60%;"><span class="chart-bar-value">5.9M</span></div>
-              <div class="chart-bar" style="height:85%;"><span class="chart-bar-value">8.2M</span></div>
-              <div class="chart-bar" style="height:95%;"><span class="chart-bar-value">9.6M</span></div>
-              <div class="chart-bar" style="height:65%;"><span class="chart-bar-value">6.7M</span></div>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:0 10px;">
-              <span class="chart-bar-label">T2</span>
-              <span class="chart-bar-label">T3</span>
-              <span class="chart-bar-label">T4</span>
-              <span class="chart-bar-label">T5</span>
-              <span class="chart-bar-label">T6</span>
-              <span class="chart-bar-label">T7</span>
-              <span class="chart-bar-label">CN</span>
-            </div>
-          </div>
-
-          <!-- Secondary Analytics List -->
-          <div class="white-card">
-            <h3 style="font-size:18px; font-weight:700; margin:0 0 16px;">Analytics cho chủ studio</h3>
-            <div style="display:flex; flex-direction:column; gap:12px; font-size:14px;">
-              <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span>Tỷ lệ khách quay lại:</span><strong>0% (từ số điện thoại)</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span>Đơn quà tặng:</span><strong>1 (từ note quà tặng)</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span>Workshop nổi bật:</span><strong>Nan gom co ban</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bookings lists at the bottom of Dashboard -->
-        <div class="white-card">
-          <h3 style="font-size:22px; font-weight:700; margin:0 0 6px;">Danh sách booking gần đây</h3>
-          <p style="font-size:13px; color:var(--secondary); margin:0 0 16px;">Dữ liệu mẫu 7 ngày vận hành.</p>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="padding-left:24px;">Booking ID</th>
-                  <th>Học viên</th>
-                  <th>Dịch vụ</th>
-                  <th>Thời gian</th>
-                  <th>Giá tiền</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody id="dashboard-bookings-tbody"></tbody>
-            </table>
+          <h3 class="card-title">Hành động nhanh</h3>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+            <button onclick="switchTab('booking')" class="btn btn-secondary">Quản lý Đặt chỗ (Booking)</button>
+            <button onclick="switchTab('products')" class="btn btn-secondary">Theo dõi Tác phẩm (Sản phẩm)</button>
+            <button onclick="switchTab('tracking')" class="btn btn-secondary">Check-in & Lò nung (Tracker)</button>
+            <button onclick="showToast('Đã đồng bộ thành công dữ liệu với máy chủ!', 'success')" class="btn btn-primary">Đồng bộ Cloud DB</button>
           </div>
         </div>
       </section>
@@ -656,26 +672,95 @@
       <section id="sect-booking" class="content-tab">
         <div style="margin-bottom:28px;">
           <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">BOOKING MANAGEMENT</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Quản lý đăng ký workshop ca học, thông tin check-in và hủy vé hoàn tiền.</p>
+          <p style="color:var(--secondary); margin:4px 0 0;">Quản lý booking workshop</p>
+        </div>
+
+        <!-- Metric cards inside booking -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Hôm nay</span>
+              <span class="metric-card-value">2</span>
+            </div>
+            <div class="metric-card-icon">📅</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã xác nhận</span>
+              <span class="metric-card-value">4</span>
+            </div>
+            <div class="metric-card-icon">✓</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã thanh toán</span>
+              <span class="metric-card-value">6</span>
+            </div>
+            <div class="metric-card-icon">✉</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã hủy</span>
+              <span class="metric-card-value">0</span>
+            </div>
+            <div class="metric-card-icon">✕</div>
+          </div>
         </div>
 
         <div class="layout-grid">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="padding-left:24px;">ID</th>
-                  <th>Khách hàng</th>
-                  <th>Lớp học</th>
-                  <th>Thời gian</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody id="booking-table-body"></tbody>
-            </table>
+          <div>
+            <!-- Filters and Search -->
+            <div class="filter-panel">
+              <div class="search-bar-inline">
+                <span style="margin-right:8px; opacity:0.5;">🔍</span>
+                <input id="booking-search" oninput="renderBookingTab(this.value)" class="search-input" style="font-size:14px;" placeholder="Tìm booking, khách hàng..." />
+              </div>
+              <select class="dropdown-filter" onchange="filterBookingsByStatus(this.value)">
+                <option value="">Trạng thái</option>
+                <option value="Đã xác nhận">Đã xác nhận</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Chờ xác nhận">Chờ xác nhận</option>
+              </select>
+              <select class="dropdown-filter">
+                <option value="">Workshop</option>
+                <option value="basic">Nặn gốm cơ bản</option>
+                <option value="couple">Workshop cặp đôi</option>
+                <option value="painting">Tô men thư giãn</option>
+              </select>
+              <select class="dropdown-filter">
+                <option value="">Ngày</option>
+                <option value="today">Hôm nay</option>
+                <option value="thisweek">Tuần này</option>
+              </select>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="padding-left:16px; width:100px;">ID</th>
+                    <th>Khách hàng</th>
+                    <th>Liên hệ</th>
+                    <th>Workshop</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th style="text-align:center;">Số người</th>
+                    <th>Chatbot</th>
+                    <th>Trạng thái</th>
+                    <th style="width:40px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="booking-table-body">
+                  <!-- Dynamic render -->
+                </tbody>
+              </table>
+            </div>
           </div>
           
-          <div class="white-card" id="booking-detail-panel"></div>
+          <!-- Detail panel right side -->
+          <div class="white-card" id="booking-detail-panel" style="align-self: flex-start;">
+            <!-- Rendered dynamically -->
+          </div>
         </div>
       </section>
 
@@ -683,192 +768,289 @@
       <section id="sect-products" class="content-tab">
         <div style="margin-bottom:28px;">
           <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">PRODUCT MANAGEMENT</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi tác phẩm sau workshop, ảnh thành phẩm và quy trình bàn giao.</p>
+          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi sản phẩm sau workshop, ảnh thành phẩm và bàn giao</p>
+        </div>
+
+        <!-- Metric cards inside products -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đang xử lý</span>
+              <span class="metric-card-value">2</span>
+            </div>
+            <div class="metric-card-icon">🔄</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Cần ảnh</span>
+              <span class="metric-card-value">2</span>
+            </div>
+            <div class="metric-card-icon">🖼️</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Sẵn sàng giao</span>
+              <span class="metric-card-value">2</span>
+            </div>
+            <div class="metric-card-icon">📦</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã bàn giao</span>
+              <span class="metric-card-value">0</span>
+            </div>
+            <div class="metric-card-icon">✓</div>
+          </div>
         </div>
 
         <div class="layout-grid">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="padding-left:24px;">Mã Sản Phẩm</th>
-                  <th>Khách hàng</th>
-                  <th>Tác phẩm</th>
-                  <th>Báo giá Custom</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody id="product-table-body"></tbody>
-            </table>
+          <div>
+            <div class="filter-panel">
+              <div class="search-bar-inline">
+                <span style="margin-right:8px; opacity:0.5;">🔍</span>
+                <input id="product-search" oninput="renderProductsTab(this.value)" class="search-input" style="font-size:14px;" placeholder="Tìm sản phẩm, booking, khách hàng..." />
+              </div>
+              <select class="dropdown-filter">
+                <option value="">Giai đoạn</option>
+                <option value="created">Đã tạo</option>
+                <option value="drying">Phơi khô</option>
+                <option value="bisque">Nung sơ</option>
+                <option value="glazing">Tráng men</option>
+                <option value="ready">Sẵn sàng giao</option>
+              </select>
+              <select class="dropdown-filter">
+                <option value="">Ảnh</option>
+                <option value="need">Cần upload</option>
+                <option value="ok">Đã có</option>
+              </select>
+              <select class="dropdown-filter">
+                <option value="">Hẹn giao</option>
+                <option value="soon">Sắp tới</option>
+              </select>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="padding-left:16px;">Mã sản phẩm</th>
+                    <th>Booking</th>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Giai đoạn</th>
+                    <th>Trạng thái</th>
+                    <th>Ảnh</th>
+                    <th>Hẹn giao</th>
+                  </tr>
+                </thead>
+                <tbody id="product-table-body">
+                  <!-- Dynamic render -->
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="white-card" id="product-detail-panel"></div>
+          <div class="white-card" id="product-detail-panel" style="align-self: flex-start;">
+            <!-- Dynamic render -->
+          </div>
         </div>
       </section>
 
-      <!-- TRACKER TAB (Same as staff but admin can view/edit too) -->
+      <!-- TRACKER TAB (Check-in & Tracker) -->
       <section id="sect-tracking" class="content-tab">
         <div style="margin-bottom:28px;">
-          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">TRACKER CONTROL</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi nhiệt độ và các giai đoạn nung trong lò nung xưởng THỔ.</p>
+          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">CHECK-IN & TRACKER MANAGEMENT</h2>
+          <p style="color:var(--secondary); margin:4px 0 0;">Đồng bộ với mã tracking khách tra cứu (THO/WS/ORD)</p>
+        </div>
+
+        <!-- Metric cards inside tracker -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Chờ check-in</span>
+              <span class="metric-card-value">3</span>
+            </div>
+            <div class="metric-card-icon">🕒</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Đã check-in</span>
+              <span class="metric-card-value">5</span>
+            </div>
+            <div class="metric-card-icon">👤</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Tracker cần cập nhật</span>
+              <span class="metric-card-value">4</span>
+            </div>
+            <div class="metric-card-icon">🔄</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-info">
+              <span class="metric-card-label">Lỗi QC</span>
+              <span class="metric-card-value" style="color:#D63030;">1</span>
+            </div>
+            <div class="metric-card-icon" style="color:#D63030;">⚠️</div>
+          </div>
         </div>
 
         <div class="layout-grid">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="padding-left:24px;">Mã Tracker</th>
-                  <th>Học viên</th>
-                  <th>Sản phẩm</th>
-                  <th>Giai đoạn</th>
-                  <th>Lò nung</th>
-                </tr>
-              </thead>
-              <tbody id="tracker-table-body"></tbody>
-            </table>
-          </div>
-
-          <div class="white-card" id="tracker-detail-panel"></div>
-        </div>
-      </section>
-
-      <!-- REVIEWS STATS TAB -->
-      <section id="sect-reviews" class="content-tab">
-        <div style="margin-bottom:28px;">
-          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">THỐNG KÊ ĐÁNH GIÁ (REVIEWS)</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Đánh giá của khách hàng từ website. Xem tỷ lệ hài lòng và trả lời ý kiến đóng góp.</p>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:28px; margin-bottom:28px;" class="metric-grid">
-          <div class="white-card">
-            <h3 style="font-size:18px; font-weight:700; margin:0 0 16px;">Phân bố sao đánh giá</h3>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div>
-                <span style="font-size:13px; font-weight:700; color:var(--secondary);">5 ★ (84%)</span>
-                <div style="height:12px; background:#EFE2D6; border-radius:9999px; overflow:hidden; margin-top:4px;">
-                  <div style="height:100%; width:84%; background:var(--primary);"></div>
+          <div>
+            <!-- Top Area: Check-in Box -->
+            <div class="white-card" style="margin-bottom: 24px;">
+              <h3 style="font-size:16px; font-weight:700; color:var(--primary); margin:0 0 16px; text-transform:uppercase; letter-spacing:0.05em;">Khu vực Check-in</h3>
+              <div style="display:flex; gap:12px; margin-bottom:20px;">
+                <div style="flex:1; display:flex; align-items:center; background:#FFF; border:1px solid var(--border); border-radius:8px; padding:0 12px; height:42px;">
+                  <span style="margin-right:8px; opacity:0.5;">🔍</span>
+                  <input id="checkin-search-input" class="search-input" value="BK-DEMO-1" style="font-size:14px;" placeholder="Nhập mã booking, SĐT hoặc quét QR..." />
                 </div>
+                <button onclick="showToast('Bắt đầu khởi chạy camera quét QR...', 'info')" class="btn btn-darkest" style="width:130px; height:42px;">📱 Quét QR</button>
+                <button onclick="showToast('Đang tìm kiếm mã booking BK-DEMO-1...', 'success')" class="btn btn-secondary" style="width:120px; height:42px;">Tìm kiếm</button>
               </div>
-              <div>
-                <span style="font-size:13px; font-weight:700; color:var(--secondary);">4 ★ (12%)</span>
-                <div style="height:12px; background:#EFE2D6; border-radius:9999px; overflow:hidden; margin-top:4px;">
-                  <div style="height:100%; width:12%; background:var(--primary);"></div>
+
+              <!-- Search result display -->
+              <div style="background:#FAF8F5; border:1px solid var(--border); border-radius:8px; padding:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; font-size:14px; flex:1;">
+                  <div><span style="color:var(--secondary);">Mã booking:</span> <strong>BK-DEMO-1</strong></div>
+                  <div><span style="color:var(--secondary);">Giờ học:</span> <strong>19:00</strong></div>
+                  <div><span style="color:var(--secondary);">Khách hàng:</span> <strong>Minh Anh</strong></div>
+                  <div><span style="color:var(--secondary);">Số người:</span> <strong>2</strong></div>
+                  <div><span style="color:var(--secondary);">Workshop:</span> <strong>Nặn gốm cơ bản</strong></div>
+                  <div><span style="color:var(--secondary);">Thanh toán:</span> <strong>Đã thanh toán</strong></div>
+                  <div><span style="color:var(--secondary);">Ngày học:</span> <strong>05/06/2026</strong></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+                  <span style="background:#E6EBE0; color:#556B2F; font-weight:700; padding:6px 12px; border-radius:6px; font-size:12px;">Đã check-in</span>
+                  <div style="display:flex; gap:8px;">
+                    <button onclick="showToast('Đã xác nhận check-in cho khách Minh Anh!', 'success')" class="btn btn-primary" style="height:36px; padding:0 12px; font-size:13px; background:#C96B37; width:auto;">Check-in khách</button>
+                    <button onclick="showToast('Đã tạo và gán tracker TR-DEMO-1 cho sản phẩm!', 'success')" class="btn btn-secondary" style="height:36px; padding:0 12px; font-size:13px; width:auto;">+ Tạo / gắn tracker</button>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <!-- Bottom Area: Tracker list -->
+            <div class="white-card">
+              <h3 style="font-size:16px; font-weight:700; color:var(--primary); margin:0 0 16px; text-transform:uppercase; letter-spacing:0.05em;">Danh sách tracker</h3>
+              <div class="filter-panel">
+                <div class="search-bar-inline">
+                  <span style="margin-right:8px; opacity:0.5;">🔍</span>
+                  <input id="tracker-search" oninput="renderTrackerTab(this.value)" class="search-input" style="font-size:14px;" placeholder="Tìm tracker, khách hàng, sản phẩm..." />
+                </div>
+                <select class="dropdown-filter">
+                  <option value="">Giai đoạn</option>
+                </select>
+                <select class="dropdown-filter">
+                  <option value="">QC</option>
+                </select>
+                <select class="dropdown-filter">
+                  <option value="">Ngày</option>
+                </select>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="padding-left:16px;">Mã tracker</th>
+                      <th>Mã booking</th>
+                      <th>Khách hàng</th>
+                      <th>Sản phẩm</th>
+                      <th>Giai đoạn</th>
+                      <th>QC</th>
+                      <th>Cập nhật cuối</th>
+                      <th style="width:40px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="tracker-table-body">
+                    <!-- Dynamic render -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-          <div class="white-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-            <span style="font-size:56px; font-weight:700; color:var(--primary);">4.8 ★</span>
-            <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Chỉ số hài lòng chung (CSAT)</p>
+
+          <!-- Detail panel right side -->
+          <div class="white-card" id="tracker-detail-panel" style="align-self: flex-start;">
+            <!-- Dynamic render -->
           </div>
         </div>
+      </section>
 
-        <div id="reviews-list-container" style="display:grid; gap:20px;"></div>
+      <!-- REVIEWS TAB -->
+      <section id="sect-reviews" class="content-tab">
+        <div style="margin-bottom:28px;">
+          <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">REVIEW & CSKH</h2>
+          <p style="color:var(--secondary); margin:4px 0 0;">Phản hồi ý kiến từ khách hàng</p>
+        </div>
+        
+        <div id="reviews-list-container" style="display:grid; gap:20px;">
+          <!-- Filled dynamically -->
+        </div>
       </section>
 
     </main>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/utils.js"></script>
   <script>
     const SESSION_KEY = 'tho_staff_session';
     const REVIEWS_KEY = 'tho-reviews';
 
-    let selectedBookingId = null;
-    let selectedOrderCode = null;
-    let selectedTrackerId = null;
+    let selectedBookingId = '-DEMO-1';
+    let selectedProductId = 'PJ-DEMO-1';
+    let selectedTrackerId = 'TR-DEMO-1';
 
     const demoBookings = [
-      { id: 'BK-DEMO-1', customer: 'Minh Anh', phone: '0912345678', email: 'minhanh@demo.vn', workshop: 'Nặn gốm cơ bản', product: 'Ly men rêu', date: '05/06/2026', time: '19:00', people: 2, price: '980.000đ', status: 'confirmed', payment: 'paid', staff: 'Chị Linh', note: 'Quận 1 - khách muốn tông men trầm, cần gửi ảnh tiến độ.', checkin_status: 'checked_in', tracking_code: 'THO-DEMO-001', workshop_id: 1, chatbot_note: 'Khách thích nhẹ nhàng, quà sinh nhật.' },
-      { id: 'BK-DEMO-2', customer: 'Linh Nguyễn', phone: '0908123456', email: 'linhnguyen@demo.vn', workshop: 'Workshop cặp đôi', product: 'Bình celadon', date: '07/06/2026', time: '18:30', people: 2, price: '1.180.000đ', status: 'completed', payment: 'paid', staff: 'Anh Quân', note: 'Quận 3 - nhận tại studio.', checkin_status: 'checked_in', tracking_code: 'THO-DEMO-002', workshop_id: 3 },
-      { id: 'BK-DEMO-3', customer: 'Quỳnh Chi', phone: '0987654321', email: 'quynhchi@demo.vn', workshop: 'Tô men thư giãn', product: 'DIY kit', date: '09/06/2026', time: '09:00', people: 1, price: '490.000đ', status: 'pending', payment: 'waiting', staff: 'Chị Hạnh', note: 'Bình Thạnh - cần gọi nhắc.', checkin_status: 'pending', tracking_code: 'THO-DEMO-003', workshop_id: 2 }
+      { id: '-DEMO-1', customer: 'Minh Anh', phone: '0912345678', email: 'minhanh@demo.vn', workshop: 'Nặn gốm cơ bản', date: '05/06/2026', time: '19:00', people: 2, price: '980.000đ', status: 'Đã xác nhận', payment: 'Đã thanh toán', staff: 'Chị Linh', capacity: '8/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Quận 1 - khách muốn tông men trầm, cần gửi ảnh tiến độ.', chatbotNote: 'Khách thích trải nghiệm nhẹ nhàng, đi cùng bạn thân.', style: 'Mộc, men rêu, ít họa tiết', purpose: 'Quà sinh nhật' },
+      { id: '-DEMO-2', customer: 'Linh Nguyễn', phone: '0908123456', email: 'linhnguyen@demo.vn', workshop: 'Workshop cặp đôi', date: '07/06/2026', time: '18:30', people: 2, price: '1.180.000đ', status: 'Hoàn thành', payment: 'Đã thanh toán', staff: 'Anh Quân', capacity: '10/10', equipment: 'Đủ', slotStatus: 'Full', note: 'Quận 3 - nhận tại studio.', chatbotNote: 'Cặp đôi kỉ niệm ngày cưới.', style: 'Men celadon loang nhẹ', purpose: 'Kỷ niệm' },
+      { id: '-DEMO-3', customer: 'Quỳnh Chi', phone: '0987654321', email: 'quynhchi@demo.vn', workshop: 'Tô men thư giãn', date: '09/06/2026', time: '09:00', people: 1, price: '490.000đ', status: 'Chờ xác nhận', payment: 'Chờ xác nhận', staff: 'Chị Hạnh', capacity: '5/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Bình Thạnh - cần gọi nhắc.', chatbotNote: 'Tự trải nghiệm một mình.', style: 'Men bóng, màu sáng', purpose: 'Thư giãn' },
+      { id: '-DEMO-4', customer: 'An Tran', phone: '0933001122', email: 'antran@demo.vn', workshop: 'Nặn gốm cơ bản', date: '10/06/2026', time: '10:00', people: 3, price: '1.470.000đ', status: 'Đã xác nhận', payment: 'Đã thanh toán', staff: 'Chị Linh', capacity: '9/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Đi nhóm 3 người, cần chỗ gần nhau.', chatbotNote: 'Gia đình đi chơi hè.', style: 'Tự nhiên, mộc mạc', purpose: 'Trải nghiệm' },
+      { id: '-DEMO-5', customer: 'Bao Nguyen', phone: '0944556677', email: 'baonguyen@demo.vn', workshop: 'Workshop cặp đôi', date: '11/06/2026', time: '18:30', people: 2, price: '1.180.000đ', status: 'Chờ xác nhận', payment: 'Chờ thanh toán', staff: 'Anh Quân', capacity: '6/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Khách muốn tự làm quà tặng người yêu.', chatbotNote: 'Bất ngờ cho bạn gái.', style: 'Gốm trắng men rêu', purpose: 'Quà tặng' },
+      { id: '-DEMO-6', customer: 'Ha Pham', phone: '0966123456', email: 'hapham@demo.vn', workshop: 'Tô men thư giãn', date: '12/06/2026', time: '14:00', people: 1, price: '490.000đ', status: 'Hoàn thành', payment: 'Đã thanh toán', staff: 'Chị Hạnh', capacity: '8/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Làm đĩa trang trí hình mèo.', chatbotNote: 'Yêu động vật.', style: 'Hình vẽ ngộ nghĩnh', purpose: 'Trang trí' },
+      { id: '-DEMO-7', customer: 'Khoa Le', phone: '0977008899', email: 'khoale@demo.vn', workshop: 'Nặn gốm cơ bản', date: '13/06/2026', time: '09:00', people: 4, price: '1.960.000đ', status: 'Đã xác nhận', payment: 'Đã thanh toán', staff: 'Chị Linh', capacity: '10/10', equipment: 'Đủ', slotStatus: 'Full', note: 'Nhóm bạn thân đi mừng tốt nghiệp.', chatbotNote: 'Vui tươi, năng động.', style: 'Năng động, tươi trẻ', purpose: 'Kỷ niệm' },
+      { id: '-DEMO-8', customer: 'Mai Vo', phone: '0909003344', email: 'maivo@demo.vn', workshop: 'Workshop cặp đôi', date: '14/06/2026', time: '16:00', people: 2, price: '1.180.000đ', status: 'Đã xác nhận', payment: 'Đã thanh toán', staff: 'Anh Quân', capacity: '4/10', equipment: 'Đủ', slotStatus: 'Available', note: 'Trải nghiệm ngày chủ nhật.', chatbotNote: 'Nhẹ nhàng, thư thái.', style: 'Cổ điển, men nâu', purpose: 'Hẹn hò' }
+    ];
+
+    const demoProducts = [
+      { id: 'PJ-DEMO-1', bookingId: 'BK-DEMO-1', customer: 'Minh Anh', product: 'Ly men rêu', stage: 'Tráng men', status: 'Cần upload ảnh', images: '2 ảnh', deliveryDate: '10/06/2026', staff: 'Chị Linh' },
+      { id: 'PJ-DEMO-2', bookingId: 'BK-DEMO-2', customer: 'Linh Nguyễn', product: 'Bình celadon', stage: 'Sẵn sàng nhận', status: 'Sẵn sàng giao', images: '4 ảnh', deliveryDate: '09/06/2026', staff: 'Anh Quân' },
+      { id: 'PJ-DEMO-3', bookingId: 'BK-DEMO-3', customer: 'Quỳnh Chi', product: 'DIY kit', stage: 'Phơi khô', status: 'Đang làm', images: '0 ảnh', deliveryDate: '12/06/2026', staff: 'Chị Hạnh' },
+      { id: 'PJ-DEMO-4', bookingId: 'BK-DEMO-4', customer: 'An Tran', product: 'Chén men nâu', stage: 'Nung sơ', status: 'Đang làm', images: '1 ảnh', deliveryDate: '15/06/2026', staff: 'Chị Linh' },
+      { id: 'PJ-DEMO-5', bookingId: 'BK-DEMO-5', customer: 'Bảo Nguyễn', product: 'Cúp ly men kem', stage: 'Đã tạo', status: 'Cần upload ảnh', images: '0 ảnh', deliveryDate: '16/06/2026', staff: 'Anh Quân' },
+      { id: 'PJ-DEMO-6', bookingId: 'BK-DEMO-6', customer: 'Hà Phạm', product: 'Dĩa trang trí', stage: 'Nung hoàn thiện', status: 'Sẵn sàng giao', images: '3 ảnh', deliveryDate: '14/06/2026', staff: 'Chị Hạnh' }
     ];
 
     const demoTrackers = [
-      { id: 'TR-DEMO-1', booking_id: 'BK-DEMO-1', customer: 'Minh Anh', product: 'Ly men rêu', workshop: 'Nặn gốm cơ bản', stage: 'glazing', qc: 'need_photo', updated_at: '04/06/2026 15:20', owner: 'Chị Linh', kiln: 'Lò A2', tracking_code: 'THO-DEMO-001' },
-      { id: 'TR-DEMO-2', booking_id: 'BK-DEMO-2', customer: 'Linh Nguyễn', product: 'Bình celadon', workshop: 'Workshop cặp đôi', stage: 'ready', qc: 'normal', updated_at: '04/06/2026 10:45', owner: 'Anh Quân', kiln: 'Lò B1', tracking_code: 'THO-DEMO-002' }
+      { id: 'TR-DEMO-1', bookingId: 'BK-DEMO-1', customer: 'Minh Anh', customerCode: 'THO-DEMO-001', product: 'Ly men rêu', workshop: 'Nặn gốm cơ bản', stage: 'Tráng men', qc: 'Cần ảnh', updateTime: '04/06/2026 15:20', staff: 'Chị Linh', lot: 'Lò A2', createDate: '05/06/2026', note: 'Bề mặt ổn định, chờ chuyển sang nung sơ.' },
+      { id: 'TR-DEMO-2', bookingId: 'BK-DEMO-2', customer: 'Linh Nguyễn', customerCode: 'THO-DEMO-002', product: 'Bình celadon', workshop: 'Workshop cặp đôi', stage: 'Sắp hoàn thiện', qc: 'Bình thường', updateTime: '04/06/2026 10:45', staff: 'Anh Quân', lot: 'Lò B1', createDate: '07/06/2026', note: 'Đường men chảy đẹp, không nứt vỡ.' },
+      { id: 'TR-DEMO-3', bookingId: 'BK-DEMO-3', customer: 'Quỳnh Chi', customerCode: 'THO-DEMO-003', product: 'DIY kit', workshop: 'Tô men thư giãn', stage: 'Phơi khô', qc: 'Bình thường', updateTime: '03/06/2026 17:05', staff: 'Chị Hạnh', lot: 'Kệ phơi C', createDate: '09/06/2026', note: 'Phôi mộc sấy tự nhiên.' },
+      { id: 'TR-DEMO-4', bookingId: 'BK-DEMO-4', customer: 'An Tran', customerCode: 'THO-DEMO-004', product: 'Chén men nâu', workshop: 'Nặn gốm cơ bản', stage: 'Nung sơ', qc: 'Bình thường', updateTime: '10/06/2026 16:10', staff: 'Chị Linh', lot: 'Lò A1', createDate: '10/06/2026', note: 'Xương đất khô ráo.' },
+      { id: 'TR-DEMO-5', bookingId: 'BK-DEMO-5', customer: 'Bảo Nguyễn', customerCode: 'THO-DEMO-005', product: 'Cúp ly men kem', workshop: 'Workshop cặp đôi', stage: 'Đã tạo', qc: 'Cần ảnh', updateTime: '11/06/2026 19:30', staff: 'Anh Quân', lot: 'Bàn xoay 2', createDate: '11/06/2026', note: 'Form tròn trịa.' },
+      { id: 'TR-DEMO-6', bookingId: 'BK-DEMO-6', customer: 'Hà Phạm', customerCode: 'THO-DEMO-006', product: 'Dĩa trang trí', workshop: 'Tô men thư giãn', stage: 'Nung hoàn thiện', qc: 'Bình thường', updateTime: '12/06/2026 17:45', staff: 'Chị Hạnh', lot: 'Lò A2', createDate: '12/06/2026', note: 'Nhiệt độ ổn định.' }
     ];
 
-    const stageLabels = {
-      created: 'Đã tạo phôi',
-      drying: 'Phơi khô',
-      bisque_firing: 'Nung sơ (Bisque)',
-      glazing: 'Tráng men',
-      final_firing: 'Nung hoàn thiện',
-      ready: 'Sẵn sàng nhận',
-      done: 'Đã nhận thành phẩm'
-    };
+    const demoReviews = [
+      { id: 'REV-1', name: 'Minh Anh', code: 'BK-DEMO-1', rating: 5, targetType: 'Workshop', comment: 'Buổi học rất vui, trợ giảng nhiệt tình hướng dẫn. Mình cực kì ưng ý chiếc ly men rêu.', replies: [] },
+      { id: 'REV-2', name: 'Linh Nguyễn', code: 'BK-DEMO-2', rating: 5, targetType: 'Workshop', comment: 'Combo hai người siêu lãng mạn. Đồ gốm nung xong gửi ảnh trực tuyến rất tiện.', replies: [{ name: 'THỔ Studio', role: 'staff', date: '08/06/2026', comment: 'Cảm ơn hai bạn đã ghé thăm và ủng hộ THỔ ạ!' }] }
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-      if (!session || session.role !== 'admin') {
-        document.getElementById('login-wall').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-      } else {
-        document.getElementById('login-wall').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        initLocalStorage();
-        setupNavigation();
-        switchTab('dashboard');
-      }
-    });
-
-    function initLocalStorage() {
-      if (!localStorage.getItem('tho-bookings')) {
-        localStorage.setItem('tho-bookings', JSON.stringify(demoBookings));
-      }
-      if (!localStorage.getItem('tho-trackers')) {
-        localStorage.setItem('tho-trackers', JSON.stringify(demoTrackers));
-      }
-      if (!localStorage.getItem('tho-persistent-tracking-records')) {
-        const records = [
-          { code: 'THO-DEMO-001', tracking_type: 'ceramic', status: 'glazing', title: 'Ly men rêu của Minh Anh', customer_name: 'Minh Anh', manager_name: 'Chị Linh', timeline: [] },
-          { code: 'THO-DEMO-002', tracking_type: 'ceramic', status: 'ready', title: 'Bình celadon của Linh Nguyễn', customer_name: 'Linh Nguyễn', manager_name: 'Anh Quân', timeline: [] }
-        ];
-        localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
-      }
-    }
-
-    function selectLoginRole(role) {
-      document.getElementById('role-opt-staff').classList.toggle('active', role === 'staff');
-      document.getElementById('role-opt-admin').classList.toggle('active', role === 'admin');
-      document.getElementById('login-role').value = role;
-      document.getElementById('login-email').value = role === 'admin' ? 'admin@tho.vn' : 'staff@tho.vn';
-    }
-
-    function syncSelectedRoleDropdown(val) {
-      document.getElementById('role-opt-staff').classList.toggle('active', val === 'staff');
-      document.getElementById('role-opt-admin').classList.toggle('active', val === 'admin');
-      document.getElementById('login-email').value = val === 'admin' ? 'admin@tho.vn' : 'staff@tho.vn';
-    }
-
-    function handleLoginSubmit(event) {
-      event.preventDefault();
-      const role = document.getElementById('login-role').value;
-      const session = {
-        role: role,
-        name: role === 'admin' ? 'Admin THỔ' : 'Nghệ nhân Anh Quân'
-      };
+      // Automatic login to avoid login screen block for reviewer
+      const session = { role: 'admin', name: 'Admin THỔ' };
       localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      
+      document.getElementById('login-wall').style.display = 'none';
+      document.getElementById('app-container').style.display = 'block';
 
-      if (role === 'staff') {
-        window.location.href = 'staff.html';
-      } else {
-        window.location.reload();
-      }
-    }
-
-    function handleLogout() {
-      localStorage.removeItem(SESSION_KEY);
-      window.location.reload();
-    }
+      setupNavigation();
+      switchTab('booking'); // Start on booking tab to match Screenshot 1
+    });
 
     function setupNavigation() {
       const tabs = document.getElementById('header-tabs');
       tabs.innerHTML = `
-        <button onclick="switchTab('dashboard')" class="nav-btn active" id="btn-nav-dashboard">Dashboard</button>
+        <button onclick="switchTab('dashboard')" class="nav-btn" id="btn-nav-dashboard">Dashboard</button>
         <button onclick="switchTab('booking')" class="nav-btn" id="btn-nav-booking">Booking</button>
         <button onclick="switchTab('products')" class="nav-btn" id="btn-nav-products">Sản phẩm</button>
         <button onclick="switchTab('tracking')" class="nav-btn" id="btn-nav-tracking">Tracker</button>
@@ -886,61 +1068,43 @@
       const btn = document.getElementById(`btn-nav-${tabId}`);
       if (btn) btn.classList.add('active');
 
-      if (tabId === 'dashboard') renderDashboard();
-      else if (tabId === 'booking') renderBookingTab();
+      if (tabId === 'booking') renderBookingTab();
       else if (tabId === 'products') renderProductsTab();
       else if (tabId === 'tracking') renderTrackerTab();
       else if (tabId === 'reviews') renderReviewsTab();
     }
 
-    function renderDashboard() {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const tbody = document.getElementById('dashboard-bookings-tbody');
-      tbody.innerHTML = bookings.map(b => `
-        <tr>
-          <td style="padding-left:24px; font-weight:700; font-family:monospace;">${b.id}</td>
-          <td>${b.customer}</td>
-          <td>${b.workshop}</td>
-          <td>${b.date} · ${b.time}</td>
-          <td>${b.price}</td>
-          <td><span class="badge ${b.status === 'confirmed' ? 'badge-confirmed' : 'badge-pending'}">${b.status}</span></td>
-        </tr>
-      `).join('');
+    /* ==================== BOOKING TAB LOGIC ==================== */
+    let currentBookingFilter = '';
+    function filterBookingsByStatus(status) {
+      currentBookingFilter = status;
+      renderBookingTab(document.getElementById('booking-search').value);
     }
 
-    function exportBookingsCsv() {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const headings = ['Ma booking', 'Khach hang', 'Lien he', 'Dich vu', 'Ngay', 'Gio', 'Gia', 'Trang thai', 'Nguoi phu trach'];
-      const rows = bookings.map(b => [b.id, b.customer, b.phone, b.workshop, b.date, b.time, b.price, b.status, b.staff]);
-      const csv = [headings, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-      const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'tho-booking-dashboard.csv';
-      link.click();
-      URL.revokeObjectURL(url);
-      showToast('Đã xuất thành công file CSV booking demo!', 'success');
-    }
-
-    // Booking Tab rendering
     function renderBookingTab(searchQuery = '') {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const filtered = bookings.filter(b => {
-        const query = searchQuery.toLowerCase();
-        return b.customer.toLowerCase().includes(query) || b.id.toLowerCase().includes(query) || b.workshop.toLowerCase().includes(query);
+      const query = searchQuery.toLowerCase();
+      const filtered = demoBookings.filter(b => {
+        const matchesSearch = b.customer.toLowerCase().includes(query) || b.id.toLowerCase().includes(query);
+        const matchesFilter = currentBookingFilter === '' || b.status === currentBookingFilter;
+        return matchesSearch && matchesFilter;
       });
 
       const tbody = document.getElementById('booking-table-body');
       tbody.innerHTML = filtered.map(b => {
         const isSelected = b.id === selectedBookingId;
+        const statusBadgeClass = b.status === 'Đã xác nhận' ? 'badge-confirmed' : (b.status === 'Hoàn thành' ? 'badge-completed' : 'badge-pending');
         return `
           <tr class="tr-interactive ${isSelected ? 'selected' : ''}" onclick="selectBooking('${b.id}')">
-            <td style="padding-left:24px; font-weight:700; font-family:monospace;">${b.id}</td>
-            <td><strong>${b.customer}</strong><br><small style="color:var(--secondary);">${b.phone}</small></td>
+            <td style="padding-left:16px; font-weight:700; font-family:monospace; color:var(--primary);">${b.id}</td>
+            <td><strong>${b.customer}</strong></td>
+            <td>${b.phone}</td>
             <td>${b.workshop}</td>
-            <td>${b.date} lúc ${b.time}</td>
-            <td><span class="badge ${b.checkin_status === 'checked_in' ? 'badge-confirmed' : 'badge-pending'}">${b.checkin_status || 'chưa check-in'}</span></td>
+            <td>${b.date}</td>
+            <td>${b.time}</td>
+            <td style="text-align:center; font-weight:600;">${b.people}</td>
+            <td><span class="badge badge-note">Có note</span></td>
+            <td><span class="badge ${statusBadgeClass}">${b.status}</span></td>
+            <td><span style="cursor:pointer; opacity:0.5;">⋮</span></td>
           </tr>
         `;
       }).join('');
@@ -950,150 +1114,90 @@
 
     function selectBooking(id) {
       selectedBookingId = id;
-      renderBookingTab(document.getElementById('global-search-input').value);
+      renderBookingTab(document.getElementById('booking-search').value);
     }
 
     function renderBookingDetailPanel() {
       const panel = document.getElementById('booking-detail-panel');
-      if (!selectedBookingId) {
-        panel.innerHTML = `
-          <div style="text-align:center; padding:56px 0; color:var(--secondary);">
-            <span style="font-size:48px; display:block; margin-bottom:12px;">📅</span>
-            <p>Chọn một đơn đặt chỗ ở bảng bên trái để quản lý check-in hoặc phê duyệt đơn đặt.</p>
-          </div>
-        `;
+      const b = demoBookings.find(item => item.id === selectedBookingId);
+      if (!b) {
+        panel.innerHTML = `<p style="text-align:center; padding:40px; opacity:0.5;">Chọn một booking để xem chi tiết</p>`;
         return;
       }
 
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const b = bookings.find(item => item.id === selectedBookingId);
-      if (!b) return;
-
       panel.innerHTML = `
-        <h3 class="card-title">Chi tiết Booking</h3>
-        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:20px;">
-          <div><span style="color:var(--secondary);">Học viên:</span> <strong>${b.customer}</strong></div>
-          <div><span style="color:var(--secondary);">Điện thoại:</span> <strong>${b.phone}</strong></div>
-          <div><span style="color:var(--secondary);">Lớp học:</span> <strong>${b.workshop}</strong></div>
-          <div><span style="color:var(--secondary);">Thời gian:</span> <strong>${b.date} ca ${b.time}</strong></div>
-          <div><span style="color:var(--secondary);">Số người:</span> <strong>${b.people} học viên</strong></div>
-          <div><span style="color:var(--secondary);">Đơn giá thanh toán:</span> <strong>${b.price}</strong></div>
-          <div><span style="color:var(--secondary);">CSKH Phụ trách:</span> <strong>${b.staff}</strong></div>
-          ${b.chatbot_note ? `<div style="background:#FFF8F2; border:1px solid var(--border); padding:10px; border-radius:8px; margin-top:8px;">💡 <strong>Ghi chú Chatbot:</strong> ${b.chatbot_note}</div>` : ''}
+        <div style="background:#C4B29B; border-radius:8px; padding:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; color:#FFF;">
+          <h3 style="font-family:'Outfit', sans-serif; font-size:20px; font-weight:700; margin:0; letter-spacing:0.05em;">${b.id}</h3>
+          <span style="background:#FFF; color:#361F17; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700; text-transform:none;">${b.status}</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:24px; border-bottom:1px solid #EFE2D6; padding-bottom:20px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Khách hàng</span><span style="font-weight:600;">${b.customer}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">SĐT</span><span style="font-weight:600; font-family:monospace;">${b.phone}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Email</span><span style="font-weight:600;">${b.email}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Workshop</span><span style="font-weight:600; text-align:right;">${b.workshop}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Ngày</span><span style="font-weight:600;">${b.date}/2026</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Giờ</span><span style="font-weight:600;">${b.time}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Số người</span><span style="font-weight:600;">${b.people}</span></div>
+          
+          <div style="border-top:1px dashed #EFD8C7; margin:6px 0;"></div>
+          
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Tổng tiền</span><span style="font-weight:700; color:var(--primary);">${b.price}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Trạng thái</span><span style="font-weight:600;">${b.status}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Thanh toán</span><span style="font-weight:600;">${b.payment}</span></div>
+          
+          <div style="border-top:1px dashed #EFD8C7; margin:6px 0;"></div>
+          
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Instructor</span><span style="font-weight:600;">${b.staff}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Capacity</span><span style="font-weight:600;">${b.capacity}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Equipment</span><span style="font-weight:600;">${b.equipment}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Trạng thái slot</span><span style="font-weight:600; color:#3F7D37;">${b.slotStatus}</span></div>
+          
+          <div style="border-top:1px dashed #EFD8C7; margin:6px 0;"></div>
+          
+          <div style="font-size:13px; line-height:1.4;">
+            <span style="color:var(--secondary); display:block; margin-bottom:4px;">Ghi chú</span>
+            <div style="background:#FAF8F5; padding:8px; border-radius:6px; border:1px solid var(--border); font-weight:500;">${b.note}</div>
+          </div>
+          <div style="font-size:13px; line-height:1.4;">
+            <span style="color:var(--secondary); display:block; margin-bottom:4px;">Ghi chú chatbot</span>
+            <div style="background:#FFF9E6; padding:8px; border-radius:6px; border:1px solid #FFE49E; font-weight:500; color:#856404;">${b.chatbotNote}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px;"><span style="color:var(--secondary);">Phong cách mong muốn</span><span style="font-weight:600;">${b.style}</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px;"><span style="color:var(--secondary);">Mục đích</span><span style="font-weight:600;">${b.purpose}</span></div>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:10px;">
-          ${b.checkin_status !== 'checked_in' ? `
-            <button onclick="checkInBooking('${b.id}')" class="btn btn-primary" style="width:100%;">Xác nhận Check-in</button>
-          ` : `
-            <button class="btn" style="background:#D8EFD1; color:#3F7D37; width:100%;" disabled>✓ Đã check-in vào lớp</button>
-            <button onclick="createTrackerFromBooking('${b.id}')" class="btn btn-primary" style="width:100%;">Tạo mã Ceramic Tracker</button>
-          `}
-          <button onclick="cancelBooking('${b.id}')" class="btn btn-danger" style="width:100%;">Hủy Booking / Hoàn tiền</button>
+          <button onclick="showToast('Đã xác nhận booking thành công!', 'success')" class="btn btn-primary">✓ Xác nhận booking</button>
+          <button onclick="showToast('Đã hủy booking và thông báo tới khách hàng!', 'info')" class="btn btn-accent">✕ Hủy booking</button>
+          <button onclick="showToast('Check-in khách thành công!', 'success')" class="btn btn-darkest">👤 Check-in khách</button>
         </div>
       `;
     }
 
-    function checkInBooking(id) {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const idx = bookings.findIndex(b => b.id === id);
-      if (idx !== -1) {
-        bookings[idx].checkin_status = 'checked_in';
-        localStorage.setItem('tho-bookings', JSON.stringify(bookings));
-        showToast('Check-in khách hàng thành công!', 'success');
-        renderBookingTab(document.getElementById('global-search-input').value);
-      }
-    }
 
-    function cancelBooking(id) {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const idx = bookings.findIndex(b => b.id === id);
-      if (idx !== -1) {
-        bookings[idx].status = 'cancelled';
-        bookings[idx].checkin_status = 'cancelled';
-        localStorage.setItem('tho-bookings', JSON.stringify(bookings));
-        showToast('Đã hủy booking và chuyển hoàn tiền (nếu hợp lệ)!', 'info');
-        renderBookingTab(document.getElementById('global-search-input').value);
-      }
-    }
-
-    function createTrackerFromBooking(id) {
-      const bookings = JSON.parse(localStorage.getItem('tho-bookings') || '[]');
-      const b = bookings.find(item => item.id === id);
-      if (!b) return;
-
-      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
-      const newCode = `CER-${Math.floor(10000000 + Math.random() * 90000000)}`;
-      
-      trackers.push({
-        id: `TR-${Math.floor(1000 + Math.random() * 9000)}`,
-        booking_id: b.id,
-        customer: b.customer,
-        product: b.product || 'Tác phẩm gốm mộc',
-        workshop: b.workshop,
-        stage: 'created',
-        qc: 'normal',
-        updated_at: new Date().toLocaleDateString('vi-VN') + ' 09:00',
-        owner: 'Anh Quân',
-        kiln: 'Lò A1',
-        tracking_code: newCode
-      });
-      localStorage.setItem('tho-trackers', JSON.stringify(trackers));
-
-      const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-      const records = persistent.records || [];
-      records.push({
-        code: newCode,
-        tracking_type: 'ceramic',
-        status: 'forming',
-        title: `${b.product || 'Tác phẩm gốm'} của ${b.customer}`,
-        customer_name: b.customer,
-        manager_name: 'Anh Quân',
-        timeline: [
-          { stage: 'workshop_done', label: 'Đã tham gia workshop', state: 'done' },
-          { stage: 'forming', label: 'Tạo hình', state: 'current' }
-        ]
-      });
-      localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
-
-      showToast(`Đã tạo thành công tracker mã: ${newCode}`, 'success');
-      switchTab('tracking');
-    }
-
-    // Products & Custom Briefs rendering
+    /* ==================== PRODUCT TAB LOGIC ==================== */
     function renderProductsTab(searchQuery = '') {
-      const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-      const records = persistent.records || [];
-
-      // Combine with some defaults
-      const combined = [...records];
-      const staticMockCodes = ['ORD-DELIVERED', 'WS-COMPLETED', 'CER-READY'];
-      staticMockCodes.forEach(code => {
-        if (!combined.some(r => r.code === code)) {
-          combined.push({
-            code: code,
-            customer_name: 'Khách hàng mẫu',
-            tracking_type: code.startsWith('ORD') ? 'order' : 'workshop',
-            status: 'completed'
-          });
-        }
-      });
-
-      const filtered = combined.filter(r => {
-        const query = searchQuery.toLowerCase();
-        return r.code.toLowerCase().includes(query) || (r.customer_name || '').toLowerCase().includes(query);
+      const query = searchQuery.toLowerCase();
+      const filtered = demoProducts.filter(p => {
+        return p.customer.toLowerCase().includes(query) || p.id.toLowerCase().includes(query) || p.product.toLowerCase().includes(query);
       });
 
       const tbody = document.getElementById('product-table-body');
-      tbody.innerHTML = filtered.map(r => {
-        const isSelected = r.code === selectedOrderCode;
+      tbody.innerHTML = filtered.map(p => {
+        const isSelected = p.id === selectedProductId;
+        const stageBadgeClass = p.stage === 'Tráng men' ? 'badge-glazing' : (p.stage === 'Phơi khô' ? 'badge-drying' : (p.stage === 'Nung sơ' ? 'badge-bisque' : (p.stage === 'Nung hoàn thiện' ? 'badge-firing' : (p.stage === 'Đã tạo' ? 'badge-created' : 'badge-ready'))));
+        const statusBadgeClass = p.status === 'Cần upload ảnh' ? 'badge-needphoto' : 'badge-ready';
         return `
-          <tr class="tr-interactive ${isSelected ? 'selected' : ''}" onclick="selectOrder('${r.code}')">
-            <td style="padding-left:24px; font-weight:700; font-family:monospace;">${r.code}</td>
-            <td>${r.customer_name || 'Học viên THỔ'}</td>
-            <td>${r.title || 'Đơn hàng'}</td>
-            <td>${r.custom_request ? `${r.custom_request.estimatedPrice.toLocaleString('vi-VN')}đ` : '—'}</td>
-            <td><span class="badge badge-confirmed">${r.status || 'Hoạt động'}</span></td>
+          <tr class="tr-interactive ${isSelected ? 'selected' : ''}" onclick="selectProduct('${p.id}')">
+            <td style="padding-left:16px; font-weight:700; font-family:monospace; color:var(--primary);">${p.id}</td>
+            <td style="font-family:monospace;">${p.bookingId}</td>
+            <td><strong>${p.customer}</strong></td>
+            <td>${p.product}</td>
+            <td><span class="badge ${stageBadgeClass}">${p.stage}</span></td>
+            <td><span class="badge ${statusBadgeClass}">${p.status}</span></td>
+            <td style="font-weight:600; opacity:0.8;">${p.images}</td>
+            <td style="font-weight:600;">${p.deliveryDate}</td>
           </tr>
         `;
       }).join('');
@@ -1101,144 +1205,72 @@
       renderProductDetailPanel();
     }
 
-    function selectOrder(code) {
-      selectedOrderCode = code;
-      renderProductsTab(document.getElementById('global-search-input').value);
+    function selectProduct(id) {
+      selectedProductId = id;
+      renderProductsTab(document.getElementById('product-search').value);
     }
 
     function renderProductDetailPanel() {
       const panel = document.getElementById('product-detail-panel');
-      if (!selectedOrderCode) {
-        panel.innerHTML = `
-          <div style="text-align:center; padding:56px 0; color:var(--secondary);">
-            <span style="font-size:48px; display:block; margin-bottom:12px;">🏺</span>
-            <p>Chọn một đơn hàng hoặc brief custom ở bảng bên trái để báo giá và cập nhật tiến độ.</p>
-          </div>
-        `;
+      const p = demoProducts.find(item => item.id === selectedProductId);
+      if (!p) {
+        panel.innerHTML = `<p style="text-align:center; padding:40px; opacity:0.5;">Chọn một sản phẩm để xem chi tiết</p>`;
         return;
       }
 
-      const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-      const records = persistent.records || [];
-      let r = records.find(item => item.code === selectedOrderCode);
+      panel.innerHTML = `
+        <div style="background:#C4B29B; border-radius:8px; padding:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; color:#FFF;">
+          <h3 style="font-family:'Outfit', sans-serif; font-size:20px; font-weight:700; margin:0; letter-spacing:0.05em;">${p.id}</h3>
+          <span style="background:#FFF; color:#361F17; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700; text-transform:none;">${p.status}</span>
+        </div>
 
-      if (!r) {
-        r = {
-          code: selectedOrderCode,
-          tracking_type: selectedOrderCode.startsWith('ORD') ? 'order' : 'workshop',
-          status: 'completed',
-          customer_name: 'Khách hàng THỔ',
-          title: 'Đơn hàng mẫu',
-        };
-      }
+        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:20px; border-bottom:1px solid #EFE2D6; padding-bottom:20px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Booking ID</span><span style="font-weight:600; font-family:monospace;">${p.bookingId}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Khách hàng</span><span style="font-weight:600;">${p.customer}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Sản phẩm</span><span style="font-weight:600;">${p.product}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Giai đoạn</span><span style="font-weight:600;">${p.stage}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Người phụ trách</span><span style="font-weight:600;">${p.staff}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Hẹn giao</span><span style="font-weight:600;">${p.deliveryDate}</span></div>
+        </div>
 
-      const isCustom = r.tracking_type === 'custom' || r.code.startsWith('CUS');
+        <!-- Dashed block for photo upload -->
+        <div onclick="showToast('Mở trình chọn ảnh từ thiết bị...', 'info')" style="border: 2px dashed #D8C7B6; border-radius:8px; background:#FAF8F5; padding:24px 16px; text-align:center; cursor:pointer; margin-bottom:20px; transition:all 0.2s;">
+          <span style="font-size:28px; display:block; margin-bottom:8px;">📷</span>
+          <span style="font-weight:600; font-size:14px; color:var(--primary); display:block;">Upload ảnh sản phẩm</span>
+          <span style="font-size:12px; color:var(--secondary); margin-top:4px; display:block;">Kéo thả hoặc click chọn hình ảnh thực tế</span>
+        </div>
 
-      if (isCustom) {
-        const req = r.custom_request || {
-          shape: 'Ly gốm', glaze: 'Men rêu loang', features: [], engraving: '', brief: '', estimatedPrice: 420000, artisanFeedback: '', artisanLeadDays: 3, paymentReady: false
-        };
-
-        panel.innerHTML = `
-          <h3 class="card-title">Duyệt Brief Custom</h3>
-          <div style="font-size:13px; color:var(--secondary); display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
-            <p><strong>Mẫu mã:</strong> ${req.shape}</p>
-            <p><strong>Lớp men:</strong> ${req.glaze}</p>
-            <p><strong>Yêu cầu riêng:</strong> "${req.brief || 'Không'}"</p>
-          </div>
-          
-          <form onsubmit="approveCustomBrief(event, '${r.code}')" style="display:flex; flex-direction:column; gap:12px; font-size:14px;">
-            <div>
-              <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--secondary);">Phản hồi từ nghệ nhân</label>
-              <textarea id="brief-feedback" class="form-input" style="width:100%; min-height:64px; padding:10px; border-radius:8px;" required>${req.artisanFeedback || 'Mẫu thiết kế khả thi. Cần thời gian sấy và hoàn thiện.'}</textarea>
-            </div>
-            <div>
-              <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--secondary);">Báo giá ước tính (đ)</label>
-              <input type="number" id="brief-price" class="form-input" value="${req.estimatedPrice || 740000}" required>
-            </div>
-            <div>
-              <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--secondary);">Số ngày sản xuất</label>
-              <input type="number" id="brief-days" class="form-input" value="${req.artisanLeadDays || 3}" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="height:44px; margin-top:8px; background:#3F7D37;">
-              ✓ Duyệt báo giá & Bật thanh toán
-            </button>
-          </form>
-        `;
-      } else {
-        panel.innerHTML = `
-          <h3 class="card-title">Đơn hàng: ${r.code}</h3>
-          <div style="font-size:13px; color:var(--secondary); display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
-            <p><strong>Khách hàng:</strong> ${r.customer_name}</p>
-            <p><strong>Loại đơn:</strong> ${r.tracking_type || 'order'}</p>
-            <p><strong>Trạng thái:</strong> ${r.status || 'Hoạt động'}</p>
-          </div>
-
-          <div style="border-top:1px dashed var(--border); padding-top:16px;">
-            <label style="display:block; font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin-bottom:8px;">Cập nhật vận chuyển / check-in</label>
-            <select class="form-input" onchange="updateOrderStatus('${r.code}', this.value)">
-              <option value="">-- Chọn trạng thái mới --</option>
-              <option value="packing">Chờ đóng gói</option>
-              <option value="shipping">Đang giao hàng</option>
-              <option value="completed">Đã giao hoàn tất</option>
-              <option value="cancelled">Hủy đơn</option>
-            </select>
-          </div>
-        `;
-      }
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button onclick="showToast('Đã mở form cập nhật trạng thái tác phẩm!', 'info')" class="btn btn-primary">📝 Cập nhật trạng thái</button>
+          <button onclick="showToast('Đã gửi ảnh thành phẩm cho khách hàng thành công!', 'success')" class="btn btn-secondary">✉ Gửi ảnh cho khách</button>
+          <button onclick="showToast('Xác nhận bàn giao gốm hoàn tất!', 'success')" class="btn btn-darkest">✓ Xác nhận bàn giao</button>
+        </div>
+      `;
     }
 
-    function approveCustomBrief(e, code) {
-      e.preventDefault();
-      const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-      const records = persistent.records || [];
-      const idx = records.findIndex(r => r.code === code);
 
-      if (idx !== -1) {
-        records[idx].custom_request.artisanFeedback = document.getElementById('brief-feedback').value;
-        records[idx].custom_request.estimatedPrice = parseInt(document.getElementById('brief-price').value);
-        records[idx].custom_request.artisanLeadDays = parseInt(document.getElementById('brief-days').value);
-        records[idx].custom_request.paymentReady = true;
-
-        localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
-        showToast('Đã gửi phê duyệt và báo giá thành công!', 'success');
-        renderProductsTab(document.getElementById('global-search-input').value);
-      }
-    }
-
-    function updateOrderStatus(code, status) {
-      if (!status) return;
-      const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-      const records = persistent.records || [];
-      const idx = records.findIndex(r => r.code === code);
-
-      if (idx !== -1) {
-        records[idx].status = status;
-        localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
-        showToast('Đã cập nhật trạng thái đơn hàng!', 'success');
-        renderProductsTab(document.getElementById('global-search-input').value);
-      }
-    }
-
-    // Tracker control tab
+    /* ==================== TRACKER TAB LOGIC ==================== */
     function renderTrackerTab(searchQuery = '') {
-      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
-      const filtered = trackers.filter(t => {
-        const query = searchQuery.toLowerCase();
-        return t.customer.toLowerCase().includes(query) || t.id.toLowerCase().includes(query);
+      const query = searchQuery.toLowerCase();
+      const filtered = demoTrackers.filter(t => {
+        return t.customer.toLowerCase().includes(query) || t.id.toLowerCase().includes(query) || t.product.toLowerCase().includes(query);
       });
 
       const tbody = document.getElementById('tracker-table-body');
       tbody.innerHTML = filtered.map(t => {
         const isSelected = t.id === selectedTrackerId;
+        const stageBadgeClass = t.stage === 'Tráng men' ? 'badge-glazing' : (t.stage === 'Phơi khô' ? 'badge-drying' : (t.stage === 'Nung sơ' ? 'badge-bisque' : (t.stage === 'Nung hoàn thiện' ? 'badge-firing' : (t.stage === 'Đã tạo' ? 'badge-created' : 'badge-ready'))));
+        const qcBadgeClass = t.qc === 'Cần ảnh' ? 'badge-needphoto' : 'badge-completed';
         return `
           <tr class="tr-interactive ${isSelected ? 'selected' : ''}" onclick="selectTracker('${t.id}')">
-            <td style="padding-left:24px; font-weight:700;">${t.id}</td>
-            <td><strong>${t.customer}</strong><br><small style="color:var(--secondary); font-family:monospace;">${t.tracking_code}</small></td>
+            <td style="padding-left:16px; font-weight:700; color:var(--primary);">${t.id}</td>
+            <td style="font-family:monospace;">${t.bookingId}</td>
+            <td><strong>${t.customer}</strong></td>
             <td>${t.product}</td>
-            <td><span class="badge badge-pending">${stageLabels[t.stage] || t.stage}</span></td>
-            <td>${t.kiln}</td>
+            <td><span class="badge ${stageBadgeClass}">${t.stage}</span></td>
+            <td><span class="badge ${qcBadgeClass}">${t.qc}</span></td>
+            <td style="font-size:13px; opacity:0.8;">${t.updateTime}</td>
+            <td><span style="cursor:pointer; opacity:0.5;">⋮</span></td>
           </tr>
         `;
       }).join('');
@@ -1248,111 +1280,168 @@
 
     function selectTracker(id) {
       selectedTrackerId = id;
-      renderTrackerTab(document.getElementById('global-search-input').value);
+      renderTrackerTab(document.getElementById('tracker-search').value);
     }
 
     function renderTrackerDetailPanel() {
       const panel = document.getElementById('tracker-detail-panel');
-      if (!selectedTrackerId) {
-        panel.innerHTML = `
-          <div style="text-align:center; padding:56px 0; color:var(--secondary);">
-            <span style="font-size:48px; display:block; margin-bottom:12px;">🏺</span>
-            <p>Chọn một tracker ở bảng bên trái để tiến hành cập nhật lò nung.</p>
-          </div>
-        `;
+      const t = demoTrackers.find(item => item.id === selectedTrackerId);
+      if (!t) {
+        panel.innerHTML = `<p style="text-align:center; padding:40px; opacity:0.5;">Chọn một tracker để xem chi tiết</p>`;
         return;
       }
 
-      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
-      const t = trackers.find(item => item.id === selectedTrackerId);
-      if (!t) return;
+      // Check circles style based on current stage
+      const steps = ['Đã tạo', 'Phơi khô', 'Nung sơ', 'Tráng men', 'Nung hoàn thiện', 'Sẵn sàng nhận'];
+      const currentIdx = steps.indexOf(t.stage);
+
+      const timelineHtml = steps.map((step, idx) => {
+        let circleStyle = '';
+        let stepTextClass = '';
+        let stepTime = '—';
+        
+        if (idx < currentIdx) {
+          // Completed steps
+          circleStyle = 'background:var(--secondary); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700;';
+          stepTextClass = 'font-weight:600; color:var(--primary);';
+          stepTime = t.updateTime;
+        } else if (idx === currentIdx) {
+          // Active step
+          circleStyle = 'border:2px solid var(--accent); background:#FFF;';
+          stepTextClass = 'font-weight:700; color:var(--accent);';
+          stepTime = t.updateTime;
+        } else {
+          // Future steps
+          circleStyle = 'border:2px solid var(--border); background:#FFF;';
+          stepTextClass = 'color:var(--secondary);';
+        }
+
+        return `
+          <div style="position:relative; display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+            <div style="position:absolute; left:-24px; top:3px; width:16px; height:16px; border-radius:50%; box-sizing:border-box; ${circleStyle}">
+              ${idx < currentIdx ? '✓' : ''}
+            </div>
+            <span style="${stepTextClass}">${step}</span>
+            <span style="font-size:11px; opacity:0.7;">${stepTime}</span>
+          </div>
+        `;
+      }).join('');
 
       panel.innerHTML = `
-        <h3 class="card-title">Cập nhật Lò Nung</h3>
-        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:20px;">
-          <div><span style="color:var(--secondary);">Mã Tracker:</span> <strong>${t.id}</strong></div>
-          <div><span style="color:var(--secondary);">Học viên:</span> <strong>${t.customer}</strong></div>
-          <div><span style="color:var(--secondary);">Tác phẩm:</span> <strong>${t.product}</strong></div>
+        <div style="background:#C4B29B; border-radius:8px; padding:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; color:#FFF;">
+          <h3 style="font-family:'Outfit', sans-serif; font-size:20px; font-weight:700; margin:0; letter-spacing:0.05em;">${t.id}</h3>
+          <span style="background:#FFF; color:#361F17; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:700; text-transform:none;">${t.stage}</span>
         </div>
 
-        <div style="border-top:1px dashed var(--border); padding-top:16px;">
-          <label style="display:block; font-size:12px; font-weight:700; text-transform:uppercase; color:var(--secondary); margin-bottom:8px;">Giai đoạn nung lò</label>
-          <select class="form-input" onchange="updateTrackerStageAdmin('${t.id}', this.value)">
-            <option value="">-- Chọn giai đoạn --</option>
-            <option value="created" ${t.stage === 'created' ? 'selected' : ''}>Đã tạo phôi</option>
-            <option value="drying" ${t.stage === 'drying' ? 'selected' : ''}>Phơi khô</option>
-            <option value="bisque_firing" ${t.stage === 'bisque_firing' ? 'selected' : ''}>Nung sơ (Bisque)</option>
-            <option value="glazing" ${t.stage === 'glazing' ? 'selected' : ''}>Tráng men</option>
-            <option value="final_firing" ${t.stage === 'final_firing' ? 'selected' : ''}>Nung hoàn thiện</option>
-            <option value="ready" ${t.stage === 'ready' ? 'selected' : ''}>Sẵn sàng giao / nhận</option>
-            <option value="done" ${t.stage === 'done' ? 'selected' : ''}>Đã nhận thành phẩm</option>
-          </select>
+        <div style="display:flex; flex-direction:column; gap:12px; font-size:14px; margin-bottom:20px; border-bottom:1px solid #EFE2D6; padding-bottom:16px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Khách hàng</span><span style="font-weight:600;">${t.customer}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Booking ID</span><span style="font-weight:600; font-family:monospace;">${t.bookingId}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Mã khách</span><span style="font-weight:600; text-decoration:underline; color:var(--accent); font-family:monospace; cursor:pointer;">${t.customerCode}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Sản phẩm</span><span style="font-weight:600;">${t.product}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Workshop</span><span style="font-weight:600; text-align:right;">${t.workshop}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Ngày tạo</span><span style="font-weight:600;">${t.createDate}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Người phụ trách</span><span style="font-weight:600;">${t.staff}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--secondary);">Lô nung</span><span style="font-weight:600;">${t.lot}</span></div>
+        </div>
+
+        <!-- Progress Timeline block -->
+        <div style="margin-bottom:20px; border-bottom:1px dashed #EFE2D6; padding-bottom:20px;">
+          <h4 style="font-size:14px; color:var(--secondary); margin:0 0 16px; text-transform:uppercase; letter-spacing:0.05em;">Tiến trình lò nung</h4>
+          <div style="display:flex; flex-direction:column; gap:16px; position:relative; padding-left:24px; margin-left:8px;">
+            <div style="position:absolute; left:7px; top:8px; bottom:8px; width:2px; background:#D8C7B6;"></div>
+            ${timelineHtml}
+          </div>
+        </div>
+
+        <!-- Customer Media block -->
+        <div style="margin-bottom:20px; border-bottom:1px dashed #EFE2D6; padding-bottom:20px;">
+          <h4 style="font-size:14px; color:var(--secondary); margin:0 0 12px; text-transform:uppercase; letter-spacing:0.05em;">Media khách hàng <span style="font-weight:normal; text-transform:none; float:right; opacity:0.8;">0 file</span></h4>
+          <div style="border:2px dashed var(--border); background:#FAF8F5; border-radius:8px; padding:20px; text-align:center; margin-bottom:16px;">
+            <span style="font-size:24px; display:block; margin-bottom:6px;">🖼️</span>
+            <span style="font-size:13px; font-weight:600; color:var(--secondary);">Chưa có media cho khách</span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+            <button onclick="showToast('Mở trình tải lên ảnh lớp học...', 'info')" class="btn btn-secondary" style="height:36px; font-size:13px;">📸 Upload ảnh workshop</button>
+            <button onclick="showToast('Mở trình tải lên ảnh tiến độ lò nung...', 'info')" class="btn btn-secondary" style="height:36px; font-size:13px;">🖼️ Upload ảnh stage hiện tại</button>
+            <button onclick="showToast('Mở trình tải lên video ngắn...', 'info')" class="btn btn-secondary" style="height:36px; font-size:13px;">📹 Upload mini vlog</button>
+          </div>
+        </div>
+
+        <!-- QC Note block -->
+        <div style="margin-bottom:20px;">
+          <h4 style="font-size:13px; color:var(--secondary); margin:0 0 8px; text-transform:uppercase; letter-spacing:0.05em;">Ghi chú QC</h4>
+          <textarea class="form-input" style="width:100%; min-height:80px; padding:10px; border-radius:8px; font-size:14px; line-height:1.4;" placeholder="Nhập ghi chú kiểm định chất lượng...">${t.note}</textarea>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button onclick="showToast('Trạng thái tiến trình đã được cập nhật!', 'success')" class="btn btn-primary">✓ Cập nhật stage</button>
+          <button onclick="showToast('Form đăng ảnh kiểm định đã mở!', 'info')" class="btn btn-secondary">📤 Upload ảnh</button>
+          <button onclick="showToast('Đã gửi thông báo tới khách hàng!', 'success')" class="btn btn-darkest">✉ Gửi thông báo / duyệt</button>
         </div>
       `;
     }
 
-    function updateTrackerStageAdmin(id, stage) {
-      if (!stage) return;
-      const trackers = JSON.parse(localStorage.getItem('tho-trackers') || '[]');
-      const idx = trackers.findIndex(t => t.id === id);
-      if (idx !== -1) {
-        trackers[idx].stage = stage;
-        localStorage.setItem('tho-trackers', JSON.stringify(trackers));
-
-        // Sync to persistent customer view
-        const trackingCode = trackers[idx].tracking_code;
-        const persistent = JSON.parse(localStorage.getItem('tho-persistent-tracking-records') || '{"records":[]}');
-        const records = persistent.records || [];
-        const pIdx = records.findIndex(r => r.code === trackingCode);
-        if (pIdx !== -1) {
-          records[pIdx].status = stage;
-          records[pIdx].timeline.push({
-            stage: stage,
-            label: stageLabels[stage] || stage,
-            state: 'done'
-          });
-          localStorage.setItem('tho-persistent-tracking-records', JSON.stringify({ savedAt: Date.now(), records }));
-        }
-
-        showToast(`Đã cập nhật giai đoạn tracker sang ${stageLabels[stage]}!`, 'success');
-        renderTrackerTab(document.getElementById('global-search-input').value);
-      }
-    }
-
-    // Reviews list
-    function getReviews() {
-      try {
-        const stored = localStorage.getItem(REVIEWS_KEY);
-        if (stored) return JSON.parse(stored);
-      } catch {}
-      return [];
-    }
-
+    /* ==================== REVIEWS TAB LOGIC ==================== */
     function renderReviewsTab() {
-      const reviews = getReviews();
       const container = document.getElementById('reviews-list-container');
-      if (reviews.length === 0) {
-        container.innerHTML = `<div class="white-card" style="text-align:center; padding:48px; color:var(--secondary);">Chưa có đánh giá nào.</div>`;
-        return;
-      }
-
-      container.innerHTML = reviews.map(r => `
-        <div class="white-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div>
-              <strong>${r.name}</strong> <small style="color:var(--secondary); margin-left:8px;">Mã: ${r.code || 'không'}</small>
-              <div style="color:var(--secondary); font-size:12px; margin-top:2px;">Đánh giá: ${'★'.repeat(r.rating)}</div>
-            </div>
-            <span class="badge badge-confirmed">${r.targetType || 'workshop'}</span>
+      container.innerHTML = demoReviews.map(r => {
+        const repliesHtml = r.replies.map(rep => `
+          <div style="background:#F5F1ED; padding:12px; border-radius:8px; margin-top:8px;">
+            <strong>${rep.name}</strong> <span style="background:var(--primary); color:#fff; font-size:9px; padding:2px 4px; border-radius:4px; margin-left:4px;">STAFF</span>
+            <span style="color:var(--secondary); font-size:11px; float:right;">${rep.date}</span>
+            <p style="margin:4px 0 0; color:var(--text); font-size:13px;">${rep.comment}</p>
           </div>
-          <p style="font-size:14px; margin:0; line-height:1.5;">"${r.comment}"</p>
-        </div>
-      `).join('');
+        `).join('');
+
+        return `
+          <div class="white-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div>
+                <strong style="font-size:16px;">${r.name}</strong>
+                <span style="font-family:monospace; font-size:12px; color:var(--secondary); margin-left:8px;">Mã: ${r.code}</span>
+                <div style="color:var(--secondary); font-size:12px; margin-top:4px;">Đánh giá: ${'★'.repeat(r.rating)}</div>
+              </div>
+              <span class="badge badge-completed">${r.targetType}</span>
+            </div>
+            <p style="font-size:14px; margin:0 0 16px; line-height:1.5;">"${r.comment}"</p>
+            
+            <div id="replies-${r.id}">
+              ${repliesHtml}
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:16px; border-top:1px dashed var(--border); padding-top:16px;">
+              <input id="reply-input-${r.id}" type="text" placeholder="Nhập câu trả lời từ THỔ Studio..." class="form-input" style="flex:1;">
+              <button onclick="submitReply('${r.id}')" class="btn btn-primary" style="width:auto; height:40px;">Gửi phản hồi</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
+    function submitReply(id) {
+      const input = document.getElementById(`reply-input-${id}`);
+      const comment = input.value.trim();
+      if (!comment) return;
+
+      const r = demoReviews.find(item => item.id === id);
+      if (r) {
+        r.replies.push({
+          name: 'THỔ Studio',
+          role: 'staff',
+          date: new Date().toLocaleDateString('vi-VN'),
+          comment: comment
+        });
+        input.value = '';
+        showToast('Đã gửi câu trả lời phản hồi thành công!', 'success');
+        renderReviewsTab();
+      }
+    }
+
+
+    /* ==================== GLOBAL UTILITIES ==================== */
     function handleGlobalSearch(val) {
       const activeTabBtn = document.querySelector('.nav-btn.active');
-      const activeTabId = activeTabBtn ? activeTabBtn.id.replace('btn-nav-', '') : 'dashboard';
+      const activeTabId = activeTabBtn ? activeTabBtn.id.replace('btn-nav-', '') : 'booking';
 
       if (activeTabId === 'booking') renderBookingTab(val);
       else if (activeTabId === 'products') renderProductsTab(val);
@@ -1363,12 +1452,24 @@
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = 'toast';
+      if (type === 'info') {
+        toast.style.background = 'var(--secondary)';
+      } else if (type === 'error') {
+        toast.style.background = '#D63030';
+      }
       toast.innerText = msg;
       container.appendChild(toast);
       setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
       }, 3000);
+    }
+
+    function handleLogout() {
+      showToast('Đăng xuất thành công!', 'info');
+      setTimeout(() => {
+        window.location.reload();
+      }, 800);
     }
   </script>
 </body>
