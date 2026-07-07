@@ -8,6 +8,9 @@
 
 > **THỔ Studio** là một giải pháp website toàn diện dành cho studio gốm thủ công nghệ thuật. Nền tảng kết hợp hài hòa giữa thương mại điện tử sản phẩm gốm mộc độc bản, hệ thống đặt lịch workshop trải nghiệm thực tế, trợ lý AI tư vấn cá nhân hóa và hệ thống quản trị vận hành nội bộ dành cho nhân viên (Staff/Admin).
 
+### 🌐 Live Demo & Preview
+*   **Link trải nghiệm trực tuyến (Vercel)**: [https://phatrienwebkinhdoanh-vylr.vercel.app](https://phatrienwebkinhdoanh-vylr.vercel.app/)
+
 ---
 
 ## 1. Giới thiệu
@@ -105,13 +108,32 @@ phatrienwebkinhdoanh/
 │   ├── app/                      # Routes, models, schemas, services
 │   ├── tests/                    # Pytest test cases
 │   └── requirements.txt          # Danh sách dependencies Python
+├── html-version/                 # Phiên bản tĩnh HTML/CSS/JS (độc lập, không cần backend)
+│   ├── css/                      # Stylesheet chủ đề, layout và components
+│   ├── js/                       # Script xử lý giỏ hàng, nạp chatbot và dữ liệu tĩnh
+│   ├── video/                    # Video hero-clay.mp4 chạy ngầm
+│   ├── index.html                # Trang chủ static
+│   └── ...                       # 17 trang HTML nghiệp vụ khác
 ├── db/                           # SQL schema và database SQLite local
 └── doc/                          # Tài liệu thuyết minh & thiết kế UI/UX
 ```
 
 ### 🛠️ Cách xây dựng & Khởi chạy dự án
 
-#### Chạy Frontend:
+#### 1. Chạy Phiên bản Tĩnh (Static HTML - Độc lập & Nhanh nhất)
+Phiên bản này được lưu trong thư mục `html-version/`, chạy hoàn toàn bằng client-side và dữ liệu giả lập (mock data).
+*   **Cách 1 (Live Server trên VS Code)**: Mở thư mục dự án bằng VS Code ➔ Click chuột phải vào file `html-version/index.html` ➔ Chọn **Open with Live Server**.
+*   **Cách 2 (Sử dụng serve CLI)**:
+    ```bash
+    # Chạy lệnh từ thư mục gốc dự án
+    npx serve html-version
+    ```
+    Truy cập trang web tại địa chỉ cục bộ được hiển thị (mặc định là `http://localhost:3000`).
+
+#### 2. Chạy Phiên bản Đầy đủ (React Frontend + FastAPI Backend)
+Yêu cầu khởi chạy đồng thời cả Client và Server:
+
+##### Chạy Frontend:
 ```bash
 # 1. Cài đặt các thư viện phụ thuộc
 npm install
@@ -120,7 +142,7 @@ npm install
 npm run dev
 ```
 
-#### Chạy Backend:
+##### Chạy Backend:
 ```bash
 cd backend
 
@@ -247,14 +269,17 @@ graph TD
 ### 📚 Tài liệu chi tiết dự án (Thư mục `/doc`)
 Bạn có thể tham khảo các tài liệu thuyết minh chi tiết của đồ án tại các liên kết sau:
 * 📄 [Báo Cáo Đồ Án Đầy Đủ (Chương 1–5)](file:///d:/UIUX/phatrienwebkinhdoanh/doc/BAO_CAO_THO_STUDIO.md) — Chi tiết về khảo sát thực trạng, đặc tả yêu cầu, thiết kế hệ thống và đánh giá.
+* 🤝 [Hướng Dẫn Đối Chiếu Phiên Bản HTML Tĩnh](file:///d:/UIUX/phatrienwebkinhdoanh/doc/Doi_Chieu_Phien_Ban_HTML_Tinh.md) — Tài liệu đối chiếu chi tiết giữa thiết kế Chương 4 trong báo cáo thuyết minh và mã nguồn giao diện tĩnh thực tế (dành cho Hội đồng chấm đồ án).
 * 🗺️ [Sitemap & Wireframe](file:///d:/UIUX/phatrienwebkinhdoanh/doc/01_sitemap_wireframe.md) — Sơ đồ luồng trang chi tiết và bố cục khung xương giao diện.
 * 🎨 [Đặc Tả Figma Prototype UI](file:///d:/UIUX/phatrienwebkinhdoanh/doc/02_prototype_ui.md) — Chi tiết về Design Primitives, chuyển động micro-interactions.
 * 🔄 [Case Study & BPMN](file:///d:/UIUX/phatrienwebkinhdoanh/doc/03_case_study.md) — Phân tích quy trình nghiệp vụ thực tế của workshop gốm.
 * 👥 [Đặc Tả Chi Tiết Use Case](file:///d:/UIUX/phatrienwebkinhdoanh/doc/04_use_case_detail.md) — Kịch bản tương tác cụ thể của từng Actor (Khách hàng, Nhân viên, Nghệ nhân, Admin).
 
 ### 🔗 Liên kết & Thông tin hữu ích
-* **Tài liệu hướng dẫn phát triển API**: `http://localhost:8000/docs` (Swagger UI sau khi đã khởi chạy backend).
-* **Trang Token Figma**: `/figma-export` dùng để xuất mã màu CSS token sang Figma.
+*   **Link trải nghiệm sản phẩm trực tuyến (Vercel)**: [https://phatrienwebkinhdoanh-vylr.vercel.app](https://phatrienwebkinhdoanh-vylr.vercel.app/)
+*   **Hướng dẫn chấm đồ án**: Sử dụng tài liệu [Doi_Chieu_Phien_Ban_HTML_Tinh.md](file:///d:/UIUX/phatrienwebkinhdoanh/doc/Doi_Chieu_Phien_Ban_HTML_Tinh.md) để dễ dàng đối chiếu mã nguồn tĩnh của từng trang web (Homepage, Workshop Detail, Checkout, Tracker, Staff/Admin Portal) tương ứng với các chương mục trong báo cáo.
+*   **Tài liệu hướng dẫn phát triển API**: `http://localhost:8000/docs` (Swagger UI sau khi đã khởi chạy backend).
+*   **Trang Token Figma**: `/figma-export` dùng để xuất mã màu CSS token sang Figma.
 
 ---
 <p align="center">
