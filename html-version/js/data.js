@@ -1,6 +1,6 @@
 /* ===== THỔ Studio - Data (from DesignPrimitives.tsx) ===== */
 
-const IMAGE_BASE = '../image';
+const IMAGE_BASE = 'image';
 
 const logoImage = `${IMAGE_BASE}/logo/logo.jpg`;
 
@@ -395,3 +395,4 @@ const reviews = [
 function formatVND(amount) {
   return amount.toLocaleString('vi-VN') + 'đ';
 }
+

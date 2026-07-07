@@ -88,7 +88,7 @@
   <!-- Header -->
   <header class="checkout-header">
     <div class="checkout-header-inner">
-      <a href="index.html" class="checkout-header-logo"><img src="../image/logo/logo.jpg" alt="THỔ Studio logo"></a>
+      <a href="index.html" class="checkout-header-logo"><img src="image/logo/logo.jpg" alt="THỔ Studio logo"></a>
       <div class="checkout-stepper">
         <div class="checkout-step">
           <div class="checkout-step-circle active" style="background:#FFF1E8; color:var(--coffee);">1</div>
@@ -220,11 +220,11 @@
           <h2 style="font-size:18px; font-weight:700; color:#252323; margin-bottom:16px;">Phương thức thanh toán</h2>
           <div class="payment-grid">
             <div id="pay-momo" class="payment-choice active" onclick="selectPaymentMethod('momo')">
-              <div class="payment-logo-container"><img src="../image/logo/momo.png" alt="MoMo logo"></div>
+              <div class="payment-logo-container"><img src="image/logo/momo.png" alt="MoMo logo"></div>
               <span style="font-size:14px; font-weight:700;">Ví MoMo</span>
             </div>
             <div id="pay-vnpay" class="payment-choice" onclick="selectPaymentMethod('vnpay')">
-              <div class="payment-logo-container"><img src="../image/logo/vnpay.jpg" alt="VNPAY logo"></div>
+              <div class="payment-logo-container"><img src="image/logo/vnpay.jpg" alt="VNPAY logo"></div>
               <span style="font-size:14px; font-weight:700;">VNPAY QR</span>
             </div>
           </div>
@@ -597,12 +597,12 @@
       const qrContainer = document.getElementById('modal-qr-container');
 
       if (paymentMethod === 'momo') {
-        logo.src = '../image/logo/momo.png';
+        logo.src = 'image/logo/momo.png';
         title.textContent = 'Thanh toán ví MoMo';
         box.style.borderColor = '#DC1A8D';
         qrContainer.style.background = '#DC1A8D';
       } else {
-        logo.src = '../image/logo/vnpay.jpg';
+        logo.src = 'image/logo/vnpay.jpg';
         title.textContent = 'Thanh toán qua VNPAY';
         box.style.borderColor = '#0088C9';
         qrContainer.style.background = '#0088C9';
@@ -802,3 +802,4 @@
   </script>
 </body>
 </html>
+
