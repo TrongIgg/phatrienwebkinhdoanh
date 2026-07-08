@@ -224,6 +224,16 @@
     .custom-checkout-modal-content {
       max-width: 600px;
     }
+    .tracking-main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    @media (min-width: 1024px) {
+      .tracking-main-grid {
+        grid-template-columns: 6fr 4fr !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -891,18 +901,10 @@
         : '';
 
       const isFinished = (record.status === 'ready' || record.status === 'completed' || code === 'CER-READY');
-      const actionBtn = isFinished ? `
-        <a href="review.html?code=${code}&targetType=workshop" class="btn-pill btn-primary-pill" style="height:32px; font-size:12px; text-decoration:none;">
-          ✍️ Đánh giá trải nghiệm
-        </a>
-      ` : `
-        <button onclick="handleCancelClick()" class="btn-pill btn-danger-pill" style="height:32px; font-size:11px; padding:0 12px;">
-          Hủy đặt chỗ
-        </button>
-      `;
 
       container.innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr; lg-grid-template-columns:2.5fr 1fr; gap:28px;" class="tracking-main-grid">
+        <div class="tracking-main-grid">
+          <!-- Left Column (Main Card & Stage Progress) -->
           <div style="display:flex; flex-direction:column; gap:28px;">
             <!-- Main card -->
             <div class="info-card">
@@ -914,7 +916,6 @@
                 </div>
                 <div style="display:flex; flex-direction:column; align-items:end; gap:8px;">
                   <span class="badge badge-default">● ${record.status || 'Đang sấy/nung'}</span>
-                  ${actionBtn}
                 </div>
               </div>
               <p style="font-size:15px; line-height:1.7; color:#361F17; margin:0;">${record.message || 'Studio đang chăm sóc thành phần của bạn qua các công đoạn nung.'}</p>
@@ -927,57 +928,93 @@
                 ${timelineItemsHtml}
               </div>
             </div>
-
-            <!-- Gallery -->
-            <div class="info-card">
-              <h3 style="font-size:18px; font-weight:700; margin:0 0 6px;">Khoảnh khắc tại THỔ của bạn</h3>
-              <p style="font-size:13px; color:#8B765D; margin:0 0 20px;">Hình ảnh trực tiếp quá trình tạo tác và hoàn thiện tại lò nung.</p>
-              <div class="gallery-grid">
-                ${galleryHtml}
-              </div>
-            </div>
-
-            <!-- Mini Vlog Card -->
-            <div class="info-card" style="display:grid; grid-template-columns: 240px 1fr; gap:20px;" class="vlog-card-grid">
-              <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:16/10; background:#000;">
-                <img src="${workshopImages.wheelBw}" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
-                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="showToast('Đang phát mini vlog workshop...', 'info')">
-                  <span style="font-size:32px; color:#fff; background:rgba(113,105,66,0.85); width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding-left:4px;">▶</span>
-                </div>
-              </div>
-              <div>
-                <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700; text-transform:uppercase;">Mini Vlog</span>
-                <h4 style="font-size:18px; font-weight:700; color:#361F17; margin:8px 0 4px;">Khoảnh khắc xoay gốm tại bàn xoay</h4>
-                <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0 0 12px;">Đoạn video ngắn ghi lại chuyển động bàn tay và nhịp điều khiển bàn xoay của bạn lúc tạo dáng phôi.</p>
-                <div style="display:flex; gap:8px;">
-                  <button onclick="saveMomentRecord('${code}-vlog', 'Vlog xoay gốm', '${workshopImages.wheelBw}', 'Vlog')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
-                    Lưu khoảnh khắc
-                  </button>
-                  <button onclick="showToast('Link chia sẻ đã được sao chép!', 'success')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
-                    Chia sẻ
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Saved Moments Grid -->
-            ${savedHtml}
           </div>
 
           <!-- Sidebar -->
           <div style="display:flex; flex-direction:column; gap:20px;">
-            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
-              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px;">📦 Đơn sản phẩm</h4>
-              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Mã theo dõi này thuộc loại thành phẩm học viên sau workshop.</p>
+            <!-- Card 1: Don hang -->
+            <div class="info-card" style="padding: 20px;">
+              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px; color:#716942; display:flex; align-items:center; gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                Đơn hàng
+              </h4>
+              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Không có đơn sản phẩm vật lý cho mã tracking gốm này.</p>
             </div>
-            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px;">
-              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px;">📅 Workshop & Lớp học</h4>
-              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Vết dấu tay và dáng phôi sẽ được giữ nguyên vẹn. Trải nghiệm nung củi và nung ga tùy thuộc gói lựa chọn.</p>
+
+            <!-- Card 2: Workshop -->
+            <div class="info-card" style="padding: 20px;">
+              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px; color:#716942; display:flex; align-items:center; gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="8 14 10 16 16 10"></polyline></svg>
+                Workshop
+              </h4>
+              <p style="font-size:13px; color:#8B765D; margin:0; line-height:1.5;">Mã này gắn với thành phẩm sau workshop, dùng để theo dõi xưởng.</p>
             </div>
-            <div style="background:#FFFDFB; border:1px solid #EFD8C7; border-radius:12px; padding:20px; font-size:13px; line-height:1.6; color:#716942;">
-              💡 <strong>Hướng dẫn bảo quản:</strong> Hạn chế sử dụng máy rửa bát nhiệt độ cao cho gốm tráng men mỏng thủ công. Tránh va đập mạnh.
+
+            <!-- Card 3: Nguoi phu trach -->
+            <div class="info-card" style="padding: 20px;">
+              <h4 style="font-size:14px; font-weight:700; margin:0 0 8px; color:#716942; display:flex; align-items:center; gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Phụ trách
+              </h4>
+              <p style="font-size:15px; color:#361F17; font-weight:600; margin:0; line-height:1.5;">${record.manager_name || 'Phạm Quốc Anh'}</p>
+            </div>
+
+            <!-- Card 4: Hanh dong / Ready actions -->
+            <div class="info-card" style="padding: 20px; opacity: ${isFinished ? 1 : 0.85};">
+              <h4 style="font-size:15px; font-weight:700; margin:0 0 12px; color:#361F17;">
+                ${isFinished ? 'Thành phẩm đã sẵn sàng' : 'Khi thành phẩm sẵn sàng'}
+              </h4>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <a href="review.html?code=${code}&targetType=workshop" class="btn-pill btn-primary-pill" style="height:38px; font-size:13px; text-decoration:none; width:100%; display:inline-flex; align-items:center; justify-content:center;">
+                  Viết cảm nhận về workshop
+                </a>
+                <a href="product.html" class="btn-pill btn-secondary-pill" style="height:38px; font-size:13px; text-decoration:none; width:100%; display:inline-flex; align-items:center; justify-content:center;">
+                  Xem sản phẩm tương tự
+                </a>
+                <a href="workshop.html" class="btn-pill btn-secondary-pill" style="height:38px; font-size:13px; text-decoration:none; width:100%; display:inline-flex; align-items:center; justify-content:center;">
+                  Đặt workshop tiếp theo
+                </a>
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- Full-width items below the grid layout -->
+        <div style="display:flex; flex-direction:column; gap:28px; margin-top:28px;">
+          <!-- Gallery -->
+          <div class="info-card">
+            <h3 style="font-size:18px; font-weight:700; margin:0 0 6px;">Khoảnh khắc tại THỔ của bạn</h3>
+            <p style="font-size:13px; color:#8B765D; margin:0 0 20px;">Hình ảnh trực tiếp quá trình tạo tác và hoàn thiện tại lò nung.</p>
+            <div class="gallery-grid">
+              ${galleryHtml}
+            </div>
+          </div>
+
+          <!-- Mini Vlog Card -->
+          <div class="info-card vlog-card-grid" style="display:grid; grid-template-columns: 240px 1fr; gap:20px;">
+            <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:16/10; background:#000;">
+              <img src="${workshopImages.wheelBw}" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="showToast('Đang phát mini vlog workshop...', 'info')">
+                <span style="font-size:32px; color:#fff; background:rgba(113,105,66,0.85); width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding-left:4px;">▶</span>
+              </div>
+            </div>
+            <div>
+              <span style="background:#C96B37; color:#fff; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:700; text-transform:uppercase;">Mini Vlog</span>
+              <h4 style="font-size:18px; font-weight:700; color:#361F17; margin:8px 0 4px;">Khoảnh khắc xoay gốm tại bàn xoay</h4>
+              <p style="font-size:13px; color:#6A5D52; line-height:1.5; margin:0 0 12px;">Đoạn video ngắn ghi lại chuyển động bàn tay và nhịp điều khiển bàn xoay của bạn lúc tạo dáng phôi.</p>
+              <div style="display:flex; gap:8px;">
+                <button onclick="saveMomentRecord('${code}-vlog', 'Vlog xoay gốm', '${workshopImages.wheelBw}', 'Vlog')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
+                  Lưu khoảnh khắc
+                </button>
+                <button onclick="showToast('Link chia sẻ đã được sao chép!', 'success')" class="btn-pill btn-secondary-pill" style="height:36px; padding:0 16px; font-size:12px;">
+                  Chia sẻ
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saved Moments Grid -->
+          ${savedHtml}
         </div>
       `;
     }
@@ -1013,7 +1050,7 @@
       }).join('');
 
       container.innerHTML = `
-        <div style="display:grid; grid-template-columns: 1fr 340px; gap:28px;" class="tracking-main-grid">
+        <div class="tracking-main-grid">
           <!-- Left Column -->
           <div style="display:flex; flex-direction:column; gap:24px;">
             <div class="info-card">
