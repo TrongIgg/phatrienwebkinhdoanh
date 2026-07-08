@@ -525,6 +525,26 @@
         display: none;
       }
     }
+    .tracking-three-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .tracking-three-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .tracking-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .tracking-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -623,47 +643,312 @@
       <section id="sect-dashboard" class="content-tab">
         <div style="margin-bottom:28px;">
           <h2 style="font-size:36px; font-weight:700; color:var(--primary); margin:0;">DASHBOARD</h2>
-          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi tổng quan hoạt động trong xưởng gốm THỔ.</p>
+          <p style="color:var(--secondary); margin:4px 0 0;">Theo dõi booking, doanh thu, check-in workshop và media tracking trong 1 tuần vận hành.</p>
         </div>
 
         <div class="metric-grid">
           <div class="metric-card">
             <div class="metric-card-info">
-              <span class="metric-card-label">Booking Hôm nay</span>
+              <span class="metric-card-label">Hôm nay</span>
               <span class="metric-card-value">2</span>
             </div>
             <div class="metric-card-icon">📅</div>
           </div>
           <div class="metric-card">
             <div class="metric-card-info">
-              <span class="metric-card-label">Đã xác nhận</span>
-              <span class="metric-card-value">4</span>
+              <span class="metric-card-label">Tuần này</span>
+              <span class="metric-card-value">15</span>
             </div>
-            <div class="metric-card-icon">✓</div>
+            <div class="metric-card-icon">🕒</div>
           </div>
           <div class="metric-card">
             <div class="metric-card-info">
-              <span class="metric-card-label">Đã thanh toán</span>
-              <span class="metric-card-value">6</span>
+              <span class="metric-card-label">Tổng khách</span>
+              <span class="metric-card-value">8</span>
             </div>
-            <div class="metric-card-icon">✉</div>
+            <div class="metric-card-icon">👤</div>
           </div>
           <div class="metric-card">
             <div class="metric-card-info">
-              <span class="metric-card-label">Doanh thu tháng</span>
-              <span class="metric-card-value" style="font-size:28px;">8.200k</span>
+              <span class="metric-card-label">Doanh thu</span>
+              <span class="metric-card-value">8.2M</span>
             </div>
-            <div class="metric-card-icon">💰</div>
+            <div class="metric-card-icon">📦</div>
           </div>
         </div>
 
         <div class="white-card" style="margin-bottom:28px;">
-          <h3 class="card-title">Hành động nhanh</h3>
+          <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:20px;">
+            <div>
+              <h3 class="card-title" style="margin:0;">Tương tác vận hành nhanh</h3>
+              <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Khu này mô phỏng thao tác admin/staff hay dùng sau khi khách vào workshop: thêm media, duyệt hiển thị, tạo mã tracking và xuất dữ liệu báo cáo.</p>
+            </div>
+            <span class="badge badge-completed" style="background:#E1FFE8; color:#00B32C; font-size:11px; white-space:nowrap; margin-left:auto;">Có thể bấm thử</span>
+          </div>
+          
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-            <button onclick="switchTab('booking')" class="btn btn-secondary">Quản lý Đặt chỗ (Booking)</button>
-            <button onclick="switchTab('products')" class="btn btn-secondary">Theo dõi Tác phẩm (Sản phẩm)</button>
-            <button onclick="switchTab('tracking')" class="btn btn-secondary">Check-in & Lò nung (Tracker)</button>
-            <button onclick="showToast('Đã đồng bộ thành công dữ liệu với máy chủ!', 'success')" class="btn btn-primary">Đồng bộ Cloud DB</button>
+            <button onclick="showToast('Mở trình tải lên ảnh/video...', 'info')" class="btn-pill" style="height:auto; min-height:116px; border-radius:12px; padding:20px; text-align:left; background:#361F17; color:#fff; flex-direction:column; align-items:start; border:none; cursor:pointer;">
+              <span style="display:inline-flex; width:40px; height:40px; border-radius:50%; background:#FAF8F5; align-items:center; justify-content:center; color:#361F17; margin-bottom:12px; font-size:18px;">📤</span>
+              <strong style="font-size:16px; display:block;">Upload ảnh/video</strong>
+              <span style="font-size:13px; opacity:0.8; font-weight:normal; margin-top:4px; display:block;">Mở popup để staff chọn media cho trang tracking.</span>
+            </button>
+            
+            <button onclick="showToast('Đã mở trang duyệt media!', 'info')" class="btn-pill" style="height:auto; min-height:116px; border-radius:12px; padding:20px; text-align:left; background:#fff; border:1px solid var(--border); color:#361F17; flex-direction:column; align-items:start; cursor:pointer;">
+              <span style="display:inline-flex; width:40px; height:40px; border-radius:50%; background:#F5F1ED; align-items:center; justify-content:center; color:#361F17; margin-bottom:12px; font-size:18px;">📋</span>
+              <strong style="font-size:16px; display:block;">Duyệt media</strong>
+              <span style="font-size:13px; color:var(--secondary); font-weight:normal; margin-top:4px; display:block;">1 file đã duyệt cho khách xem.</span>
+            </button>
+            
+            <button onclick="showToast('Đang tạo mã tracking cho khách Minh Anh...', 'info')" class="btn-pill" style="height:auto; min-height:116px; border-radius:12px; padding:20px; text-align:left; background:#fff; border:1px solid var(--border); color:#361F17; flex-direction:column; align-items:start; cursor:pointer;">
+              <span style="display:inline-flex; width:40px; height:40px; border-radius:50%; background:#F5F1ED; align-items:center; justify-content:center; color:#361F17; margin-bottom:12px; font-size:18px;">🔑</span>
+              <strong style="font-size:16px; display:block;">Tạo mã tracking</strong>
+              <span style="font-size:13px; color:var(--secondary); font-weight:normal; margin-top:4px; display:block;">Minh Anh · THO-DEMO-001</span>
+            </button>
+            
+            <button onclick="exportBookingsCsv()" class="btn-pill" style="height:auto; min-height:116px; border-radius:12px; padding:20px; text-align:left; background:#fff; border:1px solid var(--border); color:#361F17; flex-direction:column; align-items:start; cursor:pointer;">
+              <span style="display:inline-flex; width:40px; height:40px; border-radius:50%; background:#F5F1ED; align-items:center; justify-content:center; color:#361F17; margin-bottom:12px; font-size:18px;">📥</span>
+              <strong style="font-size:16px; display:block;">Xuất CSV</strong>
+              <span style="font-size:13px; color:var(--secondary); font-weight:normal; margin-top:4px; display:block;">Tải file báo cáo booking hiện tại.</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="white-card" style="margin-bottom:28px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 class="card-title" style="margin:0; display:flex; align-items:center; gap:8px;">
+              <span>🔔</span> Thông báo CSKH & Cảnh báo Nhận xét
+            </h3>
+            <button onclick="switchTab('reviews')" class="btn btn-primary" style="width:auto; height:32px; font-size:12px; padding:0 12px; border-radius:6px; background:#23130E;">Quản lý toàn bộ review</button>
+          </div>
+          <p style="font-size:13px; color:var(--secondary); margin:-8px 0 16px;">1 review cần theo dõi, 0 review cần xử lý gấp.</p>
+          
+          <div style="background:#FFFDFB; border:1px solid var(--border); border-radius:10px; padding:16px; max-width:400px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; background:#EFE2D6; color:#643A2A; padding:2px 6px; border-radius:4px; font-weight:600;">Review mới</span>
+              <span style="color:#C96B37; font-size:12px; font-weight:700;">5.0 sao</span>
+            </div>
+            <strong style="font-size:15px; color:#361F17;">Hàng đẹp lắm mn ơi</strong>
+            <p style="font-size:13px; color:var(--secondary); margin:0;">Khách hàng: An danh · Sản phẩm</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+              <span style="font-size:12px; color:var(--secondary);">Chưa phản hồi</span>
+              <button onclick="switchTab('reviews')" class="btn btn-primary" style="width:auto; height:28px; font-size:11px; padding:0 10px; border-radius:4px; background:#361F17;">Phản hồi ngay</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="white-card" style="margin-bottom:28px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+              <h3 class="card-title" style="margin:0; display:flex; align-items:center; gap:8px;">
+                <span>📈</span> Analytics cho chủ studio
+              </h3>
+              <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Tóm tắt doanh thu, khu vực khách, repeat booking, workshop nổi bật và gift flow trong 7 ngày.</p>
+            </div>
+            <span class="badge badge-completed" style="background:#EFF4D8; color:#59612E; font-size:11px; white-space:nowrap; margin-left:auto;">Dữ liệu 1 tuần</span>
+          </div>
+
+          <div class="tracking-main-grid">
+            <!-- Left Chart -->
+            <div style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h4 style="font-size:16px; font-weight:700; margin:0; color:#361F17;">Doanh thu theo tuần</h4>
+                <span style="font-size:12px; font-weight:600; color:#716942;">Theo ngày mở workshop</span>
+              </div>
+              <div style="display:flex; align-items:end; justify-content:space-between; height:200px; padding-top:20px; gap:8px;">
+                <!-- T2 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:51%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">4.8M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T2</span>
+                </div>
+                <!-- T3 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:83%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">7.8M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T3</span>
+                </div>
+                <!-- T4 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:68%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">6.4M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T4</span>
+                </div>
+                <!-- T5 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:63%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">5.9M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T5</span>
+                </div>
+                <!-- T6 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:87%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">8.2M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T6</span>
+                </div>
+                <!-- T7 -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:100%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">9.4M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">T7</span>
+                </div>
+                <!-- CN -->
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:end;">
+                  <div style="background:#716942; width:100%; height:71%; border-radius:6px 6px 0 0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:700; padding-bottom:4px;">6.7M</div>
+                  <span style="font-size:12px; font-weight:700; color:#716942; margin-top:8px;">CN</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right stats -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+                <div style="display:flex; align-items:center; gap:8px; color:#716942; font-weight:700; font-size:14px; margin-bottom:6px;">
+                  <span>👤</span> Tỷ lệ khách quay lại
+                </div>
+                <p style="font-size:28px; font-weight:700; color:#361F17; margin:0;">0%</p>
+                <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Dựa trên số điện thoại trùng trong booking.</p>
+              </article>
+              
+              <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+                <div style="display:flex; align-items:center; gap:8px; color:#716942; font-weight:700; font-size:14px; margin-bottom:6px;">
+                  <span>🎁</span> Đơn quà tặng
+                </div>
+                <p style="font-size:28px; font-weight:700; color:#361F17; margin:0;">1</p>
+                <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Tag mua làm quà tặng của khách.</p>
+              </article>
+              
+              <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+                <div style="display:flex; align-items:center; gap:8px; color:#716942; font-weight:700; font-size:14px; margin-bottom:6px;">
+                  <span>📅</span> Workshop nổi bật
+                </div>
+                <p style="font-size:20px; font-weight:700; color:#361F17; margin:0;">Nặn gốm cơ bản</p>
+                <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Workshop có số booking cao nhất.</p>
+              </article>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-top:20px;">
+            <article style="background:#FFF; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">Check-in</p>
+              <p style="font-size:24px; font-weight:700; color:#361F17; margin:0;">5/8</p>
+              <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Theo dõi khách đã tới lớp trong tuần.</p>
+            </article>
+            <article style="background:#FFF; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">Media chờ upload</p>
+              <p style="font-size:24px; font-weight:700; color:#361F17; margin:0;">2</p>
+              <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Gợi ý staff bổ sung ảnh cho tracking.</p>
+            </article>
+            <article style="background:#FFF; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">Báo cáo CSV</p>
+              <p style="font-size:24px; font-weight:700; color:#361F17; margin:0;">8 dòng</p>
+              <p style="font-size:12px; color:var(--secondary); margin:4px 0 0;">Số dòng sẽ xuất khi admin bấm CSV.</p>
+            </article>
+          </div>
+
+          <div class="tracking-three-cards-grid" style="margin-top:20px;">
+            <!-- List 1: Khu vuc -->
+            <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <h3 style="font-size:16px; font-weight:700; color:#361F17; margin:0 0 12px; display:flex; align-items:center; gap:6px;">
+                <span>📍</span> Khu vực khách hàng
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Quận 1</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:20%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Quận 3</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:20%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Bình Thạnh</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:20%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Nội thành</span><span>5</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:100%; background:#C96B37; height:100%;"></div></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- List 2: Phong cach -->
+            <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <h3 style="font-size:16px; font-weight:700; color:#361F17; margin:0 0 12px; display:flex; align-items:center; gap:6px;">
+                <span>📦</span> Sản phẩm theo phong cách
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Minimal / celadon</span><span>6</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:100%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Mộc / wabi-sabi</span><span>2</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:33%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>DIY / trải nghiệm</span><span>2</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:33%; background:#C96B37; height:100%;"></div></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- List 3: Dip tang -->
+            <article style="background:#F5F1ED; border:1px solid var(--border); border-radius:12px; padding:16px;">
+              <h3 style="font-size:16px; font-weight:700; color:#361F17; margin:0 0 12px; display:flex; align-items:center; gap:6px;">
+                <span>🎁</span> Dịp tặng phổ biến
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Sinh nhật</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:100%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Tân gia</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:100%; background:#C96B37; height:100%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:4px;"><span>Quà cảm ơn</span><span>1</span></div>
+                  <div style="height:6px; background:#fff; border-radius:3px; overflow:hidden;"><div style="width:100%; background:#C96B37; height:100%;"></div></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="white-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h3 class="card-title" style="margin:0;">Danh sách booking</h3>
+              <p style="font-size:13px; color:var(--secondary); margin:4px 0 0;">Dữ liệu mẫu đã trải đủ 7 ngày để thử lọc, xuất báo cáo và kiểm tra luồng check-in.</p>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <div style="display:flex; align-items:center; background:#FFF; border:1px solid var(--border); border-radius:8px; padding:0 12px; height:40px;">
+                <span style="margin-right:8px; opacity:0.5;">🔍</span>
+                <input id="dashboard-booking-search" oninput="renderDashboardBookingTable(this.value)" class="search-input" style="font-size:14px; width:220px;" placeholder="Tìm mã booking, khách hàng..." />
+              </div>
+              <select class="dropdown-filter" onchange="filterDashboardBookings(this.value)">
+                <option value="">Lọc: Tất cả</option>
+                <option value="Đã xác nhận">Đã xác nhận</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Chờ xác nhận">Chờ xác nhận</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:16px;">Mã booking</th>
+                  <th>Khách hàng</th>
+                  <th>Liên hệ</th>
+                  <th>Dịch vụ</th>
+                  <th>Ngày</th>
+                  <th>Giờ</th>
+                  <th>Giá</th>
+                  <th>Chatbot</th>
+                  <th>Trạng thái</th>
+                  <th>Người phụ trách</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-booking-table-body">
+                <!-- Filled dynamically -->
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -1036,26 +1321,102 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Automatic login to avoid login screen block for reviewer
-      const session = { role: 'admin', name: 'Admin THỔ' };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      const saved = localStorage.getItem(SESSION_KEY);
+      if (saved) {
+        try {
+          const session = JSON.parse(saved);
+          if (session && session.role) {
+            document.getElementById('login-wall').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            
+            // Set header role text
+            document.getElementById('header-role-desc').innerText = session.role === 'admin' ? 'Admin quản lý toàn bộ' : 'Staff xử lý vận hành';
+            
+            setupNavigation();
+            switchTab(session.role === 'admin' ? 'dashboard' : 'tracking');
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to parse session:', e);
+        }
+      }
       
-      document.getElementById('login-wall').style.display = 'none';
-      document.getElementById('app-container').style.display = 'block';
-
-      setupNavigation();
-      switchTab('booking'); // Start on booking tab to match Screenshot 1
+      // If no session, show login wall
+      document.getElementById('login-wall').style.display = 'flex';
+      document.getElementById('app-container').style.display = 'none';
+      selectLoginRole('admin'); // Default role on login wall
     });
 
+    function selectLoginRole(role) {
+      document.getElementById('login-role').value = role;
+      document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
+      document.getElementById(`role-opt-${role}`).classList.add('active');
+      
+      const emailInput = document.getElementById('login-email');
+      if (role === 'admin') {
+        emailInput.value = 'admin@tho.vn';
+      } else {
+        emailInput.value = 'staff@tho.vn';
+      }
+    }
+
+    function syncSelectedRoleDropdown(role) {
+      document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
+      document.getElementById(`role-opt-${role}`).classList.add('active');
+      
+      const emailInput = document.getElementById('login-email');
+      if (role === 'admin') {
+        emailInput.value = 'admin@tho.vn';
+      } else {
+        emailInput.value = 'staff@tho.vn';
+      }
+    }
+
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const role = document.getElementById('login-role').value;
+      const email = document.getElementById('login-email').value;
+      
+      const session = { role, name: email.split('@')[0] || (role === 'admin' ? 'Admin' : 'Staff') };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      
+      showToast('Đăng nhập thành công!', 'success');
+      
+      setTimeout(() => {
+        document.getElementById('login-wall').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        
+        // Update header role description
+        document.getElementById('header-role-desc').innerText = role === 'admin' ? 'Admin quản lý toàn bộ' : 'Staff xử lý vận hành';
+        
+        setupNavigation();
+        switchTab(role === 'admin' ? 'dashboard' : 'tracking');
+      }, 500);
+    }
+
     function setupNavigation() {
+      const saved = localStorage.getItem(SESSION_KEY);
+      let role = 'admin';
+      try {
+        const parsed = JSON.parse(saved);
+        role = parsed?.role || 'admin';
+      } catch (e) {}
+
       const tabs = document.getElementById('header-tabs');
-      tabs.innerHTML = `
-        <button onclick="switchTab('dashboard')" class="nav-btn" id="btn-nav-dashboard">Dashboard</button>
-        <button onclick="switchTab('booking')" class="nav-btn" id="btn-nav-booking">Booking</button>
-        <button onclick="switchTab('products')" class="nav-btn" id="btn-nav-products">Sản phẩm</button>
-        <button onclick="switchTab('tracking')" class="nav-btn" id="btn-nav-tracking">Tracker</button>
-        <button onclick="switchTab('reviews')" class="nav-btn" id="btn-nav-reviews">Review & CSKH</button>
-      `;
+      if (role === 'admin') {
+        tabs.innerHTML = `
+          <button onclick="switchTab('dashboard')" class="nav-btn" id="btn-nav-dashboard">Dashboard</button>
+          <button onclick="switchTab('booking')" class="nav-btn" id="btn-nav-booking">Booking</button>
+          <button onclick="switchTab('products')" class="nav-btn" id="btn-nav-products">Sản phẩm</button>
+          <button onclick="switchTab('tracking')" class="nav-btn" id="btn-nav-tracking">Tracker</button>
+          <button onclick="switchTab('reviews')" class="nav-btn" id="btn-nav-reviews">Review & CSKH</button>
+        `;
+      } else {
+        tabs.innerHTML = `
+          <button onclick="switchTab('tracking')" class="nav-btn" id="btn-nav-tracking">Tracker</button>
+          <button onclick="switchTab('reviews')" class="nav-btn" id="btn-nav-reviews">Review & CSKH</button>
+        `;
+      }
     }
 
     function switchTab(tabId) {
@@ -1072,6 +1433,74 @@
       else if (tabId === 'products') renderProductsTab();
       else if (tabId === 'tracking') renderTrackerTab();
       else if (tabId === 'reviews') renderReviewsTab();
+      else if (tabId === 'dashboard') renderDashboardBookingTable();
+    }
+
+    /* ==================== DASHBOARD LOGIC ==================== */
+    let dashboardBookingSearchVal = '';
+    let dashboardBookingFilterVal = '';
+
+    function filterDashboardBookings(status) {
+      dashboardBookingFilterVal = status;
+      renderDashboardBookingTable(dashboardBookingSearchVal);
+    }
+
+    function renderDashboardBookingTable(searchVal = '') {
+      dashboardBookingSearchVal = searchVal;
+      const query = searchVal.toLowerCase();
+      const filtered = demoBookings.filter(b => {
+        const matchesSearch = b.customer.toLowerCase().includes(query) || b.id.toLowerCase().includes(query);
+        const matchesFilter = dashboardBookingFilterVal === '' || b.status === dashboardBookingFilterVal;
+        return matchesSearch && matchesFilter;
+      });
+
+      const tbody = document.getElementById('dashboard-booking-table-body');
+      if (tbody) {
+        tbody.innerHTML = filtered.map(b => {
+          const statusBadgeClass = b.status === 'Đã xác nhận' ? 'badge-confirmed' : (b.status === 'Hoàn thành' ? 'badge-completed' : 'badge-pending');
+          return `
+            <tr class="tr-interactive" onclick="switchTab('booking'); selectBooking('${b.id}')">
+              <td style="padding-left:16px; font-weight:700; font-family:monospace; color:var(--primary);">${b.id}</td>
+              <td><strong>${b.customer}</strong></td>
+              <td>${b.phone}</td>
+              <td>${b.workshop}</td>
+              <td>${b.date}</td>
+              <td>${b.time}</td>
+              <td style="font-weight:600;">${b.price}</td>
+              <td><span class="badge badge-note">Có note</span></td>
+              <td><span class="badge ${statusBadgeClass}">${b.status}</span></td>
+              <td>${b.staff}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function exportBookingsCsv() {
+      const headings = ['Ma booking', 'Khach hang', 'Lien he', 'Dich vu', 'Ngay', 'Gio', 'Gia', 'Trang thai', 'Nguoi phu trach'];
+      const rows = demoBookings.map(b => [
+        b.id,
+        b.customer,
+        b.phone,
+        b.workshop,
+        b.date,
+        b.time,
+        b.price,
+        b.status,
+        b.staff
+      ]);
+      const csv = [headings, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+      
+      const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'tho-booking-dashboard.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('Đã xuất file CSV booking thành công!', 'success');
     }
 
     /* ==================== BOOKING TAB LOGIC ==================== */
@@ -1466,6 +1895,7 @@
     }
 
     function handleLogout() {
+      localStorage.removeItem(SESSION_KEY);
       showToast('Đăng xuất thành công!', 'info');
       setTimeout(() => {
         window.location.reload();

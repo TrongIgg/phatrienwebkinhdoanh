@@ -650,12 +650,25 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Setup staff session automatically
-      const session = { role: 'staff', name: 'Nghệ nhân Anh Quân' };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-
-      setupNavigation();
-      switchTab('tracking');
+      const saved = localStorage.getItem(SESSION_KEY);
+      if (saved) {
+        try {
+          const session = JSON.parse(saved);
+          if (session && session.role) {
+            // Set header role text
+            document.getElementById('header-role-desc').innerText = session.role === 'admin' ? 'Admin quản lý toàn bộ' : 'Staff tracking & upload ảnh';
+            
+            setupNavigation();
+            switchTab('tracking');
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to parse session:', e);
+        }
+      }
+      
+      // If no session, redirect to admin.html login portal
+      window.location.href = 'admin.html';
     });
 
     function setupNavigation() {
@@ -884,9 +897,10 @@
     }
 
     function handleLogout() {
+      localStorage.removeItem(SESSION_KEY);
       showToast('Đăng xuất thành công!', 'info');
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = 'admin.html';
       }, 800);
     }
   </script>
