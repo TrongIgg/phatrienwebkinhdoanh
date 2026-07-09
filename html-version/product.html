@@ -228,6 +228,52 @@
       justify-content: center;
       padding: 20px;
     }
+
+    /* ---- Mobile responsive overrides ---- */
+    @media (max-width: 767px) {
+      /* Filter bar: 2x2 grid on tablet/mobile */
+      .filter-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .filter-grid > button {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 479px) {
+      /* Filter bar: stack to 1 column on small phones */
+      .filter-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* Customizer collapsed: responsive icon+text layout */
+    .customizer-collapsed-inner {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 80px 1fr auto;
+      align-items: center;
+    }
+    @media (max-width: 767px) {
+      .customizer-collapsed-inner {
+        grid-template-columns: 56px 1fr !important;
+        gap: 12px !important;
+      }
+      .customizer-collapsed-icon {
+        height: 56px !important;
+        width: 56px !important;
+      }
+      .customizer-collapsed-icon svg {
+        width: 28px !important;
+        height: 28px !important;
+      }
+      .customizer-collapsed-cta {
+        display: none;
+      }
+      #customizer-collapsed h2 {
+        font-size: 18px !important;
+        margin-top: 2px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -279,8 +325,8 @@
 
       <!-- Customizer Toggle Block -->
       <div id="customizer-collapsed" class="customizer-box" style="cursor:pointer;" onclick="toggleCustomizer(true)">
-        <div style="display:grid; gap:20px; grid-template-columns: 80px 1fr auto; align-items:center;">
-          <span style="display:flex; height:80px; width:80px; align-items:center; justify-content:center; border-radius:8px; background:#EFE2D6; color:#716942;">
+        <div class="customizer-collapsed-inner">
+          <span class="customizer-collapsed-icon" style="display:flex; height:80px; width:80px; align-items:center; justify-content:center; border-radius:8px; background:#EFE2D6; color:#716942;">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
           </span>
           <div>
@@ -288,7 +334,7 @@
             <h2 style="font-size:24px; font-weight:700; color:#3B2118; margin-top:4px;">Click vào đây để tự dựng mẫu sản phẩm</h2>
             <p style="font-size:15px; color:#6A5D52; margin-top:4px;">Upload ảnh draft, chọn clickbox chi tiết, xem demo trên bàn xoay rồi lưu brief để nhận mã tracking chờ nghệ nhân phản hồi.</p>
           </div>
-          <span class="btn btn-dark" style="padding:12px 24px;">Mở customizer</span>
+          <span class="btn btn-dark customizer-collapsed-cta" style="padding:12px 24px;">Mở customizer</span>
         </div>
       </div>
 

@@ -234,6 +234,31 @@
         grid-template-columns: 6fr 4fr !important;
       }
     }
+
+    /* ---- Mobile: Tracking hero 2-col → stack ---- */
+    @media (max-width: 767px) {
+      .tracking-search-header-grid {
+        grid-template-columns: 1fr !important;
+        padding: 28px 16px !important;
+        gap: 20px !important;
+      }
+    }
+
+    /* ---- Tracking input+button row ---- */
+    .tracking-input-row {
+      display: flex;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .tracking-input-row {
+        flex-direction: column;
+      }
+      .tracking-input-row input,
+      .tracking-input-row button {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+    }
   </style>
 </head>
 <body>
@@ -268,7 +293,7 @@
       <!-- Right Column: Card form -->
       <div style="border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; padding:28px;">
         <h3 style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#716942; margin:0 0 12px;">Mã tra cứu</h3>
-        <div style="display:flex; gap:12px;">
+        <div class="tracking-input-row">
           <input id="tracking-code" type="text" class="form-input" placeholder="VD: THO-2024-0847" style="font-family:monospace; font-size:15px; flex:1; border-radius:8px; border:1px solid #EFD8C7; padding:0 12px; outline:none;">
           <button onclick="lookupTracking()" class="btn btn-primary" style="white-space:nowrap; background:#716942; border-color:#716942; padding:12px 24px; font-weight:700; border-radius:8px; color:white; border:none; cursor:pointer;">Tra cứu</button>
         </div>
