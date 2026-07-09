@@ -51,15 +51,31 @@ function initMotionEnhancer() {
         }
       });
     },
-    { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }
+    { rootMargin: '0px 0px 0px 0px', threshold: 0 }
   );
+
+  const vh = window.innerHeight || document.documentElement.clientHeight;
 
   targets.forEach((element, index) => {
     if (element.closest('[data-no-reveal="true"]')) return;
     element.classList.add('reveal-on-scroll');
     element.style.setProperty('--reveal-delay', `${Math.min(index % 8, 6) * 55}ms`);
-    observer.observe(element);
+
+    // Immediately show elements already visible in the viewport
+    const rect = element.getBoundingClientRect();
+    if (rect.top < vh && rect.bottom > 0) {
+      element.classList.add('is-visible');
+    } else {
+      observer.observe(element);
+    }
   });
+
+  // Safety fallback: force-show anything still hidden after 1.5s
+  setTimeout(() => {
+    document.querySelectorAll('.reveal-on-scroll:not(.is-visible)').forEach(el => {
+      el.classList.add('is-visible');
+    });
+  }, 1500);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
