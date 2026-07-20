@@ -58,6 +58,8 @@
 
     <!-- Cart Content -->
     <div id="cart-content" style="display:none;">
+
+
       <div style="display:grid; gap:40px;" class="cart-layout">
         <div>
           <div style="margin-bottom:32px;">
@@ -98,6 +100,9 @@
   <script src="js/utils.js"></script>
   <script src="js/header.js"></script>
   <script>
+    let secondsLeft = 15 * 60;
+    let timerInterval = null;
+
     function renderCart() {
       const productItems = readProductCart();
       const workshopItems = readWorkshopCart();
@@ -113,8 +118,14 @@
 
       // Workshop items
       if (workshopItems.length > 0) {
-        html += `<div style="margin-bottom:24px;">
+        const wsItem = workshopItems[0];
+        const expired = wsItem.reservedUntil <= Date.now();
+        html += `<div style="margin-bottom:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
           <span style="display:inline-flex; border-radius:9999px; background:#EFE7E1; padding:8px 20px; font-size:14px; font-weight:700; color:#7A3E2D;">Vé Workshop</span>
+          ${expired 
+            ? `<span style="font-size:14px; font-weight:700; color:#DC2626; display:inline-flex; align-items:center; gap:8px;">⏱️ Hết hạn giữ chỗ · <button onclick="renewHoldSlots()" style="background:none; border:none; color:#C96B37; text-decoration:underline; font-weight:700; cursor:pointer; font-size:14px; padding:0;">Gia hạn (15p)</button></span>`
+            : `<span style="font-size:14px; font-weight:700; color:#C96B37;">⏱️ Còn <span id="hold-timer">15:00</span></span>`
+          }
         </div>`;
         workshopItems.forEach(item => {
           const expired = item.reservedUntil <= Date.now();
@@ -190,6 +201,22 @@
 
       itemsContainer.innerHTML = html;
 
+      // Set hold timer values if workshops exist
+      const hasWorkshops = workshopItems.length > 0;
+      if (hasWorkshops) {
+        const wsItem = workshopItems[0];
+        if (wsItem && wsItem.reservedUntil) {
+          secondsLeft = Math.max(0, Math.floor((wsItem.reservedUntil - Date.now()) / 1000));
+        } else {
+          secondsLeft = 15 * 60;
+        }
+        if (secondsLeft > 0) {
+          startHoldTimer();
+        }
+      } else {
+        if (timerInterval) clearInterval(timerInterval);
+      }
+
       // Summary using getSelectedProductTotal and getSelectedProductCount
       const pTotal = getSelectedProductTotal();
       const wTotal = getWorkshopTotal();
@@ -211,11 +238,49 @@
     function goToCheckout() {
       const pCount = getSelectedProductCount();
       const wCount = getWorkshopTicketCount();
+      if (wCount > 0 && secondsLeft <= 0) {
+        showToast('Vé workshop giữ chỗ đã hết hạn. Hãy gia hạn giữ vé trước khi thanh toán.', 'error');
+        return;
+      }
       if (pCount + wCount === 0) {
         showToast('Vui lòng chọn ít nhất một sản phẩm hoặc vé để thanh toán.', 'error');
         return;
       }
       window.location.href = 'checkout.html';
+    }
+
+    function startHoldTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      const timerLabel = document.getElementById('hold-timer');
+      if (!timerLabel) return;
+      
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(timerInterval);
+          timerLabel.textContent = '00:00';
+          document.getElementById('hold-expired-actions').style.display = 'block';
+          showToast('Giữ vé workshop đã hết hạn! Vui lòng gia hạn.', 'error');
+        } else {
+          const min = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+          const sec = (secondsLeft % 60).toString().padStart(2, '0');
+          timerLabel.textContent = `${min}:${sec}`;
+        }
+      }, 1000);
+    }
+
+    function renewHoldSlots() {
+      secondsLeft = 15 * 60;
+      
+      const wsItems = readWorkshopCart();
+      if (wsItems.length > 0) {
+        wsItems[0].reservedUntil = Date.now() + 15 * 60 * 1000;
+        saveWorkshopCart(wsItems);
+      }
+      
+      document.getElementById('hold-expired-actions').style.display = 'none';
+      renderCart();
+      showToast('Gia hạn vé workshop thành công thêm 15 phút!');
     }
 
     document.addEventListener('DOMContentLoaded', renderCart);
