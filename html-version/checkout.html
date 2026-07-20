@@ -349,6 +349,12 @@
 
       // Visible sections
       if (hasWorkshops) {
+        const wsItem = checkoutWorkshopItems[0];
+        if (wsItem && wsItem.reservedUntil) {
+          secondsLeft = Math.max(0, Math.floor((wsItem.reservedUntil - Date.now()) / 1000));
+        } else {
+          secondsLeft = 15 * 60;
+        }
         document.getElementById('hold-banner').style.display = 'block';
         startHoldTimer();
       }
@@ -425,6 +431,14 @@
 
     function renewHoldSlots() {
       secondsLeft = 15 * 60;
+      
+      // Update reservedUntil in localStorage too
+      const wsItems = readWorkshopCart();
+      if (wsItems.length > 0) {
+        wsItems[0].reservedUntil = Date.now() + 15 * 60 * 1000;
+        saveWorkshopCart(wsItems);
+      }
+      
       document.getElementById('hold-expired-actions').style.display = 'none';
       startHoldTimer();
       showToast('Gia hạn vé workshop thành công thêm 15 phút!');
