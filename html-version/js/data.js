@@ -396,3 +396,49 @@ function formatVND(amount) {
   return amount.toLocaleString('vi-VN') + 'đ';
 }
 
+/* Dynamically generate upcoming workshop weekend dates starting from current local time */
+function formatDynamicDates() {
+  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+
+  function getUpcomingWeekendDay(offsetWeeks, isSunday) {
+    const d = new Date();
+    const dayOfWeek = d.getDay(); // 0 is Sunday, 6 is Saturday
+    
+    // Days until next Saturday (6)
+    let daysUntilSat = 6 - dayOfWeek;
+    if (daysUntilSat < 0) {
+      daysUntilSat += 7;
+    }
+    
+    let targetDays = daysUntilSat + (offsetWeeks * 7);
+    if (isSunday) {
+      targetDays += 1;
+    }
+    
+    d.setDate(d.getDate() + targetDays);
+    return d;
+  }
+
+  if (typeof workshops !== 'undefined' && Array.isArray(workshops)) {
+    workshops.forEach((ws, index) => {
+      // Alternate between Saturday and Sunday
+      const isSunday = index % 2 === 1;
+      const offsetWeeks = Math.floor(index / 2);
+      const dateObj = getUpcomingWeekendDay(offsetWeeks, isSunday);
+      
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+      
+      ws.date = String(dateObj.getDate());
+      ws.day = monthNames[dateObj.getMonth()];
+      ws.startDate = `${yyyy}-${mm}-${dd}`;
+      ws.fullDate = `${dayNames[dateObj.getDay()]}, ${dd}/${mm}/${yyyy}`;
+    });
+  }
+}
+
+// Call dynamic date formatting immediately
+formatDynamicDates();
+

@@ -58,7 +58,20 @@ function getProductCount() {
 function readWorkshopCart() {
   try {
     const data = localStorage.getItem(WORKSHOP_CART_KEY);
-    return data ? JSON.parse(data) : [];
+    const items = data ? JSON.parse(data) : [];
+    // Sync dates dynamically with the updated workshops array from data.js
+    if (typeof workshops !== 'undefined') {
+      items.forEach(item => {
+        const found = workshops.find(w => w.id === item.id);
+        if (found) {
+          item.date = found.fullDate;
+          item.time = found.time;
+          item.instructor = found.instructor;
+          item.price = found.price;
+        }
+      });
+    }
+    return items;
   } catch { return []; }
 }
 
@@ -107,7 +120,21 @@ function saveOrderData(order) {
 function readOrderData() {
   try {
     const data = localStorage.getItem(ORDER_KEY);
-    return data ? JSON.parse(data) : null;
+    const order = data ? JSON.parse(data) : null;
+    if (order && order.items && typeof workshops !== 'undefined') {
+      order.items.forEach(item => {
+        if (item.type === 'workshop') {
+          const found = workshops.find(w => w.id === item.id);
+          if (found) {
+            item.date = found.fullDate;
+            item.time = found.time;
+            item.instructor = found.instructor;
+            item.price = found.price;
+          }
+        }
+      });
+    }
+    return order;
   } catch { return null; }
 }
 
