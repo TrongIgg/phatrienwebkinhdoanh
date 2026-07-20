@@ -780,17 +780,11 @@
               </div>
               <div style="display:flex; flex-direction:column; align-items:end; gap:8px;">
                 <span class="badge ${statusClassMap}">${displayStatus}</span>
-                ${!isCancelled ? `
+                ${(record.status === 'delivered' || record.status === 'completed' || code === 'ORD-DELIVERED' || code === 'WS-COMPLETED') ? `
                   <div style="display:flex; gap:8px;">
-                    ${(record.status === 'delivered' || record.status === 'completed' || code === 'ORD-DELIVERED' || code === 'WS-COMPLETED') ? `
-                      <a href="review.html?code=${code}&targetType=${isOrder ? 'product' : 'workshop'}" class="btn" style="background:#716942; color:#fff; border-radius:9999px; padding:6px 14px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-                        ✍️ Đánh giá trải nghiệm
-                      </a>
-                    ` : `
-                      <button onclick="handleCancelClick()" class="btn-pill btn-danger-pill" style="height:32px; font-size:11px; padding:0 12px;">
-                        ${isOrder ? 'Hủy đơn hàng' : 'Hủy đặt chỗ'}
-                      </button>
-                    `}
+                    <a href="review.html?code=${code}&targetType=${isOrder ? 'product' : 'workshop'}" class="btn" style="background:#716942; color:#fff; border-radius:9999px; padding:6px 14px; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                      ✍️ Đánh giá trải nghiệm
+                    </a>
                   </div>
                 ` : ''}
               </div>
@@ -806,7 +800,12 @@
                   </div>
                   <div style="background:${!isOrder ? '#FFF' : '#F5EFEB'}; border:1px solid #EFD8C7; border-radius:10px; padding:12px;">
                     <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">📅 Workshop</p>
-                    <p style="font-size:13px; margin:0; color:${!isOrder ? '#361F17' : '#8B765D'};">${!isOrder ? `${record.participant_count || 1} người · ${record.checkin_status || 'chưa checkin'}` : 'Không có vé workshop trong đơn này.'}</p>
+                    <p style="font-size:13px; margin:0; color:${!isOrder ? '#361F17' : '#8B765D'};">${(() => {
+                      if (isOrder) return 'Không có vé workshop trong đơn này.';
+                      const checkinLabels = { waiting: 'Chờ check-in', checked_in: 'Đã check-in', done: 'Đã hoàn thành' };
+                      const checkinLabel = checkinLabels[record.checkin_status] || 'Chờ check-in';
+                      return `${record.participant_count || 1} người · ${checkinLabel}`;
+                    })()}</p>
                   </div>
                   <div style="background:#F5EFEB; border:1px solid #EFD8C7; border-radius:10px; padding:12px;">
                     <p style="font-size:11px; font-weight:700; text-transform:uppercase; color:#716942; margin:0 0 6px;">✨ Tracking gốm</p>

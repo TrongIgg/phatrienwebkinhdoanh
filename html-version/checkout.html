@@ -282,11 +282,11 @@
         <!-- QR Code Display Box -->
         <div id="modal-qr-container" style="border-radius:10px; padding:32px; text-align:center; color:#fff;">
           <h3 style="font-size:24px; font-weight:700; margin:0 0 8px;">Quét mã để thanh toán</h3>
-          <p style="font-size:13px; opacity:0.9; margin:0 0 24px;">Mở ứng dụng ngân hàng hoặc ví điện tử để quét</p>
-          <div style="display:flex; height:240px; width:240px; align-items:center; justify-content:center; border-radius:10px; background:#fff; margin:0 auto 24px;">
-            <!-- Simulated QR code icon -->
-            <svg id="modal-qr-icon" xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
+          <p style="font-size:13px; opacity:0.9; margin:0 0 20px;">Mở ứng dụng ngân hàng hoặc ví điện tử để quét</p>
+          <div style="display:flex; align-items:center; justify-content:center; border-radius:14px; background:#fff; margin:0 auto 20px; padding:10px; width:220px; height:220px; box-shadow:0 4px 24px rgba(0,0,0,0.18);">
+            <img id="modal-qr-img" src="image/qr/bank_qr.jpg" alt="QR thanh toán" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
           </div>
+          <p id="modal-qr-hint" style="font-size:12px; opacity:0.85; margin:0 0 20px; line-height:1.5;">Quét bằng app ngân hàng bất kỳ · Chuyển khoản nhanh 24/7</p>
           <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
             <button onclick="handlePaymentFailureSim()" class="btn btn-light" style="border-radius:9999px; background:#fff; color:#000; font-size:14px; border:none; height:44px; padding:0 24px;">Hủy giao dịch</button>
             <button onclick="handlePaymentSuccessSim()" class="btn btn-dark" style="border-radius:9999px; font-size:14px; height:44px; padding:0 24px;">Đã thanh toán</button>
@@ -596,50 +596,81 @@
       const title = document.getElementById('modal-title');
       const qrContainer = document.getElementById('modal-qr-container');
 
+      const qrImg = document.getElementById('modal-qr-img');
+      const qrHint = document.getElementById('modal-qr-hint');
+
       if (paymentMethod === 'momo') {
         logo.src = 'image/logo/momo.png';
         title.textContent = 'Thanh toán ví MoMo';
         box.style.borderColor = '#DC1A8D';
-        qrContainer.style.background = '#DC1A8D';
+        qrContainer.style.background = 'linear-gradient(135deg, #DC1A8D 0%, #a5136a 100%)';
+        qrImg.src = 'image/qr/momo_qr.jpg';
+        qrImg.alt = 'QR thanh toán MoMo';
+        qrHint.textContent = 'Mở app MoMo → Quét mã → Xác nhận thanh toán';
       } else {
         logo.src = 'image/logo/vnpay.jpg';
         title.textContent = 'Thanh toán qua VNPAY';
         box.style.borderColor = '#0088C9';
-        qrContainer.style.background = '#0088C9';
+        qrContainer.style.background = 'linear-gradient(135deg, #0088C9 0%, #005f8e 100%)';
+        qrImg.src = 'image/qr/bank_qr.jpg';
+        qrImg.alt = 'QR thanh toán ngân hàng';
+        qrHint.textContent = 'Quét bằng app ngân hàng bất kỳ · Chuyển khoản nhanh 24/7';
       }
 
       document.getElementById('modal-payable-total').textContent = payableTotalVNDText(totalAmount);
       modal.style.display = 'flex';
 
-      let modalSeconds = 5 * 60; // 5 minutes payment qr timing
-      if (checkoutWorkshopItems.length > 0) {
-        modalSeconds = Math.min(secondsLeft, 5 * 60);
-      }
+      // Dừng hold timer bên ngoài, dùng chung secondsLeft
+      if (timerInterval) clearInterval(timerInterval);
 
-      startPaymentCountdown(modalSeconds);
+      startPaymentCountdown();
     }
 
     function payableTotalVNDText(val) {
       return val.toLocaleString('vi-VN') + ' VND';
     }
 
-    function startPaymentCountdown(secCount) {
+    function startPaymentCountdown() {
       if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-      const timerLabel = document.getElementById('modal-timer');
-      const countLabel = document.getElementById('modal-countdown');
+      const modalTimerLabel = document.getElementById('modal-timer');
+      const modalCountLabel = document.getElementById('modal-countdown');
+      const holdTimerLabel = document.getElementById('hold-timer');
 
-      let left = secCount;
+      // Nếu không có workshop item thì dùng 5 phút độc lập
+      if (checkoutWorkshopItems.length === 0) {
+        let left = 5 * 60;
+        paymentTimerInterval = setInterval(() => {
+          left--;
+          if (left <= 0) {
+            clearInterval(paymentTimerInterval);
+            closePaymentModal();
+            handlePaymentFailureSim();
+          } else {
+            const min = Math.floor(left / 60).toString().padStart(2, '0');
+            const s = (left % 60).toString().padStart(2, '0');
+            if (modalTimerLabel) modalTimerLabel.textContent = `${min}:${s}`;
+            if (modalCountLabel) modalCountLabel.textContent = `${min}:${s}`;
+          }
+        }, 1000);
+        return;
+      }
+
+      // Có workshop item: dùng chung secondsLeft, cập nhật cả 2 màn hình
       paymentTimerInterval = setInterval(() => {
-        left--;
-        if (left <= 0) {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
           clearInterval(paymentTimerInterval);
+          if (holdTimerLabel) holdTimerLabel.textContent = '00:00';
+          document.getElementById('hold-expired-actions').style.display = 'block';
           closePaymentModal();
           handlePaymentFailureSim();
         } else {
-          const min = Math.floor(left / 60).toString().padStart(2, '0');
-          const s = (left % 60).toString().padStart(2, '0');
-          timerLabel.textContent = `${min}:${s}`;
-          countLabel.textContent = `${min}:${s}`;
+          const min = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+          const s = (secondsLeft % 60).toString().padStart(2, '0');
+          // Cập nhật cả hold timer bên ngoài và modal countdown
+          if (holdTimerLabel) holdTimerLabel.textContent = `${min}:${s}`;
+          if (modalTimerLabel) modalTimerLabel.textContent = `${min}:${s}`;
+          if (modalCountLabel) modalCountLabel.textContent = `${min}:${s}`;
         }
       }, 1000);
     }
@@ -647,6 +678,10 @@
     function closePaymentModal() {
       document.getElementById('payment-modal').style.display = 'none';
       if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+      // Resume hold timer bên ngoài nếu còn thời gian
+      if (checkoutWorkshopItems.length > 0 && secondsLeft > 0) {
+        startHoldTimer();
+      }
     }
 
     // Success Simulation

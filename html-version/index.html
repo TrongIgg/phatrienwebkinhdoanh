@@ -414,37 +414,151 @@
   </script>
 
   <style>
-    /* Responsive grid adjustments for this page */
+    /* ===== BASE GRIDS ===== */
     .workshop-intro-grid { grid-template-columns: 520px 1fr; }
-    .about-grid { grid-template-columns: 540px 1fr; }
-    .moments-grid { grid-template-columns: 520px 1fr; }
-    .why-grid { grid-template-columns: repeat(4, 1fr); }
-    .cards-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .cards-grid-4 { grid-template-columns: repeat(4, 1fr); }
-    .cta-bg-img { display: none; }
+    .about-grid          { grid-template-columns: 540px 1fr; }
+    .moments-grid        { grid-template-columns: 520px 1fr; }
+    .why-grid            { grid-template-columns: repeat(4, 1fr); }
+    .cards-grid-3        { grid-template-columns: repeat(3, 1fr); }
+    .cards-grid-4        { grid-template-columns: repeat(4, 1fr); }
+    .cta-bg-img          { display: none; }
 
     @media (min-width: 1024px) {
       .cta-bg-img { display: block; }
       .header-inner { padding: 0 64px; }
     }
 
+    /* ===== TABLET: 768px – 1023px ===== */
     @media (max-width: 1023px) {
-      .workshop-intro-grid { grid-template-columns: 1fr !important; }
-      .about-grid { grid-template-columns: 1fr !important; }
-      .moments-grid { grid-template-columns: 1fr !important; }
-    }
+      /* Main grids collapse to 1 column */
+      .workshop-intro-grid,
+      .about-grid,
+      .moments-grid {
+        grid-template-columns: 1fr !important;
+      }
 
-    @media (max-width: 767px) {
-      .why-grid { grid-template-columns: repeat(2, 1fr) !important; }
-      .cards-grid-3 { grid-template-columns: 1fr !important; }
+      /* Cards: 3→2 columns on tablet */
+      .cards-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
       .cards-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Workshop intro photo grid: 2 cols → equalise heights */
+      .workshop-intro-grid > div:first-child .asset-img {
+        height: 200px !important;
+      }
+
+      /* About section: text left on tablet, image grid normalise */
+      .about-grid > div:last-child {
+        grid-template-columns: 1fr 1fr;
+      }
+      .about-grid > div:last-child .asset-img:last-child {
+        margin-top: 0 !important;
+        height: 350px !important;
+      }
+      .about-grid > div:last-child .asset-img:first-child {
+        height: 350px !important;
+      }
+
+      /* Moments section: photo mosaic side-by-side */
+      .moments-grid > div:first-child > div:first-child {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      /* Review strip 2 cols */
+      #review-strip { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Why grid: 2x2 */
+      .why-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Padding adjustments */
+      section[style*="padding:96px"] { padding-top: 64px !important; padding-bottom: 64px !important; }
+
+      /* CTA section inner text paddings */
+      section[style*="padding:80px 32px"] { padding: 48px 24px !important; }
     }
 
+    /* ===== MOBILE: ≤767px ===== */
+    @media (max-width: 767px) {
+      /* All grids → 1 column */
+      .why-grid            { grid-template-columns: repeat(2, 1fr) !important; }
+      .cards-grid-3        { grid-template-columns: 1fr !important; }
+      .cards-grid-4        { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Workshop intro photo grid 1 col */
+      .workshop-intro-grid > div:first-child > div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+      .workshop-intro-grid > div:first-child .asset-img {
+        height: 200px !important;
+      }
+
+      /* About photo grid 1 col */
+      .about-grid > div:last-child {
+        grid-template-columns: 1fr !important;
+      }
+      .about-grid > div:last-child .asset-img {
+        height: 260px !important;
+        margin-top: 0 !important;
+      }
+
+      /* Moments mosaic → stacked */
+      .moments-grid > div:first-child > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+      .moments-grid > div:first-child .asset-img[style*="height:300px"] {
+        height: 220px !important;
+      }
+      .moments-grid > div:first-child > div:last-child {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .moments-grid > div:first-child > div:last-child .asset-img {
+        height: 140px !important;
+      }
+
+      /* Reviews → 1 col */
+      #review-strip { grid-template-columns: 1fr !important; }
+
+      /* Why grid → 2 col, or 1 col on very small */
+      .why-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Hero: Buttons stack & full width on mobile */
+      .clay-cinema > div > div[style*="display:flex"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      .clay-cinema > div > div[style*="display:flex"] > a {
+        justify-content: center !important;
+      }
+
+      /* Workshop intro features: 1 col */
+      div[style*="grid-template-columns:repeat(3, 1fr)"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* CTA section */
+      section[style*="padding:96px 24px"] { padding: 40px 16px !important; }
+      div[style*="min-width:260px"] { min-width: unset !important; width: 100% !important; }
+      div[style*="gap:40px"][style*="flex-wrap:wrap"] { gap: 16px !important; }
+
+      /* Section padding reduction */
+      section { padding-left: 16px !important; padding-right: 16px !important; }
+    }
+
+    /* ===== EXTRA SMALL: ≤480px ===== */
     @media (max-width: 480px) {
       .cards-grid-4 { grid-template-columns: 1fr !important; }
-      .why-grid { grid-template-columns: 1fr !important; }
+      .why-grid     { grid-template-columns: 1fr !important; }
+      .cards-grid-3 { grid-template-columns: 1fr !important; }
+
+      /* Workshop intro grid photo: show only first 2 */
+      .workshop-intro-grid > div:first-child > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Hero: reduce min-height */
+      .clay-cinema { min-height: 440px !important; }
     }
   </style>
+
 
 </body>
 </html>

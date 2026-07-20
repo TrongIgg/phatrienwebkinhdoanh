@@ -3,12 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="THỔ Studio - Thanh toán không thành công">
+  <meta name="description" content="THỔ Studio - Thanh toán không thành công. Vui lòng thử lại hoặc chọn phương thức khác.">
   <title>THỔ Studio - Thanh toán thất bại</title>
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <style>
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fail-icon-ring  { animation: shake 0.6s ease 0.3s both; }
+    .fail-content    { animation: fadeSlideUp 0.5s ease 0.2s both; }
+    .fail-reasons    { animation: fadeSlideUp 0.5s ease 0.45s both; }
+    .fail-actions    { animation: fadeSlideUp 0.5s ease 0.6s both; }
+
+    .reason-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #F0E8E2;
+      text-align: left;
+      transition: box-shadow 0.2s;
+    }
+    .reason-card:hover {
+      box-shadow: 0 4px 16px rgba(54, 31, 23, 0.07);
+    }
+    .reason-icon {
+      display: flex;
+      flex-shrink: 0;
+      height: 36px;
+      width: 36px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #FEF0E6;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body class="checkout-shell">
 
@@ -37,29 +81,94 @@
   </header>
 
   <!-- MAIN -->
-  <main class="page-transition" style="max-width:760px; margin:0 auto; padding:80px 24px 120px; text-align:center;">
-    <div style="margin:0 auto 24px; display:flex; height:96px; width:96px; align-items:center; justify-content:center; border-radius:50%; background:#FEF5F2; color:#C62828;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+  <main class="page-transition" style="max-width:680px; margin:0 auto; padding:72px 24px 120px; text-align:center;">
+
+    <!-- Error icon with shake animation -->
+    <div class="fail-icon-ring" style="margin:0 auto 28px; display:flex; height:100px; width:100px; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#FEF2F2,#FEE2E2); border:3px solid #FCA5A5; color:#DC2626;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" x2="9" y1="9" y2="15"/>
+        <line x1="9" x2="15" y1="9" y2="15"/>
+      </svg>
     </div>
-    
-    <h1 style="font-size:36px; font-weight:700; color:#2B211D;">Thanh toán thất bại</h1>
-    <p style="margin-top:16px; font-size:18px; line-height:1.7; color:#6E4E3F; max-width:560px; margin-left:auto; margin-right:auto;">
-      Giao dịch của bạn đã bị hủy hoặc không thành công từ phía cổng thanh toán. Hãy thử lại hoặc lựa chọn phương thức thanh toán khác.
+
+    <!-- Title & description -->
+    <div class="fail-content">
+      <h1 style="font-size:clamp(28px,5vw,38px); font-weight:800; color:#2B211D; letter-spacing:-0.02em;">Thanh toán thất bại</h1>
+      <p style="margin-top:14px; font-size:17px; line-height:1.75; color:#6E4E3F; max-width:480px; margin-left:auto; margin-right:auto;">
+        Giao dịch bị hủy hoặc không thể xử lý từ phía cổng thanh toán. Đơn hàng của bạn vẫn được giữ nguyên — hãy thử lại bất cứ lúc nào.
+      </p>
+    </div>
+
+    <!-- Reason cards -->
+    <div class="fail-reasons" style="margin-top:40px; display:grid; gap:12px;">
+      <p style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#A08878; margin-bottom:4px; text-align:left;">Nguyên nhân thường gặp</p>
+
+      <div class="reason-card">
+        <div class="reason-icon">⏱️</div>
+        <div>
+          <p style="font-weight:700; font-size:14px; color:#2B211D; margin:0;">Mã QR hết hạn</p>
+          <p style="font-size:13px; color:#7A6055; margin:4px 0 0; line-height:1.5;">Quét QR trong vòng 5 phút kể từ khi hiển thị. Nhấn <em>Thử lại</em> để tạo mã mới.</p>
+        </div>
+      </div>
+
+      <div class="reason-card">
+        <div class="reason-icon">💳</div>
+        <div>
+          <p style="font-weight:700; font-size:14px; color:#2B211D; margin:0;">Số dư tài khoản không đủ</p>
+          <p style="font-size:13px; color:#7A6055; margin:4px 0 0; line-height:1.5;">Kiểm tra số dư hoặc hạn mức ví/thẻ, sau đó thử lại với phương thức khác.</p>
+        </div>
+      </div>
+
+      <div class="reason-card">
+        <div class="reason-icon">📶</div>
+        <div>
+          <p style="font-weight:700; font-size:14px; color:#2B211D; margin:0;">Kết nối mạng không ổn định</p>
+          <p style="font-size:13px; color:#7A6055; margin:4px 0 0; line-height:1.5;">Kiểm tra kết nối WiFi hoặc 4G/5G rồi thực hiện lại giao dịch.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="fail-actions" style="margin-top:40px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="checkout.html" class="btn btn-dark" style="padding:14px 32px; font-size:16px; border-radius:9999px; display:inline-flex; align-items:center; gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 9 15 9"/></svg>
+        Thử lại thanh toán
+      </a>
+      <a href="cart.html" class="btn btn-outline" style="padding:14px 32px; font-size:16px; border-radius:9999px; border-color:rgba(58,31,23,0.25); color:#3A1F17;">
+        ← Quay lại giỏ hàng
+      </a>
+    </div>
+
+    <!-- Help note -->
+    <p style="margin-top:36px; font-size:13px; color:#A08878; line-height:1.6;">
+      Cần hỗ trợ? Liên hệ THỔ qua <a href="about.html" style="color:#C96B37; font-weight:700; text-decoration:underline;">trang liên hệ</a> hoặc nhắn trực tiếp qua fanpage.
     </p>
 
-    <div style="margin-top:40px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-      <a href="checkout.html" class="btn btn-dark" style="padding:14px 36px; font-size:16px; border-radius:9999px;">Thử lại thanh toán</a>
-      <a href="cart.html" class="btn btn-outline" style="padding:14px 36px; font-size:16px; border-radius:9999px; border-color:rgba(58,31,23,0.25); color:#3A1F17;">Quay lại giỏ hàng</a>
-    </div>
   </main>
 
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-grid">
       <div class="footer-logo" style="display:flex; justify-content:center;"><img src="image/logo/logo.jpg" alt="THỔ Studio logo"></div>
-      <div class="footer-section"><h3>Thông tin</h3><ul><li><a href="policy.html">Chính sách</a></li><li><a href="about.html">Về THỔ</a></li></ul></div>
-      <div class="footer-section"><h3>Dịch vụ</h3><ul><li><a href="tracking.html">Theo dõi đơn hàng</a></li><li><a href="workshop.html">Workshop</a></li></ul></div>
-      <div class="footer-section"><h3>Liên hệ</h3><div class="footer-social"><a href="#">Facebook</a></div></div>
+      <div class="footer-section">
+        <h3>Thông tin</h3>
+        <ul>
+          <li><a href="policy.html">Chính sách</a></li>
+          <li><a href="about.html">Về THỔ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Dịch vụ</h3>
+        <ul>
+          <li><a href="tracking.html">Theo dõi đơn hàng</a></li>
+          <li><a href="workshop.html">Workshop</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Liên hệ</h3>
+        <div class="footer-social"><a href="#">Facebook</a></div>
+      </div>
     </div>
     <p class="footer-bottom">Công ty TNHH Thương Mại và Dịch Vụ Mỹ nghệ - THỔ.</p>
   </footer>
@@ -68,6 +177,6 @@
   <script src="js/cart.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/header.js"></script>
+
 </body>
 </html>
-

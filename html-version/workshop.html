@@ -112,6 +112,22 @@
   <script>
     const audienceLabels = { single_friendly: 'Cá nhân', couple_friendly: 'Đôi / nhóm', family_friendly: 'Gia đình' };
 
+    const MONTH_NAMES_VI = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+
+    function getWorkshopMonthKey(ws) {
+      // Try to parse date from ws.fullDate e.g "Thứ Bảy, 02/08/2025" or ws.date
+      const dateStr = ws.date || ws.fullDate || '';
+      const match = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (match) return `${match[3]}-${match[2]}`; // YYYY-MM
+      return '9999-99'; // fallback: put at end
+    }
+
+    function getMonthLabel(key) {
+      if (key === '9999-99') return 'Sắp cập nhật';
+      const [year, month] = key.split('-');
+      return `${MONTH_NAMES_VI[parseInt(month, 10) - 1]} ${year}`;
+    }
+
     function renderWorkshops() {
       const search = document.getElementById('ws-search').value.toLowerCase().trim();
       const typeFilter = document.getElementById('ws-type').value;
@@ -132,6 +148,7 @@
       if (sortBy === 'price_asc') filtered.sort((a, b) => a.price - b.price);
       else if (sortBy === 'price_desc') filtered.sort((a, b) => b.price - a.price);
       else if (sortBy === 'slots_desc') filtered.sort((a, b) => b.slots.available - a.slots.available);
+      else filtered.sort((a, b) => getWorkshopMonthKey(a).localeCompare(getWorkshopMonthKey(b)));
 
       const grid = document.getElementById('workshop-grid');
       const empty = document.getElementById('ws-empty');
@@ -142,42 +159,73 @@
         return;
       }
 
-      grid.style.display = 'grid';
+      grid.style.display = 'block';
       empty.style.display = 'none';
 
-      grid.innerHTML = filtered.map(ws => {
-        const slotsPercent = Math.round((ws.slots.available / ws.slots.total) * 100);
-        const urgentClass = ws.slots.available <= 3 ? 'color:#C96B37; font-weight:700;' : '';
-        const audienceText = audienceLabels[ws.audience] || 'Cá nhân';
-        const typeText = ws.workshopType === 'basic' ? 'Nặn gốm cơ bản' : ws.workshopType === 'painting' ? 'Trang trí men' : 'Chuyên sâu';
-        return `
-          <a href="workshop-detail.html?id=${ws.id}" class="workshop-card" style="display:flex; flex-direction:column; overflow:hidden; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; text-decoration:none; color:inherit; height:100%; box-shadow:0 6px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;">
-            <div class="asset-img" style="height:220px; width:100%; overflow:hidden;"><img src="${ws.image}" alt="${ws.name}" style="width:100%; height:100%; object-fit:cover;"></div>
-            <div style="padding:20px; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
-              <div>
-                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
-                  <span style="border-radius:9999px; background:#EFE2D6; padding:4px 12px; font-size:11px; font-weight:700; color:#643A2A;">
-                    ${audienceText}
-                  </span>
-                  <span style="border-radius:9999px; background:#F4E4D8; padding:4px 12px; font-size:11px; font-weight:700; color:#7A3E2D;">
-                    ${typeText}
-                  </span>
-                </div>
-                <h3 style="font-size:20px; font-weight:700; color:#2B211D; margin:0 0 8px; line-height:1.3; font-family:'Outfit', sans-serif;">${ws.name}</h3>
-                <p style="font-size:13px; line-height:1.6; color:#6A5D52; margin:0 0 16px; min-height:60px;">${ws.description}</p>
-                <div style="display:grid; gap:8px; font-size:13px; color:#6A5D52; margin-bottom:16px;">
-                  <div style="display:flex; align-items:center; gap:6px;">📅 ${ws.fullDate}</div>
-                  <div style="display:flex; align-items:center; gap:6px;">🕒 ${ws.time}</div>
-                  <div style="display:flex; align-items:center; gap:6px;">👥 ${ws.package} · còn ${ws.slots.available}/${ws.slots.total} slot</div>
-                </div>
+      // Group by month if sorting by date; otherwise render flat
+      const groupByMonth = (sortBy === 'date_asc');
+
+      if (groupByMonth) {
+        // Group workshops by month
+        const groups = {};
+        filtered.forEach(ws => {
+          const key = getWorkshopMonthKey(ws);
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(ws);
+        });
+
+        const sortedKeys = Object.keys(groups).sort();
+        grid.innerHTML = sortedKeys.map(key => {
+          const monthLabel = getMonthLabel(key);
+          const cards = groups[key].map(ws => renderWorkshopCard(ws)).join('');
+          return `
+            <div class="ws-month-section">
+              <div class="ws-month-header">
+                <span class="ws-month-dot"></span>
+                <h2 class="ws-month-title">${monthLabel}</h2>
+                <span class="ws-month-count">${groups[key].length} buổi</span>
               </div>
-              <div style="border-top:1px dashed #E5D5C5; padding-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:auto;">
-                <span style="font-size:20px; font-weight:700; color:#643A2A;">${formatVND(ws.price)}</span>
-                <span class="btn btn-primary btn-sm" style="border-radius:9999px; background:var(--olive); border-color:var(--olive); padding:6px 18px; font-size:13px; font-weight:700;">Đặt chỗ</span>
+              <div class="ws-grid">${cards}</div>
+            </div>`;
+        }).join('');
+      } else {
+        // Flat grid for non-date sorts
+        grid.innerHTML = `<div class="ws-grid">${filtered.map(ws => renderWorkshopCard(ws)).join('')}</div>`;
+      }
+    }
+
+    function renderWorkshopCard(ws) {
+      const slotsPercent = Math.round((ws.slots.available / ws.slots.total) * 100);
+      const urgentClass = ws.slots.available <= 3 ? 'color:#C96B37; font-weight:700;' : '';
+      const audienceText = audienceLabels[ws.audience] || 'Cá nhân';
+      const typeText = ws.workshopType === 'basic' ? 'Nặn gốm cơ bản' : ws.workshopType === 'painting' ? 'Trang trí men' : 'Chuyên sâu';
+      return `
+        <a href="workshop-detail.html?id=${ws.id}" class="workshop-card" style="display:flex; flex-direction:column; overflow:hidden; border-radius:18px; border:2px solid #EFD8C7; background:#FFF8F2; text-decoration:none; color:inherit; height:100%; box-shadow:0 6px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;">
+          <div class="asset-img" style="height:220px; width:100%; overflow:hidden;"><img src="${ws.image}" alt="${ws.name}" style="width:100%; height:100%; object-fit:cover;"></div>
+          <div style="padding:20px; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+            <div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                <span style="border-radius:9999px; background:#EFE2D6; padding:4px 12px; font-size:11px; font-weight:700; color:#643A2A;">
+                  ${audienceText}
+                </span>
+                <span style="border-radius:9999px; background:#F4E4D8; padding:4px 12px; font-size:11px; font-weight:700; color:#7A3E2D;">
+                  ${typeText}
+                </span>
+              </div>
+              <h3 style="font-size:20px; font-weight:700; color:#2B211D; margin:0 0 8px; line-height:1.3; font-family:'Outfit', sans-serif;">${ws.name}</h3>
+              <p style="font-size:13px; line-height:1.6; color:#6A5D52; margin:0 0 16px; min-height:60px;">${ws.description}</p>
+              <div style="display:grid; gap:8px; font-size:13px; color:#6A5D52; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:6px;">📅 ${ws.fullDate}</div>
+                <div style="display:flex; align-items:center; gap:6px;">🕒 ${ws.time}</div>
+                <div style="display:flex; align-items:center; gap:6px;">👥 ${ws.package} · còn ${ws.slots.available}/${ws.slots.total} slot</div>
               </div>
             </div>
-          </a>`;
-      }).join('');
+            <div style="border-top:1px dashed #E5D5C5; padding-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:auto;">
+              <span style="font-size:20px; font-weight:700; color:#643A2A;">${formatVND(ws.price)}</span>
+              <span class="btn btn-primary btn-sm" style="border-radius:9999px; background:var(--olive); border-color:var(--olive); padding:6px 18px; font-size:13px; font-weight:700;">Đặt chỗ</span>
+            </div>
+          </div>
+        </a>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -455,6 +503,46 @@
       .ws-grid { grid-template-columns: 1fr; }
       .chatbot-options-grid { grid-template-columns: 1fr !important; }
       .chatbot-summary-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+
+    /* Month grouping styles */
+    .ws-month-section {
+      margin-bottom: 56px;
+    }
+    .ws-month-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #EFD8C7;
+    }
+    .ws-month-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C96B37 0%, #643A2A 100%);
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(201, 107, 55, 0.18);
+    }
+    .ws-month-title {
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 800;
+      color: #2B211D;
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .ws-month-count {
+      margin-left: auto;
+      font-size: 13px;
+      font-weight: 700;
+      color: #C96B37;
+      background: #FEF0E6;
+      border-radius: 9999px;
+      padding: 4px 14px;
+      border: 1px solid rgba(201, 107, 55, 0.25);
     }
   </style>
 </body>
