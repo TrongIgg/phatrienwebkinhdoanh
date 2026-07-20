@@ -326,7 +326,7 @@
     let checkoutWorkshopItems = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-      checkoutProductItems = readProductCart();
+      checkoutProductItems = readProductCart().filter(item => item.selected);
       checkoutWorkshopItems = readWorkshopCart();
 
       const hasProducts = checkoutProductItems.length > 0;

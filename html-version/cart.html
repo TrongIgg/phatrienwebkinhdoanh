@@ -146,13 +146,20 @@
           <span style="margin-left:12px; font-size:14px; font-weight:700; color:#8B765D;">Giao tận nơi</span>
         </div>`;
         productItems.forEach(item => {
+          const isSelected = item.selected !== false;
           html += `
-          <article style="margin-bottom:20px; border-radius:18px; border:2px solid #EFD8C7; background:#FFF1E8; padding:20px;">
-            <div style="display:grid; gap:20px; grid-template-columns:96px 1fr auto;">
+          <article style="margin-bottom:20px; border-radius:18px; border:2px solid #EFD8C7; background:#FFF1E8; padding:20px; transition: all 0.2s; ${isSelected ? '' : 'opacity: 0.8;'}">
+            <div class="cart-item-row">
+              <!-- Checkbox -->
+              <div style="display:flex; align-items:center; justify-content:center;">
+                <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleProductSelection('${item.id}'); renderCart(); updateCartBadge();" style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--olive); border: 2px solid var(--clay); border-radius: 4px;">
+              </div>
+              <!-- Image -->
               <div class="asset-img" style="height:87px; width:87px; border-radius:12px;"><img src="${item.image}" alt="${item.name}"></div>
+              <!-- Info -->
               <div>
                 <h3 style="font-size:18px; font-weight:700; color:#2B211D;">${item.name}</h3>
-                <div style="margin-top:24px; display:flex; align-items:center; gap:20px;">
+                <div style="margin-top:24px; display:flex; align-items:center; gap:20px;" class="desktop-qty">
                   <button onclick="updateProductQuantity('${item.id}', ${item.quantity - 1}); renderCart(); updateCartBadge();" style="display:flex; height:30px; width:30px; align-items:center; justify-content:center; border-radius:50%; border:2px solid #E5CDBA; background:transparent; cursor:pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
                   </button>
@@ -162,11 +169,19 @@
                   </button>
                 </div>
               </div>
-              <div style="display:flex; align-items:start; gap:32px;">
-                <p style="font-size:24px; color:#2B211D;">${formatVND(item.price * item.quantity)}</p>
-                <button onclick="removeProductFromCart('${item.id}'); renderCart(); updateCartBadge();" style="color:#BFA083; cursor:pointer; background:none; border:none;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                </button>
+              <!-- Action and Price -->
+              <div class="cart-item-actions">
+                <div style="margin-top:12px; display:none; align-items:center; gap:16px;" class="mobile-qty">
+                  <button onclick="updateProductQuantity('${item.id}', ${item.quantity - 1}); renderCart(); updateCartBadge();" style="display:flex; height:26px; width:26px; align-items:center; justify-content:center; border-radius:50%; border:2px solid #E5CDBA; background:transparent; cursor:pointer; font-weight:bold;">-</button>
+                  <span style="min-width:24px; text-align:center; font-size:18px; font-weight:700;">${item.quantity}</span>
+                  <button onclick="updateProductQuantity('${item.id}', ${item.quantity + 1}); renderCart(); updateCartBadge();" style="display:flex; height:26px; width:26px; align-items:center; justify-content:center; border-radius:50%; border:2px solid #E5CDBA; background:transparent; cursor:pointer; font-weight:bold;">+</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:20px; justify-content:space-between; width:100%;" class="actions-right">
+                  <p style="font-size:24px; color:#2B211D; margin:0;">${formatVND(item.price * item.quantity)}</p>
+                  <button onclick="removeProductFromCart('${item.id}'); renderCart(); updateCartBadge();" style="color:#BFA083; cursor:pointer; background:none; border:none; display:flex; align-items:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </article>`;
@@ -175,18 +190,18 @@
 
       itemsContainer.innerHTML = html;
 
-      // Summary
-      const pTotal = getProductTotal();
+      // Summary using getSelectedProductTotal and getSelectedProductCount
+      const pTotal = getSelectedProductTotal();
       const wTotal = getWorkshopTotal();
       const total = pTotal + wTotal;
-      const pCount = getProductCount();
+      const pCount = getSelectedProductCount();
       const wCount = getWorkshopTicketCount();
 
       let summaryHtml = '';
       if (workshopItems.length > 0) {
         summaryHtml += `<div style="display:flex; justify-content:space-between; font-size:20px; color:#756D4E; margin-bottom:16px;"><span>Workshop (${wCount} slot)</span><span>${formatVND(wTotal)}</span></div>`;
       }
-      if (productItems.length > 0) {
+      if (pCount > 0) {
         summaryHtml += `<div style="display:flex; justify-content:space-between; font-size:20px; color:#756D4E;"><span>Sản phẩm (${pCount} món)</span><span>${formatVND(pTotal)}</span></div>`;
       }
       document.getElementById('cart-summary').innerHTML = summaryHtml;
@@ -194,10 +209,10 @@
     }
 
     function goToCheckout() {
-      const pCount = getProductCount();
+      const pCount = getSelectedProductCount();
       const wCount = getWorkshopTicketCount();
       if (pCount + wCount === 0) {
-        showToast('Giỏ hàng trống.', 'error');
+        showToast('Vui lòng chọn ít nhất một sản phẩm hoặc vé để thanh toán.', 'error');
         return;
       }
       window.location.href = 'checkout.html';
@@ -208,9 +223,43 @@
 
   <style>
     .cart-layout { grid-template-columns: 1fr 420px; }
+    .cart-item-row {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 40px 96px 1fr auto;
+      align-items: center;
+    }
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
     @media (max-width: 1023px) { .cart-layout { grid-template-columns: 1fr !important; } }
     @media (max-width: 767px) {
-      article > div { grid-template-columns: 1fr !important; }
+      .cart-item-row {
+        grid-template-columns: 40px 87px 1fr !important;
+        gap: 12px;
+      }
+      .cart-item-actions {
+        grid-column: span 3;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px dashed #E8D6C9;
+        padding-top: 12px;
+        margin-top: 8px;
+        width: 100%;
+        gap: 16px;
+      }
+      .desktop-qty {
+        display: none !important;
+      }
+      .mobile-qty {
+        display: flex !important;
+      }
+      .actions-right {
+        width: auto !important;
+      }
     }
   </style>
 </body>

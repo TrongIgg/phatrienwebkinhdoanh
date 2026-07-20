@@ -23,8 +23,9 @@ function addProductToCart(product) {
   const existing = items.find(i => i.id === product.id);
   if (existing) {
     existing.quantity += (product.quantity || 1);
+    existing.selected = true; // Auto select if added again
   } else {
-    items.push({ ...product, type: 'product', quantity: product.quantity || 1 });
+    items.push({ ...product, type: 'product', quantity: product.quantity || 1, selected: true });
   }
   saveProductCart(items);
   return true;
@@ -46,12 +47,33 @@ function clearProductCart() {
   saveProductCart([]);
 }
 
+function toggleProductSelection(id) {
+  const items = readProductCart();
+  const item = items.find(i => i.id === id);
+  if (item) {
+    item.selected = !item.selected;
+  }
+  saveProductCart(items);
+}
+
 function getProductTotal() {
   return readProductCart().reduce((sum, i) => sum + i.price * i.quantity, 0);
 }
 
 function getProductCount() {
   return readProductCart().reduce((sum, i) => sum + i.quantity, 0);
+}
+
+function getSelectedProductTotal() {
+  return readProductCart()
+    .filter(i => i.selected)
+    .reduce((sum, i) => sum + i.price * i.quantity, 0);
+}
+
+function getSelectedProductCount() {
+  return readProductCart()
+    .filter(i => i.selected)
+    .reduce((sum, i) => sum + i.quantity, 0);
 }
 
 /* ---- Workshop Cart ---- */
@@ -82,6 +104,12 @@ function saveWorkshopCart(items) {
 
 function addWorkshopToCart(workshop) {
   const reservedUntil = Date.now() + 15 * 60 * 1000;
+  
+  // Set all products to unselected when booking a workshop directly
+  const products = readProductCart();
+  products.forEach(p => p.selected = false);
+  saveProductCart(products);
+
   // Replace existing workshop cart with new one (single workshop at a time)
   saveWorkshopCart([{ ...workshop, type: 'workshop', reservedUntil }]);
 }
